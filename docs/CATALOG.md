@@ -21,6 +21,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `osm-airports` | ~1 400 | ODbL-1.0 | https://overpass-api.de/api/interpreter (aeroway=aerodrome, iata=*) |
 | `wikidata-city-sitelinks` | ~1 500 | CC0 | https://query.wikidata.org/sparql (Q515, P1082>100k, schema:isPartOf en.wikipedia) |
 | `openalex-institutions` | ~400 | CC0 | https://api.openalex.org/institutions?per-page=200&sort=cited_by_count:desc |
+| `coingecko-crypto` | 100 | CoinGecko free-tier | https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100 |
 
 ## Planned (see ROADMAP.md for detail)
 

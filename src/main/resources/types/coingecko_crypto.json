@@ -1,0 +1,19 @@
+{
+  "name": "coingecko_crypto",
+  "fields": [
+    {"name": "coin_id",              "type": "core_string"},
+    {"name": "symbol",               "type": "core_string"},
+    {"name": "name",                 "type": "core_string"},
+    {"name": "current_price_usd",    "type": "core_double"},
+    {"name": "market_cap_usd",       "type": "core_double"},
+    {"name": "market_cap_rank",      "type": "core_long"},
+    {"name": "price_change_24h_pct", "type": "core_double"},
+    {"name": "total_volume_usd",     "type": "core_double"},
+    {"name": "circulating_supply",   "type": "core_double"},
+    {"name": "total_supply",         "type": "core_double"},
+    {"name": "max_supply",           "type": "core_double"},
+    {"name": "ath_usd",              "type": "core_double"},
+    {"name": "ath_date",             "type": "core_string"},
+    {"name": "last_updated",         "type": "core_string"}
+  ]
+}

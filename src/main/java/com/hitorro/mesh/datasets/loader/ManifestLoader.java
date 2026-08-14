@@ -83,6 +83,7 @@ public final class ManifestLoader {
             "wikipedia-pageviews",
             "osm-airports",
             "wikidata-city-sitelinks",
-            "openalex-institutions"
+            "openalex-institutions",
+            "coingecko-crypto"
     };
 }

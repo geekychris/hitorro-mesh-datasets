@@ -24,7 +24,7 @@ class ManifestLoaderTest {
                 "worldbank-indicators", "usgs-earthquakes",
                 "owid-co2-latest", "wikipedia-pageviews",
                 "osm-airports", "wikidata-city-sitelinks",
-                "openalex-institutions" }) {
+                "openalex-institutions", "coingecko-crypto" }) {
             Manifest m = ManifestLoader.loadBundled(id);
             assertThat(m.metadata())
                     .withFailMessage("%s: metadata block missing", id)
@@ -275,9 +275,23 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_coingecko_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("coingecko-crypto");
+        assertThat(m.id()).isEqualTo("coingecko-crypto");
+        // Custom LicenseRef — CoinGecko's free-tier terms don't have a
+        // standard SPDX identifier.
+        assertThat(m.license().spdx()).isEqualTo("LicenseRef-CoinGecko-Free");
+        assertThat(m.license().attributionRequired()).isTrue();
+        assertThat(m.record().primaryKey()).isEqualTo("coin_id");
+        // No cross-dataset relationships — cryptos don't share an id with
+        // any of the geographic / socioeconomic datasets.
+        assertThat(m.relationships()).isEmpty();
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(13);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(14);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.
