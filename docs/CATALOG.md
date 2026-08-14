@@ -27,6 +27,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `nasa-apod` | 30 | Public domain | https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=30 |
 | `retro-computers` | 40 | CC-BY-SA-4.0 | curated JSON in src/main/resources/data/retro-computers.json |
 | `pypi-top-packages` | 200 | CC0-1.0 | https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json |
+| `npm-top-packages` | 60 | npm free-tier | https://api.npmjs.org/downloads/point/last-week/<curated-list> |
 
 ## Planned (see ROADMAP.md for detail)
 
