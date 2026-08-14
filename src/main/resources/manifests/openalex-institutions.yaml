@@ -1,0 +1,83 @@
+id: openalex-institutions
+title: OpenAlex — top research institutions
+version: "1.0"
+
+description: >
+  Top 500 research institutions worldwide by cited-by-count, from the
+  OpenAlex public API. Universities, national labs, hospitals, industry
+  research arms. One HTTP call at install time — the API returns full
+  metadata for the sorted top-N in a single request.
+
+  Fields: OpenAlex ID, ROR identifier, display name, ISO country, city,
+  works count, citation count, homepage. CC0.
+
+  First scholarly-research dataset in the catalog. Extends the country
+  identifier graph into a new domain: "papers written in high-emission
+  countries", "citation footprint per capita", "which universities
+  cluster in cities with the highest GDP per capita" — all become
+  reachable with USING PLACE joins through wikidata-countries.
+
+license:
+  spdx: CC0-1.0
+  attribution: "OpenAlex"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://api.openalex.org/institutions?per-page=200&sort=cited_by_count:desc
+  format: json
+  checksum: null
+
+record:
+  type: research.Institution
+  primaryKey: openalex_id
+  fields:
+    - { name: openalex_id,     type: core_string, role: id,                 description: "OpenAlex I-id" }
+    - { name: ror_id,          type: core_string, role: "id.ror",           description: "Research Organization Registry id" }
+    - { name: display_name,    type: core_string, role: name }
+    - { name: country_code,    type: core_string, role: "id.iso3166alpha2" }
+    - { name: city,            type: core_string,                           description: "City where the institution is headquartered" }
+    - { name: institution_type, type: core_string,                          description: "education | company | facility | government | healthcare | archive | ..." }
+    - { name: works_count,     type: core_long,   role: "metric.works" }
+    - { name: cited_by_count,  type: core_long,   role: "metric.citations" }
+    - { name: homepage_url,    type: core_string }
+
+provides:
+  - metric.works
+  - metric.citations
+
+identifiers:
+  produces:
+    - openalex_institution
+    - ror
+  maps:
+    - iso3166alpha2
+
+partitionBy: null
+
+relationships:
+  - target: wikidata-countries
+    kind: EXACT_ID
+    via: [country_code]
+
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [country_code]
+
+  - target: natural-earth-countries
+    kind: EXACT_ID
+    via: [country_code]
+
+  # No direct edge to worldbank-indicators — country_code is ISO-2 and
+  # wb.iso_a3 is ISO-3, so a direct join would return zero rows. Include
+  # wikidata-countries explicitly in the query (it speaks both ISO forms)
+  # and the rewriter chains: o.country_code = wc.iso_a2, then
+  # wc.iso_a3 = wb.iso_a3.
+  #
+  # Same rule applies for any other iso3-keyed target (owid-co2-latest,
+  # future World Bank time-series): route through wikidata-countries or
+  # geonames-country-info as the hub.

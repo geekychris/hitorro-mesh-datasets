@@ -20,6 +20,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `wikipedia-pageviews` | 1 000 | CC-BY-SA-3.0 | https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/{Y}/{M}/{D} |
 | `osm-airports` | ~1 400 | ODbL-1.0 | https://overpass-api.de/api/interpreter (aeroway=aerodrome, iata=*) |
 | `wikidata-city-sitelinks` | ~1 500 | CC0 | https://query.wikidata.org/sparql (Q515, P1082>100k, schema:isPartOf en.wikipedia) |
+| `openalex-institutions` | ~400 | CC0 | https://api.openalex.org/institutions?per-page=200&sort=cited_by_count:desc |
 
 ## Planned (see ROADMAP.md for detail)
 

@@ -30,7 +30,8 @@ below is planned. Each entry is roughly one iteration's worth of work.
 
 | Collection | State | When | Notes |
 |------------|-------|------|-------|
-| **OpenAlex — works + authors** | Planned | v3.4 | CC0. Enables the "papers about X, filtered by institution country" kind of query. |
+| **OpenAlex — top institutions** | Shipped | v3.0.1 | CC0. ~400 rows sorted by citation count. First scholarly-research dataset. Joins to any country dataset via ISO-2. |
+| **OpenAlex — works + authors** | Planned | v3.4 | CC0. Extends the shipped institutions dataset. Enables the "papers about X, filtered by institution country" kind of query. Millions of works — needs partitioning. |
 | **Crossref — DOI metadata** | Planned | v3.4 | Mostly free reuse. Bibliographic backbone; abstracts need per-record caution. |
 | **Overture Maps — places + buildings** | Planned | v3.5 | CDLA-permissive for their own layers, ODbL for OSM-derived layers — `LicenseAlgebra` should surface the mixed obligation cleanly. |
 | **OpenStreetMap — airports (via Overpass)** | Shipped | v3.0.1 | ODbL. ~1 400 rows via Overpass API. First share-alike dataset — the UI now shows an ODbL warning callout on the Datasets tab explaining the obligation. |

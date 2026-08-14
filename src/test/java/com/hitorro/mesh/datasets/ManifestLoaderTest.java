@@ -225,9 +225,27 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_openalex_institutions_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("openalex-institutions");
+        assertThat(m.id()).isEqualTo("openalex-institutions");
+        assertThat(m.license().spdx()).isEqualTo("CC0-1.0");
+        assertThat(m.record().primaryKey()).isEqualTo("openalex_id");
+        // Four EXACT_ID relationships back to country-shaped datasets —
+        // pulls scholarly metrics into any country query in one hop.
+        assertThat(m.relationships()).hasSize(4);
+        // Metric-role fields for citations + works count so quick-query
+        // buttons can propose "top by cited_by_count" idioms.
+        assertThat(m.record().fields())
+                .filteredOn(f -> "cited_by_count".equals(f.name()))
+                .singleElement()
+                .extracting("role")
+                .isEqualTo("metric.citations");
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(12);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(13);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.

@@ -1,0 +1,14 @@
+{
+  "name": "openalex_institutions",
+  "fields": [
+    {"name": "openalex_id",      "type": "core_string"},
+    {"name": "ror_id",           "type": "core_string"},
+    {"name": "display_name",     "type": "core_string"},
+    {"name": "country_code",     "type": "core_string"},
+    {"name": "city",             "type": "core_string"},
+    {"name": "institution_type", "type": "core_string"},
+    {"name": "works_count",      "type": "core_long"},
+    {"name": "cited_by_count",   "type": "core_long"},
+    {"name": "homepage_url",     "type": "core_string"}
+  ]
+}

@@ -82,6 +82,7 @@ public final class ManifestLoader {
             "owid-co2-latest",
             "wikipedia-pageviews",
             "osm-airports",
-            "wikidata-city-sitelinks"
+            "wikidata-city-sitelinks",
+            "openalex-institutions"
     };
 }
