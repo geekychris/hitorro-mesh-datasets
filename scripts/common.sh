@@ -83,7 +83,10 @@ maybe_compress() {
 
 # finalize_ndjson <uncompressed_path>
 # One-line replacement for the `ok "wrote N records to X"` pattern.
-# Counts rows, compresses (respecting HITORRO_DATASETS_COMPRESS), reports.
+# Counts rows, compresses (respecting HITORRO_DATASETS_COMPRESS), reports,
+# and writes an installed.json stats file at the install dir root so the
+# driver can surface actual numbers in the /mesh/datasets/{id} response
+# (instead of drifting hand-maintained stats in the manifest).
 # Echoes the final path so callers that need it can capture:
 #     final=$(finalize_ndjson "$DATA_DIR/x.ndjson")
 finalize_ndjson() {
@@ -92,6 +95,24 @@ finalize_ndjson() {
     rows=$(wc -l < "$path")
     local final
     final=$(maybe_compress "$path")
+
+    # Sync install-time stats — install dir is the grandparent of the
+    # ndjson (data/foo.ndjson.bz2 → install dir). Portable byte size
+    # via stat with the macOS/BSD (-f%z) flag falling through to GNU (-c%s).
+    local bytes now install_dir file_basename
+    bytes=$(stat -f%z "$final" 2>/dev/null || stat -c%s "$final" 2>/dev/null || echo 0)
+    now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    install_dir=$(dirname "$(dirname "$final")")
+    file_basename=$(basename "$final")
+    cat > "$install_dir/installed.json" <<JSON
+{
+  "rowCount": ${rows// /},
+  "sizeBytes": ${bytes},
+  "installedAt": "${now}",
+  "dataFile": "${file_basename}"
+}
+JSON
+
     ok "wrote ${rows// /} records → $final" >&2
     printf "%s" "$final"
 }
