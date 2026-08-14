@@ -17,6 +17,7 @@ below is planned. Each entry is roughly one iteration's worth of work.
 | **Natural Earth — rivers, lakes, coastlines** | Planned | v3.2 | Physical-geography layer; unlocks distance-to-coastline queries. |
 | **Wikidata — cities > 100k** | Shipped | v3.0.1 | CC0. Identity glue seed: ~2 200 rows via SPARQL, 98 % carry GeoNames IDs and 99 % carry ISO country codes. First dataset that speaks the `wikidata` namespace — three other manifests already map to it. |
 | **Wikidata — countries** | Shipped | v3.0.1 | CC0. ~217 rows via SPARQL — every sovereign state carrying ISO-2/ISO-3/ISO-numeric/FIPS/M.49 identifiers plus continent + population. Made NOAA → Natural Earth possible in one semantic-join hop (previously needed geonames-country-info in the middle). |
+| **Wikidata — city sitelinks bridge** | Shipped | v3.0.1 | CC0. ~1500 rows: city QID → enwiki article slug. Turned wikipedia-pageviews into a queryable geographic layer through joined semantic queries. |
 | **Wikidata — multilingual labels** | Planned | v3.2 | CC0. Extends the cities dataset with `name.<lang>` per BCP-47 language tag. Uses the existing JVS multilingual field machinery. |
 | **Wikidata — full items with a GeoNames cross-ref** | Planned | v3.3 | CC0. Broader net: every Q-item that has P1566, not just cities. Millions of rows; needs partition-by-first-QID-char. |
 | **US Census / ACS — 5-year estimates** | Planned | v3.2 | Public domain (federal government work). API-key required — install script prompts for one. Joins to GeoNames via FIPS. |

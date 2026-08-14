@@ -19,6 +19,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `owid-co2-latest` | ~215 | CC-BY-4.0 | https://github.com/owid/co2-data/raw/master/owid-co2-data.csv |
 | `wikipedia-pageviews` | 1 000 | CC-BY-SA-3.0 | https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/{Y}/{M}/{D} |
 | `osm-airports` | ~1 400 | ODbL-1.0 | https://overpass-api.de/api/interpreter (aeroway=aerodrome, iata=*) |
+| `wikidata-city-sitelinks` | ~1 500 | CC0 | https://query.wikidata.org/sparql (Q515, P1082>100k, schema:isPartOf en.wikipedia) |
 
 ## Planned (see ROADMAP.md for detail)
 

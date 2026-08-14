@@ -38,7 +38,7 @@ record:
   type: geo.City
   primaryKey: wikidata_qid
   fields:
-    - { name: wikidata_qid, type: core_string, role: id,                 description: "Wikidata Q identifier" }
+    - { name: wikidata_qid, type: core_string, role: "id.wikidata",     description: "Wikidata Q identifier — this city's own QID (matches wikidata-city-sitelinks.wikidata_qid)" }
     - { name: name,         type: core_string, role: name,               description: "English label (SERVICE wikibase:label)" }
     - { name: population,   type: core_long,   role: geo.population }
     - { name: latitude,     type: core_double, role: geo.lat }

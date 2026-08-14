@@ -81,6 +81,7 @@ public final class ManifestLoader {
             "usgs-earthquakes",
             "owid-co2-latest",
             "wikipedia-pageviews",
-            "osm-airports"
+            "osm-airports",
+            "wikidata-city-sitelinks"
     };
 }

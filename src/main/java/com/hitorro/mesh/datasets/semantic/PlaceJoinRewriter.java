@@ -336,14 +336,26 @@ public final class PlaceJoinRewriter {
     private static String pickTargetColumn(Manifest source, String sourceCol, Manifest target) {
         String srcRole = roleOf(source.record(), sourceCol);
         if (srcRole != null && srcRole.startsWith("id.")) {
-            String match = findFieldWithRole(target.record(), srcRole);
-            if (match != null) return match;
-            // The target's primary key might itself declare only role: id
-            // (unqualified). Check whether the pk's semantic namespace matches
-            // by looking at the id.* prefix.
+            // Preference order:
+            //   1. Target's primary key if IT has the matching role — the
+            //      primary key IS the "same entity" identifier for that
+            //      namespace, always the right join column when it fits.
+            //   2. Any other field with the matching role — FK columns
+            //      pointing at a related entity's PK in the same namespace.
+            //   3. Fall through to target's PK regardless of role — the
+            //      classical FK-to-PK case for datasets that don't declare
+            //      identifier roles.
+            //
+            // Getting (1) BEFORE (2) is critical for cities-tables where
+            // two fields share id.wikidata: the city's own QID (PK) and
+            // its country_qid (FK). Sitelinks joining on wikidata_qid
+            // (role: id.wikidata) must land on the city's PK, not its
+            // country_qid.
             String pk = target.record().primaryKey();
             String pkRole = roleOf(target.record(), pk);
             if (srcRole.equals(pkRole)) return pk;
+            String match = findFieldWithRole(target.record(), srcRole);
+            if (match != null) return match;
         }
         return target.record().primaryKey();
     }

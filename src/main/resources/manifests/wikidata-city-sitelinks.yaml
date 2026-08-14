@@ -1,0 +1,63 @@
+id: wikidata-city-sitelinks
+title: Wikidata — city → enwiki article-slug bridge
+version: "1.0"
+
+description: >
+  Bridge dataset: for each Wikidata city with population > 100 000 (matches
+  wikidata-cities), the URL slug of its English Wikipedia article. About
+  2 000 rows. CC0. Turns wikipedia-pageviews (which is keyed on article
+  slug) into a queryable geographic layer:
+
+    "which of Wikipedia's top-viewed articles today are cities?"
+    "how do city populations correlate with their Wikipedia readership?"
+
+  Kept as its own manifest rather than added as a column to wikidata-cities
+  so existing installs don't need a schema migration and users can install
+  it independently if pageviews is the only downstream they care about.
+
+license:
+  spdx: CC0-1.0
+  attribution: "Wikidata contributors"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: sparql
+  url: https://query.wikidata.org/sparql
+  format: sparql-results+json
+  checksum: null
+
+record:
+  type: media.SitelinkBridge
+  primaryKey: wikidata_qid
+  fields:
+    - { name: wikidata_qid,    type: core_string, role: "id.wikidata",          description: "Wikidata Q identifier for the city" }
+    - { name: enwiki_article,  type: core_string, role: "id.wikipedia_article", description: "URL slug — underscore-separated, matches wikipedia_pageviews.article" }
+    - { name: enwiki_title,    type: core_string,                               description: "Display title — spaces instead of underscores" }
+    - { name: enwiki_url,      type: core_string,                               description: "Full https://en.wikipedia.org/wiki/… URL" }
+
+provides:
+  - id.wikipedia_article
+
+identifiers:
+  produces:
+    - wikipedia_article
+  maps:
+    - wikidata
+
+partitionBy: null
+
+relationships:
+  # The whole point: wikidata_cities.wikidata_qid ↔ wc.wikidata_qid
+  # (role: id on both sides) and wc.enwiki_article ↔ wp.article
+  # (role: id.wikipedia_article — same on both).
+  - target: wikidata-cities
+    kind: EXACT_ID
+    via: [wikidata_qid]
+
+  - target: wikipedia-pageviews
+    kind: EXACT_ID
+    via: [enwiki_article]

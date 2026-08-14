@@ -204,9 +204,30 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_wikidata_city_sitelinks_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("wikidata-city-sitelinks");
+        assertThat(m.id()).isEqualTo("wikidata-city-sitelinks");
+        assertThat(m.license().spdx()).isEqualTo("CC0-1.0");
+        assertThat(m.record().primaryKey()).isEqualTo("wikidata_qid");
+        // The point of this dataset: EXACT_ID both to wikidata-cities and
+        // wikipedia-pageviews so it bridges the two.
+        assertThat(m.relationships()).hasSize(2);
+        assertThat(m.relationships())
+                .extracting(r -> r.target())
+                .containsExactlyInAnyOrder("wikidata-cities", "wikipedia-pageviews");
+        // enwiki_article field has the role that unlocks the join to
+        // wikipedia-pageviews. Lock it in.
+        assertThat(m.record().fields())
+                .filteredOn(f -> "enwiki_article".equals(f.name()))
+                .singleElement()
+                .extracting("role")
+                .isEqualTo("id.wikipedia_article");
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(11);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(12);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.

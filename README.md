@@ -45,6 +45,7 @@ cross-referenced ISO / GeoNames identifiers:
 | `owid-co2-latest` | Our World in Data — CO2 & energy (latest year) | ~215 | CC-BY | Total/per-capita CO2, coal/oil/gas breakdown, primary energy, share-of-global. Joins to worldbank/wikidata/natural-earth via ISO-3. |
 | `wikipedia-pageviews` | Wikipedia — top-1000 pageviews (English, latest day) | 1 000 | CC-BY-SA | Yesterday's most-viewed articles. Refreshable daily. First zeitgeist dataset. |
 | `osm-airports` | OpenStreetMap — airports with IATA codes | ~1 400 | ODbL | First ODbL (share-alike as a database) dataset — combining with any other source triggers the LicenseAlgebra's share-alike flag. Sourced via Overpass API. |
+| `wikidata-city-sitelinks` | Wikidata — city → enwiki article-slug bridge | ~1 500 | CC0 | Bridge dataset: connects `wikidata_cities` (city entity) to `wikipedia_pageviews` (article slug). Turns "yesterday's top-viewed Wikipedia articles" into a queryable geographic layer. |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).

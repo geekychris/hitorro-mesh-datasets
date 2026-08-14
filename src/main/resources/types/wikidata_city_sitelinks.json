@@ -1,0 +1,9 @@
+{
+  "name": "wikidata_city_sitelinks",
+  "fields": [
+    {"name": "wikidata_qid",   "type": "core_string"},
+    {"name": "enwiki_article", "type": "core_string"},
+    {"name": "enwiki_title",   "type": "core_string"},
+    {"name": "enwiki_url",     "type": "core_string"}
+  ]
+}
