@@ -48,6 +48,7 @@ cross-referenced ISO / GeoNames identifiers:
 | `wikidata-city-sitelinks` | Wikidata — city → enwiki article-slug bridge | ~1 500 | CC0 | Bridge dataset: connects `wikidata_cities` (city entity) to `wikipedia_pageviews` (article slug). Turns "yesterday's top-viewed Wikipedia articles" into a queryable geographic layer. |
 | `openalex-institutions` | OpenAlex — top research institutions | ~400 | CC0 | Universities, national labs, hospitals, industry R&D — sorted by citation count. First scholarly-research dataset. Joins via ISO-2 country code. |
 | `coingecko-crypto` | CoinGecko — top-100 cryptocurrencies by market cap | 100 | Custom (attribution) | First financial dataset. Live price, market cap, 24h change, supply, all-time high. Refreshable on demand. |
+| `github-top-repos` | GitHub — top-100 repositories by star count | 100 | CC-BY | First developer / software dataset. Stars, forks, primary language, licence SPDX, topic tags. Refreshable on demand. |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).
