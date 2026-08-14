@@ -76,6 +76,9 @@ relationships:
     kind: EXACT_ID
     via: [fips]
 
-  - target: wikidata-cities
-    kind: EXACT_ID
-    via: [wikidata_qid]
+  # Note: no explicit wikidata-cities relationship here. The reverse
+  # direction wouldn't make sense — a country row can't join TO a city
+  # via its own QID (cities carry country_qid as the FK; countries have
+  # no field pointing at a specific city). The declaration lives on the
+  # wikidata-cities manifest (target: wikidata-countries, via: country_qid)
+  # and the rewriter walks both directions on lookup.

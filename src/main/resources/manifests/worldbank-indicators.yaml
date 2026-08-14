@@ -1,0 +1,73 @@
+id: worldbank-indicators
+title: World Bank — country socioeconomic indicators (snapshot)
+version: "1.0"
+
+description: >
+  Latest-year snapshot of eight widely-used World Bank development indicators
+  per country: GDP (current US$), GDP per capita, total population, life
+  expectancy at birth, urban population %, unemployment rate, adult literacy
+  rate, and access to electricity %. One row per country (~260 rows), joined
+  in from separate per-indicator API calls into wide columns.
+
+  Latest year that has data varies per country + indicator; the install
+  script asks for the last N years and picks the most recent non-null
+  value per (country, indicator) pair. Ships as a broadcast dimension.
+
+  Joins to wikidata-countries via ISO alpha-3 (World Bank's country_code
+  is ISO-3). One hop from there to every other country-scoped dataset.
+
+license:
+  spdx: CC-BY-4.0
+  attribution: "World Bank — World Development Indicators"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://api.worldbank.org/v2/country/all/indicator/{code}?format=json&per_page=500
+  format: json
+  checksum: null
+
+record:
+  type: geo.CountryStats
+  primaryKey: iso_a3
+  fields:
+    - { name: iso_a3,                type: core_string, role: "id.iso3166alpha3", description: "ISO 3166-1 alpha-3 country code — World Bank's country_code" }
+    - { name: name,                  type: core_string, role: name,               description: "Country name (World Bank's English label)" }
+    - { name: year,                  type: core_long,                              description: "Most recent year with data across all indicators — may be per-cell" }
+    - { name: gdp_usd,               type: core_double, role: "metric.gdp",         description: "GDP (current US$) — NY.GDP.MKTP.CD" }
+    - { name: gdp_per_capita_usd,    type: core_double, role: "metric.gdp_per_capita", description: "GDP per capita (current US$) — NY.GDP.PCAP.CD" }
+    - { name: population,            type: core_long,   role: geo.population,       description: "Total population — SP.POP.TOTL" }
+    - { name: life_expectancy_years, type: core_double,                            description: "Life expectancy at birth (years) — SP.DYN.LE00.IN" }
+    - { name: urban_population_pct,  type: core_double,                            description: "Urban population (% of total) — SP.URB.TOTL.IN.ZS" }
+    - { name: unemployment_pct,      type: core_double,                            description: "Unemployment rate (%) — SL.UEM.TOTL.ZS" }
+    - { name: electricity_access_pct, type: core_double,                           description: "Access to electricity (% of population) — EG.ELC.ACCS.ZS" }
+
+provides:
+  - geo.population
+  - metric.gdp
+  - metric.gdp_per_capita
+
+identifiers:
+  produces:
+    - worldbank_a3
+  maps:
+    - iso3166alpha3
+
+partitionBy: null
+
+relationships:
+  - target: wikidata-countries
+    kind: EXACT_ID
+    via: [iso_a3]
+
+  - target: natural-earth-countries
+    kind: EXACT_ID
+    via: [iso_a3]
+
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [iso_a3]

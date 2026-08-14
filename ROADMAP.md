@@ -23,7 +23,7 @@ below is planned. Each entry is roughly one iteration's worth of work.
 | **NOAA GHCN-Daily — station inventory** | Shipped | v3.0.1 | Public domain. ~132 500 stations worldwide with lat/lon/elevation + derived fips_country that joins to geonames-country-info via `id.fips` role match. Declares SPATIAL to Natural Earth (activates once the rewriter learns SPATIAL). |
 | **NOAA GHCN-Daily — daily observations** | Planned | v3.1 | Public domain. Terabytes of daily min/max temp, precip, wind per station. Needs partitioning by station-id prefix — first properly distributed (not broadcast) large dataset. |
 | **NOAA — climate normals (30-year)** | Planned | v3.2 | Public domain. Per-station monthly / annual normals — small enough to broadcast, gives the "average July temperature in Palermo" flavor of query. |
-| **Our World in Data — economics + health** | Planned | v3.3 | Usually CC-BY. Long-form time series that joins to country info. |
+| **Our World in Data — economics + health** | Planned | v3.3 | Usually CC-BY. Long-form time series that joins to country info. Complements World Bank (shipped v3.0.1) with topic-focused normalised datasets. |
 
 ## Additional datasets, in order of return-on-effort
 
@@ -33,8 +33,10 @@ below is planned. Each entry is roughly one iteration's worth of work.
 | **Crossref — DOI metadata** | Planned | v3.4 | Mostly free reuse. Bibliographic backbone; abstracts need per-record caution. |
 | **Overture Maps — places + buildings** | Planned | v3.5 | CDLA-permissive for their own layers, ODbL for OSM-derived layers — `LicenseAlgebra` should surface the mixed obligation cleanly. |
 | **OpenStreetMap — POI + roads** | Planned | v3.5 | ODbL. Kept deliberately separate from any CC-* dataset so share-alike inheritance is visible in queries. |
-| **World Bank — country indicators** | Planned | v3.6 | CC-BY 4.0. Overlaps OWID; both worth having. |
-| **USGS — earthquakes + elevation + water** | Planned | v3.6 | Public domain. Time-series + geospatial. |
+| **World Bank — country indicators (snapshot)** | Shipped | v3.0.1 | CC-BY. 213 countries × 8 latest-year indicators (GDP, per-capita GDP, population, life expectancy, urban %, unemployment %, electricity access %). Joins via ISO alpha-3. |
+| **World Bank — indicators time-series** | Planned | v3.2 | Same source, but the full 30-year history per (country, indicator). Second dataset in the catalog needing partition-by-something-not-country. |
+| **USGS — earthquakes (last-month feed)** | Shipped | v3.0.1 | Public domain. ~11 000 events with point geometry + magnitude + alert level. Refreshable daily. |
+| **USGS — historical earthquakes + water + elevation** | Planned | v3.6 | Public domain. Long-form time series bulk downloads. |
 | **Election / campaign finance** | Planned | later | State-level; licences vary. |
 | **Transportation networks** | Planned | later | GTFS feeds for major cities. |
 

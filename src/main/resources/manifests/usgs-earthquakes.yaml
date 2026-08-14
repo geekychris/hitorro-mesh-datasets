@@ -1,0 +1,71 @@
+id: usgs-earthquakes
+title: USGS — earthquakes (last 30 days)
+version: "1.0"
+
+description: >
+  Every seismic event the USGS Earthquake Hazards Program logged in the
+  last 30 days — typically 10 000-15 000 rows depending on activity.
+  Public domain. Point geometry (lat, lon, depth-km). Refreshable daily:
+  re-run the install script with HITORRO_DATASETS_FORCE=1.
+
+  First event-stream dataset in the catalog. Not joined to a country id
+  because the USGS feed carries only free-text `place` (e.g.
+  "10 km SSE of Idyllwild, CA"); a proper country attribution needs a
+  spatial join to Natural Earth polygons, which the rewriter learns in
+  a later iteration. Declared here so the moment SPATIAL is supported,
+  the join lights up automatically.
+
+license:
+  spdx: Public-Domain
+  attribution: "USGS Earthquake Hazards Program"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson
+  format: geojson
+  checksum: null
+
+record:
+  type: geo.SeismicEvent
+  primaryKey: event_id
+  fields:
+    - { name: event_id,     type: core_string, role: id,             description: "USGS event id (net + code)" }
+    - { name: magnitude,    type: core_double, role: "metric.magnitude", description: "Richter / moment magnitude" }
+    - { name: place,        type: core_string,                       description: "Free-text place label — often includes country" }
+    - { name: time_millis,  type: core_long,   role: "time.observed", description: "Epoch millis at origin time" }
+    - { name: latitude,     type: core_double, role: geo.lat }
+    - { name: longitude,    type: core_double, role: geo.lon }
+    - { name: depth_km,     type: core_double, role: geo.elevation,  description: "Positive = below sea level (kilometres)" }
+    - { name: tsunami,      type: core_long,                         description: "1 if a tsunami advisory / warning was issued; 0 otherwise" }
+    - { name: significance, type: core_long,                         description: "USGS significance score (0-1000+)" }
+    - { name: alert,        type: core_string,                       description: "PAGER alert level: green | yellow | orange | red" }
+    - { name: event_type,   type: core_string,                       description: "earthquake | quarry blast | explosion | ..." }
+    - { name: url,          type: core_string,                       description: "Event page on earthquake.usgs.gov" }
+    - { name: title,        type: core_string,                       description: "Human-readable summary (e.g. M 4.2 - 10km SSE of Idyllwild)" }
+
+provides:
+  - geo.point
+  - geo.elevation
+  - metric.magnitude
+
+identifiers:
+  produces:
+    - usgs_event
+  maps: []
+
+partitionBy: null   # broadcast — small-ish, refreshable
+
+relationships:
+  # Wait for the rewriter's SPATIAL support — declared so the plumbing is
+  # there. Predicate: earthquake point is within a country polygon.
+  - target: natural-earth-countries
+    kind: SPATIAL
+    via: [latitude, longitude]
+    params:
+      predicate: within
+      targetField: geometry

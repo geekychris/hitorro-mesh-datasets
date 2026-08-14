@@ -14,6 +14,8 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `wikidata-cities` | ~2 200 | CC0 | https://query.wikidata.org/sparql (P31=Q515, P1082>100k) |
 | `noaa-ghcnd-stations` | ~132 500 | Public domain | https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt |
 | `wikidata-countries` | ~217 | CC0 | https://query.wikidata.org/sparql (Q3624078 or Q6256, with P297/P298/P299/P901/P2082) |
+| `worldbank-indicators` | ~213 | CC-BY-4.0 | https://api.worldbank.org/v2/country/all/indicator/{code}?format=json (8 indicators) |
+| `usgs-earthquakes` | ~11 000 | Public domain | https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson |
 
 ## Planned (see ROADMAP.md for detail)
 

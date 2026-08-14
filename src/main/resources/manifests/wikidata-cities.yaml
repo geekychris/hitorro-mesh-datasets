@@ -75,3 +75,12 @@ relationships:
   - target: natural-earth-countries
     kind: EXACT_ID
     via: [country_iso]
+
+  # City → country via the city's country_qid FK to the country's own QID.
+  # Declared on the city side so the rewriter picks the correct column;
+  # if this were declared on the country side, its wikidata_qid → cities.??
+  # would have no plausible target column (cities have QID for themselves,
+  # not for their country).
+  - target: wikidata-countries
+    kind: EXACT_ID
+    via: [country_qid]

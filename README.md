@@ -40,6 +40,8 @@ cross-referenced ISO / GeoNames identifiers:
 | `wikidata-cities` | Wikidata — cities > 100 000 with cross-references | ~2 200 | CC0 | Identity glue (broadcast, produces the `wikidata` namespace) |
 | `noaa-ghcnd-stations` | NOAA — GHCN-Daily station inventory | ~132 500 | Public domain | Point geometry (broadcast, derived `fips_country` joins to country info; declares SPATIAL to Natural Earth for the eventual spatial-join iteration) |
 | `wikidata-countries` | Wikidata — countries with full identifier cross-references | ~217 | CC0 | The country identifier hub — one row per Wikidata QID carrying ISO-2/ISO-3/ISO-numeric/FIPS/M.49 so any dataset speaking any country id can hop through it |
+| `worldbank-indicators` | World Bank — country socioeconomic indicators (snapshot) | ~213 | CC-BY | GDP, GDP/capita, population, life expectancy, urban %, unemployment %, electricity access %. Latest year per country. First socioeconomic dataset. |
+| `usgs-earthquakes` | USGS — earthquakes (last 30 days) | ~11 000 | Public domain | Every seismic event in the last month, with mag/lat/lon/depth/alert. Refreshable daily via `HITORRO_DATASETS_FORCE=1`. First event stream. |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).

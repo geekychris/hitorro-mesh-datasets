@@ -1,0 +1,15 @@
+{
+  "name": "worldbank_indicators",
+  "fields": [
+    {"name": "iso_a3",                 "type": "core_string"},
+    {"name": "name",                   "type": "core_string"},
+    {"name": "year",                   "type": "core_long"},
+    {"name": "gdp_usd",                "type": "core_double"},
+    {"name": "gdp_per_capita_usd",     "type": "core_double"},
+    {"name": "population",             "type": "core_long"},
+    {"name": "life_expectancy_years",  "type": "core_double"},
+    {"name": "urban_population_pct",   "type": "core_double"},
+    {"name": "unemployment_pct",       "type": "core_double"},
+    {"name": "electricity_access_pct", "type": "core_double"}
+  ]
+}

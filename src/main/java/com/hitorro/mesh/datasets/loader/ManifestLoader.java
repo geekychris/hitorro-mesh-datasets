@@ -76,6 +76,8 @@ public final class ManifestLoader {
             "natural-earth-countries",
             "wikidata-cities",
             "wikidata-countries",
-            "noaa-ghcnd-stations"
+            "noaa-ghcnd-stations",
+            "worldbank-indicators",
+            "usgs-earthquakes"
     };
 }

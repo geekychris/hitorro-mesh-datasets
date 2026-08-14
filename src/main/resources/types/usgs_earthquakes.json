@@ -1,0 +1,18 @@
+{
+  "name": "usgs_earthquakes",
+  "fields": [
+    {"name": "event_id",     "type": "core_string"},
+    {"name": "magnitude",    "type": "core_double"},
+    {"name": "place",        "type": "core_string"},
+    {"name": "time_millis",  "type": "core_long"},
+    {"name": "latitude",     "type": "core_double"},
+    {"name": "longitude",    "type": "core_double"},
+    {"name": "depth_km",     "type": "core_double"},
+    {"name": "tsunami",      "type": "core_long"},
+    {"name": "significance", "type": "core_long"},
+    {"name": "alert",        "type": "core_string"},
+    {"name": "event_type",   "type": "core_string"},
+    {"name": "url",          "type": "core_string"},
+    {"name": "title",        "type": "core_string"}
+  ]
+}

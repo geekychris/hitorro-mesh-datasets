@@ -121,9 +121,34 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_worldbank_indicators_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("worldbank-indicators");
+        assertThat(m.id()).isEqualTo("worldbank-indicators");
+        assertThat(m.license().spdx()).isEqualTo("CC-BY-4.0");
+        assertThat(m.license().attributionRequired()).isTrue();
+        assertThat(m.record().primaryKey()).isEqualTo("iso_a3");
+        // Three EXACT_ID relationships — every country-scoped dataset can
+        // pull World Bank stats without an intermediate hop.
+        assertThat(m.relationships()).hasSize(3);
+    }
+
+    @Test
+    void bundled_usgs_earthquakes_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("usgs-earthquakes");
+        assertThat(m.id()).isEqualTo("usgs-earthquakes");
+        assertThat(m.license().spdx()).isEqualTo("Public-Domain");
+        assertThat(m.record().primaryKey()).isEqualTo("event_id");
+        // First dataset whose only declared relationship is SPATIAL —
+        // proves the manifest system carries the metadata even before
+        // the rewriter learns how to resolve it.
+        assertThat(m.relationships()).hasSize(1);
+        assertThat(m.relationships().get(0).kind().name()).isEqualTo("SPATIAL");
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(6);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(8);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.
