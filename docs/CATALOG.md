@@ -12,6 +12,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `geonames-country-info` | ~250 | CC-BY-4.0 | https://download.geonames.org/export/dump/countryInfo.txt |
 | `natural-earth-countries` | ~258 | Public domain | https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson |
 | `wikidata-cities` | ~2 200 | CC0 | https://query.wikidata.org/sparql (P31=Q515, P1082>100k) |
+| `noaa-ghcnd-stations` | ~132 500 | Public domain | https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt |
 
 ## Planned (see ROADMAP.md for detail)
 

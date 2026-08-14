@@ -1,0 +1,78 @@
+id: noaa-ghcnd-stations
+title: NOAA — GHCN-Daily station inventory
+version: "1.0"
+
+description: >
+  Every weather station reporting into the Global Historical Climatology
+  Network — Daily (GHCN-D): ~130 000 stations worldwide with lat/lon,
+  elevation, IATA/WMO id where present, and NOAA network flags (GSN, HCN,
+  CRN). Public domain (US Federal Government work).
+
+  The station id encodes the FIPS country code in its first two characters,
+  so this dataset both maps to that identifier namespace via a derived
+  `fips_country` column AND declares a SPATIAL relationship to
+  natural-earth-countries by point-in-polygon — two different ways the
+  planner can enrich a station with country context.
+
+license:
+  spdx: Public-Domain
+  attribution: "NOAA — National Centers for Environmental Information"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt
+  format: fixed-width
+  checksum: null
+
+record:
+  type: geo.WeatherStation
+  primaryKey: station_id
+  fields:
+    - { name: station_id,   type: core_string, role: id,               description: "GHCN-D station id — 11 chars, e.g. USW00023174" }
+    - { name: fips_country, type: core_string, role: "id.fips",        description: "Derived: first 2 characters of station_id (FIPS 10-4 country code)" }
+    - { name: latitude,     type: core_double, role: geo.lat }
+    - { name: longitude,    type: core_double, role: geo.lon }
+    - { name: elevation,    type: core_double, role: geo.elevation,    description: "Metres above sea level; -999.9 = unknown" }
+    - { name: state,        type: core_string,                         description: "2-letter US state / Canadian province where applicable" }
+    - { name: name,         type: core_string, role: name,             description: "Station name — often airport / observatory / municipality" }
+    - { name: gsn_flag,     type: core_string,                         description: "GSN if in GCOS Surface Network" }
+    - { name: hcn_crn_flag, type: core_string,                         description: "HCN (US Historical Climatology Network) or CRN (Climate Reference Network)" }
+    - { name: wmo_id,       type: core_string, role: "id.wmo",         description: "World Meteorological Organisation station id" }
+
+provides:
+  - geo.name
+  - geo.point
+  - geo.elevation
+  - geo.parent.country
+
+identifiers:
+  produces:
+    - noaa_ghcn
+    - wmo
+  maps:
+    - fips
+
+partitionBy: null   # broadcast — ~10 MB, fine on every jvssql agent
+
+relationships:
+  # The derived fips_country column carries role id.fips; geonames-country-info's
+  # fips column also carries role id.fips — the rewriter's role-match logic
+  # will pair them without needing an explicit onTarget.
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [fips_country]
+
+  # Spatial containment: point (latitude, longitude) inside the country polygon.
+  # Not yet wired into USING PLACE — the SEMANTIC_JOINS.md roadmap covers when
+  # the rewriter learns SPATIAL. Declared today so future planners find it.
+  - target: natural-earth-countries
+    kind: SPATIAL
+    via: [latitude, longitude]
+    params:
+      predicate: within
+      targetField: geometry

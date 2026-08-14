@@ -80,9 +80,33 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_noaa_ghcnd_stations_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("noaa-ghcnd-stations");
+        assertThat(m.id()).isEqualTo("noaa-ghcnd-stations");
+        assertThat(m.license().spdx()).isEqualTo("Public-Domain");
+        assertThat(m.record().primaryKey()).isEqualTo("station_id");
+        assertThat(m.partitionBy()).isNull();  // broadcast
+
+        // Derived fips_country carries id.fips role — critical for the
+        // rewriter to match against geonames-country-info.fips.
+        assertThat(m.record().fields())
+                .filteredOn(f -> "fips_country".equals(f.name()))
+                .singleElement()
+                .extracting("role")
+                .isEqualTo("id.fips");
+
+        // Two relationships, two different kinds — the first dataset to
+        // ship both EXACT_ID and SPATIAL relationships out of the box.
+        assertThat(m.relationships()).hasSize(2);
+        assertThat(m.relationships())
+                .extracting(r -> r.kind().name())
+                .containsExactlyInAnyOrder("EXACT_ID", "SPATIAL");
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(4);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(5);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.

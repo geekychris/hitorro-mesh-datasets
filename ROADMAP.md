@@ -20,7 +20,9 @@ below is planned. Each entry is roughly one iteration's worth of work.
 | **Wikidata — multilingual labels** | Planned | v3.2 | CC0. Extends the cities dataset with `name.<lang>` per BCP-47 language tag. Uses the existing JVS multilingual field machinery. |
 | **Wikidata — full items with a GeoNames cross-ref** | Planned | v3.3 | CC0. Broader net: every Q-item that has P1566, not just cities. Millions of rows; needs partition-by-first-QID-char. |
 | **US Census / ACS — 5-year estimates** | Planned | v3.2 | Public domain (federal government work). API-key required — install script prompts for one. Joins to GeoNames via FIPS. |
-| **NOAA GHCN-Daily — climate normals** | Planned | v3.3 | Public domain. Station lat/lon enables spatial joins to any polygon dataset. |
+| **NOAA GHCN-Daily — station inventory** | Shipped | v3.0.1 | Public domain. ~132 500 stations worldwide with lat/lon/elevation + derived fips_country that joins to geonames-country-info via `id.fips` role match. Declares SPATIAL to Natural Earth (activates once the rewriter learns SPATIAL). |
+| **NOAA GHCN-Daily — daily observations** | Planned | v3.1 | Public domain. Terabytes of daily min/max temp, precip, wind per station. Needs partitioning by station-id prefix — first properly distributed (not broadcast) large dataset. |
+| **NOAA — climate normals (30-year)** | Planned | v3.2 | Public domain. Per-station monthly / annual normals — small enough to broadcast, gives the "average July temperature in Palermo" flavor of query. |
 | **Our World in Data — economics + health** | Planned | v3.3 | Usually CC-BY. Long-form time series that joins to country info. |
 
 ## Additional datasets, in order of return-on-effort
@@ -49,7 +51,7 @@ Ordered by which datasets unlock them:
 | **`USING PLACE` SQL syntax** | Shipped (preprocessor) | v3.0.1 | `PlaceJoinRewriter` rewrites `JOIN t USING PLACE` → `JOIN t ON a.x = b.y` using declared `EXACT_ID` relationships, with automatic `CAST` on type mismatch and role-based target-column selection (`country_iso → iso_a2` not `iso_a3`). Wired into the mesh-driver-app's `/mesh/queries` endpoint behind a `semantic:true` request flag; auto-registered dataset manifests. Regex-based; a jvssql-native Calcite grammar extension is the future upgrade. |
 | **`USING ENTITY` SQL syntax** | Planned | Wikidata-glue joins | Same idea, but through the Wikidata cross-reference graph. |
 | **`CONFIDENCE > x` join filter** | Planned | Probabilistic joins | The confidence score already fits on a `RecordEnvelope`; needs SQL surface + planner rule. |
-| **Spatial predicate joins** | Planned | Any point-vs-polygon query | Needs a spatial index on the agent side — either JTS with an R-tree or S2 cells. |
+| **Spatial predicate joins** | Planned | Any point-vs-polygon query | Needs a spatial index on the agent side — either JTS with an R-tree or S2 cells. Two SPATIAL relationships already declared (Natural Earth → GeoNames cities, NOAA stations → Natural Earth) so the moment the planner learns them, USING PLACE against those pairs starts working. |
 | **Overture / OSM ingest** | Planned | Detailed maps | Blocker: no pure-Java Overture/OSM PBF reader is in the mesh today. |
 | **Wikidata TTL/JSON ingest** | Planned | Identity glue | Blocker: the full dump is ~130 GB. Filtered subset is realistic first pass. |
 | **License-aware result marker** | Planned | Redistribution safety | Every query result should carry the combined license capabilities in its response envelope. |

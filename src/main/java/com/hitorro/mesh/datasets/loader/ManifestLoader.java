@@ -74,6 +74,7 @@ public final class ManifestLoader {
             "geonames-cities15000",
             "geonames-country-info",
             "natural-earth-countries",
-            "wikidata-cities"
+            "wikidata-cities",
+            "noaa-ghcnd-stations"
     };
 }

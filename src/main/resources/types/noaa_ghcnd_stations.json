@@ -1,0 +1,15 @@
+{
+  "name": "noaa_ghcnd_stations",
+  "fields": [
+    {"name": "station_id",   "type": "core_string"},
+    {"name": "fips_country", "type": "core_string"},
+    {"name": "latitude",     "type": "core_double"},
+    {"name": "longitude",    "type": "core_double"},
+    {"name": "elevation",    "type": "core_double"},
+    {"name": "state",        "type": "core_string"},
+    {"name": "name",         "type": "core_string"},
+    {"name": "gsn_flag",     "type": "core_string"},
+    {"name": "hcn_crn_flag", "type": "core_string"},
+    {"name": "wmo_id",       "type": "core_string"}
+  ]
+}

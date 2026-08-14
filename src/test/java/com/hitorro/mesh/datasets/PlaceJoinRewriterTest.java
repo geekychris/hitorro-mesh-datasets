@@ -122,6 +122,18 @@ class PlaceJoinRewriterTest {
     }
 
     @Test
+    void noaa_station_to_country_info_via_derived_fips_role() {
+        // noaa_ghcnd_stations.fips_country has role id.fips.
+        // geonames_country_info.fips also has role id.fips.
+        // Different column names on both sides — role-match should still
+        // wire them: s.fips_country = ci.fips.
+        String out = rewriter.rewrite(
+                "SELECT s.name, ci.country FROM noaa_ghcnd_stations s "
+              + "JOIN geonames_country_info ci USING PLACE");
+        assertThat(out).contains("ON s.fips_country = ci.fips");
+    }
+
+    @Test
     void reverse_declaration_from_wikidata_to_country_info() {
         // wikidata_cities.country_iso → geonames_country_info.iso
         String out = rewriter.rewrite(
