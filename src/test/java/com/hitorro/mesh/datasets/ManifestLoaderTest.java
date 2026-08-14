@@ -27,7 +27,8 @@ class ManifestLoaderTest {
                 "openalex-institutions", "coingecko-crypto",
                 "github-top-repos", "huggingface-top-models",
                 "nasa-apod", "retro-computers",
-                "pypi-top-packages", "npm-top-packages" }) {
+                "pypi-top-packages", "npm-top-packages",
+                "iso-currencies", "iso-languages" }) {
             Manifest m = ManifestLoader.loadBundled(id);
             assertThat(m.metadata())
                     .withFailMessage("%s: metadata block missing", id)
@@ -311,7 +312,7 @@ class ManifestLoaderTest {
     @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(20);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(22);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.

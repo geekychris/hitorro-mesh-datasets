@@ -1,0 +1,77 @@
+id: iso-languages
+title: ISO 639 language codes (curated top ~90)
+version: "1.0"
+
+description: >
+  Curated dictionary of ISO 639 language codes covering ~90 widely-used
+  languages worldwide — the world's ~50 most-spoken plus notable
+  regional / minority / historical languages. Fields: 2-letter (639-1),
+  3-letter (639-2/3 T-code), English name, native name, scope
+  (individual | macrolanguage).
+
+  Joins to any dataset that carries a language column — most obviously
+  geonames-country-info.languages (comma-separated BCP-47 tags),
+  wikipedia-pageviews (future — wiki-project-code prefix), huggingface-
+  top-models (language_tag).
+
+license:
+  spdx: LicenseRef-ISO-Curated
+  attribution: "ISO 639 codes are public identifiers; native-name transliterations from Wikipedia (CC-BY-SA)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: true
+  modification: true
+
+source:
+  type: local
+  url: "src/main/resources/data/iso-639-languages.json (bundled in this repo)"
+  format: json
+  checksum: null
+
+record:
+  type: standards.Language
+  primaryKey: alpha3
+  fields:
+    - { name: alpha2,      type: core_string, role: "id.iso639alpha2", description: "2-letter code (en, zh, ar, ...) — ISO 639-1" }
+    - { name: alpha3,      type: core_string, role: "id.iso639alpha3", description: "3-letter code (eng, zho, ara, ...) — ISO 639-2/T" }
+    - { name: name,        type: core_string, role: name,              description: "English name" }
+    - { name: native_name, type: core_string,                          description: "Native-script self-designation (中文, العربية, ...)" }
+    - { name: scope,       type: core_string,                          description: "individual | macrolanguage — matters for e.g. `ar` (macro) vs `arb` (Standard Arabic)" }
+
+provides:
+  - standards.language
+
+identifiers:
+  produces:
+    - iso639alpha2
+    - iso639alpha3
+  maps: []
+
+partitionBy: null
+
+# No direct EXACT_ID relationships today — geonames-country-info's
+# languages column is a comma-separated string not a single value, so
+# a clean join needs SPLIT/UNNEST which the current mesh SQL doesn't
+# do yet. Declared relationships stay empty; users can join manually
+# via LIKE '%en%' or similar for now.
+relationships: []
+
+metadata:
+  useCases:
+    - "'What language code is that?' — canonical lookup from 2- to 3-letter or the other way"
+    - "Native script rendering — get 中文 for zh, العربية for ar, ..."
+    - "Filter to individual languages vs macrolanguages (matters for Arabic, Chinese, Persian, Malay, ...)"
+  methodology: >
+    Hand-curated ~90-entry slice covering the world's most-spoken
+    languages plus notable regional / minority / historical entries
+    (Latin, Sanskrit, Scottish Gaelic, Esperanto). Full ISO 639-3 has
+    ~7000 codes covering every recorded human language — omitted here
+    as noise. Native-name transliterations picked to render in a
+    reasonable Unicode font without heroic fallbacks.
+  stats:
+    rowCount: 92
+    sizeBytes: 8192
+    refreshCadence: "static (edit the source JSON to add / update)"
+    coverage: "Curated. World's most-spoken languages + notable smaller / historical ones."
+  furtherReading: "https://www.iso.org/iso-639-language-code"

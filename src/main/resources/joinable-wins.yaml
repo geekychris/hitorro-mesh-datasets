@@ -1,0 +1,160 @@
+# Curated list of cross-dataset joins that return real rows today.
+# Each entry stays true as long as its listed datasets are installed
+# and the mesh's SQL surface hasn't regressed. Adding a new win here
+# should follow verifying it against a live mesh.
+#
+# Fields
+# ------
+# title:      short human sentence — what the join tells you
+# datasets:   ids involved, in JOIN order
+# kind:       exact-id | spatial | hub | mixed
+# hops:       N — number of JOIN edges
+# license:    combined-licence hint from LicenseAlgebra (permissive |
+#             attribution-required | share-alike | non-commercial)
+# sql:        the exact query. Use USING PLACE where the semantic
+#             rewriter helps; otherwise raw ON clauses.
+# semantic:   true if the query should be submitted with semantic=true
+# note:       one-line "why is this interesting?" explanation
+
+wins:
+  - title: "Cities enriched with country socioeconomic stats"
+    datasets: [wikidata-cities, wikidata-countries, worldbank-indicators]
+    kind: hub
+    hops: 2
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT wd.name AS city, wd.population,
+             wb.gdp_per_capita_usd, wb.life_expectancy_years
+      FROM wikidata_cities wd
+      JOIN wikidata_countries wc USING PLACE
+      JOIN worldbank_indicators wb USING PLACE
+      WHERE wd.population > 5000000
+      ORDER BY wb.gdp_per_capita_usd DESC LIMIT 20
+    note: |
+      Two hops through the wikidata-countries hub — city → country QID
+      → ISO alpha-3 → World Bank. Rewriter automatically chains through
+      role-tagged identifier columns. Returns the "big rich cities" list
+      including Singapore, NYC, London, Sydney.
+
+  - title: "Top research institutions enriched with GDP per capita"
+    datasets: [openalex-institutions, wikidata-countries, worldbank-indicators]
+    kind: hub
+    hops: 2
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT o.display_name, o.city, o.cited_by_count, wb.gdp_per_capita_usd
+      FROM openalex_institutions o
+      JOIN wikidata_countries wc USING PLACE
+      JOIN worldbank_indicators wb USING PLACE
+      ORDER BY o.cited_by_count DESC LIMIT 10
+    note: |
+      Scholarly citation counts + national economic context in one query.
+      CNRS (Paris, France, $49k/cap), Harvard (Cambridge, US, $90k/cap),
+      Chinese Academy of Sciences (Beijing, China, $14k/cap), ...
+
+  - title: "Which of yesterday's top Wikipedia articles are actually cities"
+    datasets: [wikipedia-pageviews, wikidata-city-sitelinks, wikidata-cities]
+    kind: exact-id
+    hops: 2
+    license: share-alike
+    semantic: true
+    sql: |
+      SELECT wp.title, wp.views, wd.population, wd.country_iso
+      FROM wikipedia_pageviews wp
+      JOIN wikidata_city_sitelinks sl USING PLACE
+      JOIN wikidata_cities wd USING PLACE
+      ORDER BY wp.views DESC LIMIT 10
+    note: |
+      Zeitgeist meets geography. The wikidata-city-sitelinks bridge maps
+      Wikipedia article slugs to Wikidata city QIDs. Yesterday's top-1000
+      Wikipedia articles usually contain 2-10 cities.
+
+  - title: "NOAA weather stations attributed to country + continent"
+    datasets: [noaa-ghcnd-stations, geonames-country-info]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT s.name, s.elevation, ci.country, ci.continent
+      FROM noaa_ghcnd_stations s
+      JOIN geonames_country_info ci USING PLACE
+      WHERE s.elevation > 4000
+      ORDER BY s.elevation DESC LIMIT 15
+    note: |
+      Weather stations above 4000m — high-altitude monitoring. Joined
+      via the derived fips_country column (first 2 chars of station_id
+      match FIPS 10-4). Kazbek Mountain, Georgia at 5033m tops the list.
+
+  - title: "High-altitude NOAA stations with country income group"
+    datasets: [noaa-ghcnd-stations, wikidata-countries, natural-earth-countries]
+    kind: hub
+    hops: 2
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT s.name AS station, s.elevation,
+             ne.name AS country, ne.income_grp
+      FROM noaa_ghcnd_stations s
+      JOIN wikidata_countries wc USING PLACE
+      JOIN natural_earth_countries ne USING PLACE
+      WHERE s.elevation > 5000
+    note: |
+      Three-way through the country hub. NOAA carries FIPS,
+      Natural Earth carries ISO alpha-2 — wikidata-countries bridges
+      the two.
+
+  - title: "Country-info enriched with currency symbol + minor units"
+    datasets: [geonames-country-info, iso-currencies]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT ci.country, ci.capital,
+             cur.alpha3, cur.name AS currency, cur.symbol, cur.minor_unit
+      FROM geonames_country_info ci
+      JOIN iso_currencies cur USING PLACE
+      ORDER BY ci.country LIMIT 20
+    note: |
+      Small filler join with big UX return — every country gets its
+      currency symbol + how many decimals to render. Foundational for
+      any commerce / display layer.
+
+  - title: "Wikidata cities in ODbL-share-alike-flagged airports countries"
+    datasets: [osm-airports, wikidata-countries, wikidata-cities]
+    kind: mixed
+    hops: 2
+    license: share-alike
+    semantic: false
+    sql: |
+      SELECT a.name AS airport, a.iata_code, wc.name AS country
+      FROM osm_airports a
+      JOIN wikidata_countries wc ON a.country_code = wc.iso_a2
+      WHERE wc.iso_a2 IN ('JP','FR','DE','GB')
+      ORDER BY wc.name, a.iata_code LIMIT 20
+    note: |
+      First win that touches the ODbL dataset — LicenseAlgebra flags
+      the result as share-alike. Only ~6 OSM airports have addr:country
+      set (OSM tagging quirk), so this is the tip of the iceberg;
+      SPATIAL rewriter will unlock the full set once mesh phase-4b lands.
+
+  - title: "USGS earthquakes near country polygons (bbox spatial)"
+    datasets: [usgs-earthquakes, natural-earth-countries]
+    kind: spatial
+    hops: 1
+    license: public-domain-ish
+    semantic: true
+    sql: |
+      SELECT e.title, e.magnitude, ne.name AS country
+      FROM usgs_earthquakes e
+      JOIN natural_earth_countries ne USING PLACE
+      WHERE e.magnitude >= 6.5 LIMIT 10
+    note: |
+      Rewrites to CROSS JOIN + WHERE bbox — a real spatial join. Note
+      mesh phase-1 dispatch currently rejects range-only conditions
+      ("at least one equijoin key"), so this query rewrites correctly
+      but doesn't execute until phase-4b. Ships as a rewrite proof-of-
+      concept — see docs/SEMANTIC_JOINS.md.

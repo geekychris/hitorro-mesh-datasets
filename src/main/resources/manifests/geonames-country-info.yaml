@@ -37,7 +37,7 @@ record:
     - { name: population,        type: core_long,   role: geo.population }
     - { name: continent,         type: core_string,                       description: "AF, AS, EU, NA, OC, SA, AN" }
     - { name: tld,               type: core_string,                       description: "Top-level domain, e.g. .us" }
-    - { name: currency_code,     type: core_string }
+    - { name: currency_code,     type: core_string, role: "id.iso4217alpha3", description: "ISO 4217 alpha-3 currency — joins to iso-currencies.alpha3" }
     - { name: currency_name,     type: core_string }
     - { name: phone,             type: core_string }
     - { name: postal_code_format, type: core_string }

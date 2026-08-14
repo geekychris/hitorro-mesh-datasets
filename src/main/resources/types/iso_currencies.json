@@ -1,0 +1,10 @@
+{
+  "name": "iso_currencies",
+  "fields": [
+    {"name": "alpha3",     "type": "core_string"},
+    {"name": "numeric",    "type": "core_string"},
+    {"name": "name",       "type": "core_string"},
+    {"name": "symbol",     "type": "core_string"},
+    {"name": "minor_unit", "type": "core_long"}
+  ]
+}

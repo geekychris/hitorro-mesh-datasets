@@ -1,0 +1,78 @@
+id: iso-currencies
+title: ISO 4217 currency codes (curated, ~90 in-use)
+version: "1.0"
+
+description: >
+  Curated dictionary of ISO 4217 currency codes with alpha-3, numeric,
+  English name, symbol, and minor-unit decimals. About 90 active
+  currencies plus a couple of legacy / non-official entries for
+  completeness (HRK before euro adoption, BTC unofficial). Ships as a
+  static JSON in the module — no external fetch.
+
+  Joins by 3-letter code to any dataset that carries a currency field —
+  most obviously geonames-country-info.currency_code and future
+  worldbank-indicators derivatives. Small dimension table, broadcast
+  everywhere.
+
+license:
+  spdx: LicenseRef-ISO-Curated
+  attribution: "ISO 4217 codes are public identifiers; curated names / symbols from Unicode CLDR conventions"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: local
+  url: "src/main/resources/data/iso-4217-currencies.json (bundled in this repo)"
+  format: json
+  checksum: null
+
+record:
+  type: standards.Currency
+  primaryKey: alpha3
+  fields:
+    - { name: alpha3,     type: core_string, role: "id.iso4217alpha3", description: "3-letter code (USD, EUR, JPY, ...)" }
+    - { name: numeric,    type: core_string, role: "id.iso4217numeric", description: "3-digit code padded (840 for USD). Empty for unofficial (BTC)." }
+    - { name: name,       type: core_string, role: name,               description: "English currency name" }
+    - { name: symbol,     type: core_string,                            description: "Primary symbol per CLDR ($, €, ¥, R$, ...)" }
+    - { name: minor_unit, type: core_long,                              description: "Decimals — 2 for most, 0 for yen/won, 3 for Kuwaiti dinar, 8 for BTC" }
+
+provides:
+  - standards.currency
+
+identifiers:
+  produces:
+    - iso4217alpha3
+    - iso4217numeric
+  maps: []
+
+partitionBy: null
+
+# Joins to geonames-country-info via currency_code — declared here so
+# the rewriter picks it up whenever the user writes USING PLACE
+# between the two.
+relationships:
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [alpha3]
+
+metadata:
+  useCases:
+    - "'What symbol goes with this ISO code?' — the single most common lookup"
+    - "Join to any country dataset with a currency_code to add symbol / minor-unit for formatting"
+    - "Which currencies use 0-decimal (yen, won, guarani, CFA franc, BTC has 8...) — matters for money-format rendering"
+  methodology: >
+    Hand-curated list of ~90 in-use ISO 4217 codes plus a couple of
+    historical / non-official entries. Full ISO 4217 has ~180 codes
+    including precious metals (XAU, XAG), test codes (XTS), and no-
+    exchange codes (XXX) — those are omitted here as noise. Names and
+    symbols cross-checked against Unicode CLDR (developer-friendly
+    Latin-alphabet romanisations for non-Latin symbols where available).
+  stats:
+    rowCount: 90
+    sizeBytes: 6144
+    refreshCadence: "static (edit the source JSON to add / update)"
+    coverage: "In-use currencies today. Retired currencies (DEM, FRF, ITL...) intentionally omitted."
+  furtherReading: "https://www.iso.org/iso-4217-currency-codes.html"

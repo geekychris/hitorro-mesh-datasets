@@ -90,6 +90,8 @@ public final class ManifestLoader {
             "nasa-apod",
             "retro-computers",
             "pypi-top-packages",
-            "npm-top-packages"
+            "npm-top-packages",
+            "iso-currencies",
+            "iso-languages"
     };
 }
