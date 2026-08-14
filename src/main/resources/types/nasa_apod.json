@@ -1,0 +1,13 @@
+{
+  "name": "nasa_apod",
+  "fields": [
+    {"name": "apod_date",        "type": "core_string"},
+    {"name": "title",            "type": "core_string"},
+    {"name": "explanation",      "type": "core_string"},
+    {"name": "url",              "type": "core_string"},
+    {"name": "hdurl",            "type": "core_string"},
+    {"name": "media_type",       "type": "core_string"},
+    {"name": "copyright",        "type": "core_string"},
+    {"name": "service_version",  "type": "core_string"}
+  ]
+}

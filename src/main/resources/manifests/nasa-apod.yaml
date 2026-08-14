@@ -1,0 +1,78 @@
+id: nasa-apod
+title: NASA — Astronomy Picture of the Day (30 random)
+version: "1.0"
+
+description: >
+  Thirty random Astronomy Picture of the Day entries from NASA's public
+  APOD archive (going back to 1995). Each row carries the publication
+  date, title, long explanation, image URL, HD image URL, media type
+  (image or video), and third-party copyright when the image is
+  courtesy an amateur astronomer rather than NASA itself.
+
+  First photography / astronomy dataset. Public domain for NASA-owned
+  images (most of them); mixed for guest submissions where the
+  `copyright` field is populated. The install script preserves both
+  so downstream can filter as needed.
+
+license:
+  spdx: Public-Domain
+  attribution: "NASA — Astronomy Picture of the Day (individual image credits in the `copyright` field)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=30
+  format: json
+  checksum: null
+
+record:
+  type: media.AstronomyPicture
+  primaryKey: apod_date
+  fields:
+    - { name: apod_date,   type: core_string, role: id,              description: "YYYY-MM-DD — the picture's publication date, unique per entry" }
+    - { name: title,       type: core_string, role: name }
+    - { name: explanation, type: core_string,                        description: "Long-form (~1000 chars) astronomer's caption" }
+    - { name: url,         type: core_string,                        description: "Screen-resolution image URL (or video URL for media_type=video)" }
+    - { name: hdurl,       type: core_string,                        description: "HD resolution image URL. Nullable — some entries are video only." }
+    - { name: media_type,  type: core_string,                        description: "image | video" }
+    - { name: copyright,   type: core_string,                        description: "Third-party photographer credit when NASA doesn't own the image. Nullable — null means public-domain NASA imagery." }
+    - { name: service_version, type: core_string,                    description: "APOD API version" }
+
+provides:
+  - media.image_url
+
+identifiers:
+  produces:
+    - nasa_apod_date
+  maps: []
+
+partitionBy: null
+
+# No cross-dataset relationships — astronomy pictures don't share an id
+# with anything else in the catalog.
+relationships: []
+
+metadata:
+  useCases:
+    - "'What was NASA's APOD on any date since 1995?' — 30 random samples"
+    - "Public-domain vs third-party credited images (filter WHERE copyright IS NULL)"
+    - "Image vs video mix (media_type distribution)"
+    - "Grab a fresh random slate for a slideshow or background — re-install for new pictures"
+  methodology: >
+    NASA's Astronomy Picture of the Day has published one image per
+    day since 1995 with an astronomer's explanation. Media are
+    typically NASA-owned (public domain) but ~15% are contributed by
+    amateur astronomers who retain copyright. This dataset uses the
+    public `count` endpoint which returns N random samples across the
+    whole archive; re-install for a fresh 30. `DEMO_KEY` has a soft
+    per-hour limit but is fine for the ~one-call cadence typical here.
+  stats:
+    rowCount: 30
+    sizeBytes: 32768
+    refreshCadence: "on-demand (each install pulls a fresh random 30)"
+    coverage: "Random sample from every APOD posted since 1995-06-16. To pin specific dates, use the ?date=YYYY-MM-DD endpoint variant instead."
+  furtherReading: "https://api.nasa.gov/#apod"

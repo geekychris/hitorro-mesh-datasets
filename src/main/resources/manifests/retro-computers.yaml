@@ -1,0 +1,86 @@
+id: retro-computers
+title: Retro home + personal computers (curated, 1975-2000)
+version: "1.0"
+
+description: >
+  A hand-curated catalogue of ~40 iconic home and personal computers
+  released between 1975 and 2000. Rows carry canonical name,
+  manufacturer, release year, CPU, RAM, launch price (USD, unadjusted),
+  operating system, form factor, and a Wikipedia URL for the deep dive.
+
+  Curated rather than SPARQL-fetched because Wikidata's data for retro
+  machines is patchy and inconsistent (some machines are cataloged as
+  computer models, others as products, others not at all — and the
+  free-tier SPARQL rate limits are aggressive). A hand list is small,
+  reliable, and easy to extend.
+
+  First retro-computing dataset. Standalone — no cross-dataset
+  relationships today; could later join manufacturers to wikidata QIDs
+  if we ship a companies dataset.
+
+license:
+  spdx: CC-BY-SA-4.0
+  attribution: "Curated by hitorro-mesh-datasets contributors; facts sourced from Wikipedia (CC-BY-SA)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: true
+  modification: true
+
+source:
+  type: local
+  url: "src/main/resources/data/retro-computers.json (bundled in this repo)"
+  format: json
+  checksum: null
+
+record:
+  type: computing.RetroSystem
+  primaryKey: model_id
+  fields:
+    - { name: model_id,        type: core_string, role: id,             description: "Lowercase-hyphen slug (apple-ii, commodore-64, ...)" }
+    - { name: name,            type: core_string, role: name }
+    - { name: manufacturer,    type: core_string }
+    - { name: release_year,    type: core_long }
+    - { name: cpu,             type: core_string,                       description: "Primary processor (MOS 6502, Z80, Motorola 68000, ...)" }
+    - { name: cpu_mhz,         type: core_double,                       description: "Clock speed in MHz. Base spec — many machines had faster variants." }
+    - { name: ram_kb,          type: core_long,                         description: "Base RAM in kilobytes. Base spec — many machines were expandable." }
+    - { name: launch_price_usd, type: core_long,                        description: "US launch price in period USD (unadjusted for inflation). Nullable when unknown / unusual pricing model." }
+    - { name: os,              type: core_string,                       description: "Bundled operating system (BASIC, AmigaOS 1.0, MS-DOS 1.0, ...)" }
+    - { name: form_factor,     type: core_string,                       description: "home computer | personal computer | workstation | portable | game console" }
+    - { name: wikipedia_url,   type: core_string }
+
+provides:
+  - metric.cpu_speed
+  - metric.ram
+
+identifiers:
+  produces:
+    - retro_model_slug
+  maps: []
+
+partitionBy: null
+
+# No cross-dataset relationships today. Manufacturer names could join
+# to a future wikidata-companies dataset via probabilistic name match.
+relationships: []
+
+metadata:
+  useCases:
+    - "'What did an Apple II cost at launch?' — a fact you shouldn't have to Google-and-scroll"
+    - "Compare CPU speeds / RAM / prices across contemporaneous machines (1982-1985 was wild)"
+    - "Timeline queries: WHERE release_year BETWEEN 1980 AND 1985"
+    - "Manufacturer distributions: 'how many Commodore machines shipped in the 8-bit era?'"
+  methodology: >
+    Hand-authored from Wikipedia summaries, cross-checked against
+    old-computers.com and manufacturer press archives where accessible.
+    Deliberately biased toward machines with cultural / historical
+    significance rather than exhaustive coverage — the goal is a fun
+    reference layer, not a complete catalogue. Launch prices are period
+    USD, not inflation-adjusted; that context is important when
+    comparing 1977 (Apple II, $1298) with 1998 (iMac, $1299).
+  stats:
+    rowCount: 40
+    sizeBytes: 8192
+    refreshCadence: "static (hand-maintained; edit the source JSON to add entries)"
+    coverage: "Iconic home + personal computers 1975-2000. Skews toward the west (Apple/Atari/Commodore/IBM/Sinclair/Amstrad/Acorn) — Japanese/Soviet machines under-represented."
+  furtherReading: "https://en.wikipedia.org/wiki/List_of_home_computers"

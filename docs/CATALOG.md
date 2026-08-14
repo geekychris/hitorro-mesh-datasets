@@ -23,6 +23,9 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `openalex-institutions` | ~400 | CC0 | https://api.openalex.org/institutions?per-page=200&sort=cited_by_count:desc |
 | `coingecko-crypto` | 100 | CoinGecko free-tier | https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100 |
 | `github-top-repos` | 100 | CC-BY-4.0 | https://api.github.com/search/repositories?q=stars:>100000&sort=stars&order=desc |
+| `huggingface-top-models` | 100 | HF public API | https://huggingface.co/api/models?sort=downloads&direction=-1&limit=100 |
+| `nasa-apod` | 30 | Public domain | https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=30 |
+| `retro-computers` | 40 | CC-BY-SA-4.0 | curated JSON in src/main/resources/data/retro-computers.json |
 
 ## Planned (see ROADMAP.md for detail)
 

@@ -1,0 +1,16 @@
+{
+  "name": "retro_computers",
+  "fields": [
+    {"name": "model_id",         "type": "core_string"},
+    {"name": "name",             "type": "core_string"},
+    {"name": "manufacturer",     "type": "core_string"},
+    {"name": "release_year",     "type": "core_long"},
+    {"name": "cpu",              "type": "core_string"},
+    {"name": "cpu_mhz",          "type": "core_double"},
+    {"name": "ram_kb",           "type": "core_long"},
+    {"name": "launch_price_usd", "type": "core_long"},
+    {"name": "os",               "type": "core_string"},
+    {"name": "form_factor",      "type": "core_string"},
+    {"name": "wikipedia_url",    "type": "core_string"}
+  ]
+}

@@ -49,6 +49,9 @@ cross-referenced ISO / GeoNames identifiers:
 | `openalex-institutions` | OpenAlex — top research institutions | ~400 | CC0 | Universities, national labs, hospitals, industry R&D — sorted by citation count. First scholarly-research dataset. Joins via ISO-2 country code. |
 | `coingecko-crypto` | CoinGecko — top-100 cryptocurrencies by market cap | 100 | Custom (attribution) | First financial dataset. Live price, market cap, 24h change, supply, all-time high. Refreshable on demand. |
 | `github-top-repos` | GitHub — top-100 repositories by star count | 100 | CC-BY | First developer / software dataset. Stars, forks, primary language, licence SPDX, topic tags. Refreshable on demand. |
+| `huggingface-top-models` | HuggingFace — top-100 ML models by downloads | 100 | Custom (attribution) | First ML/AI dataset. Downloads, likes, pipeline task, library, license tag. Refreshable on demand. |
+| `nasa-apod` | NASA — Astronomy Picture of the Day (30 random) | 30 | Public domain | First photography/astronomy dataset. Title, explanation, image + HD URLs, media type, third-party copyright. Random sample per install. |
+| `retro-computers` | Retro home + personal computers (curated, 1975-2000) | 40 | CC-BY-SA | First retro-computing dataset. Hand-curated iconic machines with year, CPU, RAM, launch price, OS. |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).

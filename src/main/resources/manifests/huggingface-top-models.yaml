@@ -1,0 +1,85 @@
+id: huggingface-top-models
+title: HuggingFace — top-100 models by download count
+version: "1.0"
+
+description: >
+  Top-100 ML models on the HuggingFace Hub ranked by all-time download
+  count. Fetched from the public API at install time. Fields: canonical
+  model id (org/name), author, monthly downloads, likes, pipeline task
+  (text-generation, sentence-similarity, image-classification, ...),
+  library name (transformers, diffusers, sentence-transformers, ...),
+  primary language / license tags, creation timestamp.
+
+  First ML/AI dataset in the catalog. Interesting on its own for
+  library / task / license distributions; joins to nothing (model
+  authors are HF handles, not other identifier namespaces we track).
+
+license:
+  spdx: LicenseRef-HuggingFace-Public
+  attribution: "HuggingFace, Inc. — Hub model metadata via the public REST API"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://huggingface.co/api/models?sort=downloads&direction=-1&limit=100&full=true
+  format: json
+  checksum: null
+
+record:
+  type: ai.Model
+  primaryKey: model_id
+  fields:
+    - { name: model_id,       type: core_string, role: id,                description: "org/name — canonical HF slug" }
+    - { name: author,         type: core_string,                          description: "HF org or user handle" }
+    - { name: downloads,      type: core_long,   role: "metric.downloads" }
+    - { name: likes,          type: core_long,   role: "metric.likes" }
+    - { name: pipeline_tag,   type: core_string,                          description: "text-generation | sentence-similarity | image-classification | automatic-speech-recognition | fill-mask | ..." }
+    - { name: library_name,   type: core_string,                          description: "transformers | diffusers | sentence-transformers | timm | ..." }
+    - { name: license_tag,    type: core_string,                          description: "First 'license:' tag on the model (e.g. license:apache-2.0). Nullable." }
+    - { name: language_tag,   type: core_string,                          description: "First 'language:' tag (e.g. language:en). Nullable." }
+    - { name: dataset_tag,    type: core_string,                          description: "First 'dataset:' tag (training dataset). Nullable." }
+    - { name: tag_count,      type: core_long,                            description: "Total tags on the model — proxy for how metadata-rich it is" }
+    - { name: created_at,     type: core_string,                          description: "ISO-8601 UTC" }
+
+provides:
+  - metric.downloads
+  - metric.likes
+
+identifiers:
+  produces:
+    - huggingface_model
+  maps: []
+
+partitionBy: null
+
+# No cross-dataset relationships. ML models don't share an identifier
+# with any of the geographic / country / financial / software datasets
+# (openalex-institutions has universities but no per-model provenance).
+relationships: []
+
+metadata:
+  useCases:
+    - "Top models by download count — what's ML actually using"
+    - "Task distribution: how many of the top-100 are text-generation vs image vs speech?"
+    - "Library adoption: transformers vs diffusers vs sentence-transformers vs timm"
+    - "License audit — how many top models declare Apache-2 / MIT / OpenRAIL / no license?"
+  methodology: >
+    HuggingFace Hub aggregates model downloads across every git clone,
+    inference API call, and package-manager fetch. Numbers are all-time
+    cumulative — long-running models like sentence-transformers'
+    all-MiniLM-L6-v2 dominate the top of the ranking regardless of
+    current momentum. The pipeline_tag comes from the model card
+    (or model config for well-known architectures); nullable for models
+    without one. Language / license / dataset tags are picked from the
+    first matching prefix — full tag list is available in the raw JSON
+    under raw/models.json for anyone who needs it.
+  stats:
+    rowCount: 100
+    sizeBytes: 65536
+    refreshCadence: "on-demand (source updates continuously; re-install to refresh)"
+    coverage: "Global. Top 100 by all-time downloads. Skew toward long-established models — recent breakthroughs may take months to climb."
+  furtherReading: "https://huggingface.co/docs/hub/api"

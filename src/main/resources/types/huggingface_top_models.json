@@ -1,0 +1,16 @@
+{
+  "name": "huggingface_top_models",
+  "fields": [
+    {"name": "model_id",     "type": "core_string"},
+    {"name": "author",       "type": "core_string"},
+    {"name": "downloads",    "type": "core_long"},
+    {"name": "likes",        "type": "core_long"},
+    {"name": "pipeline_tag", "type": "core_string"},
+    {"name": "library_name", "type": "core_string"},
+    {"name": "license_tag",  "type": "core_string"},
+    {"name": "language_tag", "type": "core_string"},
+    {"name": "dataset_tag",  "type": "core_string"},
+    {"name": "tag_count",    "type": "core_long"},
+    {"name": "created_at",   "type": "core_string"}
+  ]
+}
