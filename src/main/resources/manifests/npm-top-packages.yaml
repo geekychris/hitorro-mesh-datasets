@@ -1,0 +1,80 @@
+id: npm-top-packages
+title: NPM — weekly downloads for 60 well-known packages
+version: "1.0"
+
+description: >
+  Weekly download counts for a hand-curated list of 60 well-known npm
+  packages — React / Vue / Express / Lodash / TypeScript / ESLint /
+  Webpack / Jest / and the common utility, framework, HTTP, ORM,
+  scraping, GraphQL, and UI-toolkit libraries. Fetched from
+  api.npmjs.org's bulk-downloads endpoint in one call.
+
+  Curated rather than "top-N by downloads" because npm has no clean
+  ranking API — the closest workarounds (search sorted by popularity,
+  or scraping the "most-depended-upon" page) either don't return
+  numeric downloads or need HTML parsing. A hand list is small,
+  reliable, easy to extend, and covers the packages a developer
+  actually recognises.
+
+  Second software-ecosystem dataset after pypi-top-packages. Same shape
+  (rank + name + downloads) so cross-language comparisons work
+  directly.
+
+license:
+  spdx: LicenseRef-npm-Registry
+  attribution: "npm, Inc. — download counts via api.npmjs.org"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://api.npmjs.org/downloads/point/last-week/<comma-separated-package-list>
+  format: json
+  checksum: null
+
+record:
+  type: software.PackageDownloads
+  primaryKey: package_name
+  fields:
+    - { name: package_rank,     type: core_long,                            description: "1-based rank within this dataset's slice, ordered by weekly_downloads desc. Named package_rank because rank is a Calcite reserved word." }
+    - { name: package_name,     type: core_string, role: id,                description: "npm package name — scoped packages carry their @scope/ prefix" }
+    - { name: weekly_downloads, type: core_long,   role: "metric.downloads", description: "Downloads in the sample week (Mon–Sun) per api.npmjs.org" }
+    - { name: week_start,       type: core_string,                          description: "ISO date (YYYY-MM-DD) the sample week begins" }
+    - { name: week_end,         type: core_string,                          description: "ISO date (YYYY-MM-DD) the sample week ends" }
+
+provides:
+  - metric.downloads
+
+identifiers:
+  produces:
+    - npm_package
+  maps: []
+
+partitionBy: null
+
+relationships: []
+
+metadata:
+  useCases:
+    - "Compare react vs vue vs angular this week"
+    - "'How many npm packages get more than 100M weekly downloads?'"
+    - "Cross-language comparison: pair with pypi_top_packages for a JS-vs-Python size check"
+    - "Ecosystem cluster analysis — which utility / framework / UI libs dominate?"
+  methodology: >
+    Package list hand-curated to cover the "recognisable" surface — a
+    developer scanning the results should recognise 95%+ of the names.
+    Download counts come from api.npmjs.org's public bulk-downloads
+    endpoint (last-week/pkg,pkg,pkg). Note npm's counts include CI /
+    bot traffic and are dominated by transitive downloads of
+    dependencies — real human "npm install lodash" traffic is a small
+    fraction of the reported number. Extend the list by editing
+    src/main/resources/data/npm-top-package-list.txt.
+  stats:
+    rowCount: 60
+    sizeBytes: 8192
+    refreshCadence: "on-demand (source rolls weekly; re-install to refresh)"
+    coverage: "Hand-curated 60-package slice. Skews toward JS-in-the-browser and Node.js server frameworks; native / desktop / mobile / bindings under-represented."
+  furtherReading: "https://github.com/npm/registry/blob/master/docs/download-counts.md"

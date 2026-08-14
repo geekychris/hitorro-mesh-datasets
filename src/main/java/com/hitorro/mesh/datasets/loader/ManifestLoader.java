@@ -89,6 +89,7 @@ public final class ManifestLoader {
             "huggingface-top-models",
             "nasa-apod",
             "retro-computers",
-            "pypi-top-packages"
+            "pypi-top-packages",
+            "npm-top-packages"
     };
 }
