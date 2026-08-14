@@ -1,0 +1,77 @@
+id: pypi-top-packages
+title: PyPI — top 200 Python packages by monthly downloads
+version: "1.0"
+
+description: >
+  Rank, package name, and monthly download count for the top 200 packages
+  on the Python Package Index, sourced from the community-maintained
+  `hugovk/top-pypi-packages` static JSON (regenerated ~monthly from
+  PyPI's official BigQuery dataset). One HTTP fetch, no auth.
+
+  Second software-ecosystem dataset after github-top-repos, and the
+  first Python-specific one. Standalone by design — package names have
+  no clean cross-reference to other identifier namespaces in the
+  catalog. Fun to compare with the language distribution on
+  github-top-repos (which shows Python leading GitHub star counts).
+
+license:
+  spdx: CC0-1.0
+  attribution: "Hugo van Kemenade — top-pypi-packages (derived from PyPI's public BigQuery dataset)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json
+  format: json
+  checksum: null
+
+record:
+  type: software.PackageDownloads
+  primaryKey: package_name
+  fields:
+    - { name: package_rank,       type: core_long,                            description: "1-based rank within the top-200 slice. Named package_rank rather than rank because `rank` is a Calcite reserved word (window function)." }
+    - { name: package_name,       type: core_string, role: id,                description: "PyPI project name — canonical PEP 503 normalised" }
+    - { name: monthly_downloads,  type: core_long,   role: "metric.downloads", description: "Downloads in the trailing 30 days per the source snapshot" }
+    - { name: source_last_update, type: core_string,                          description: "Timestamp when the upstream JSON was regenerated" }
+
+provides:
+  - metric.downloads
+
+identifiers:
+  produces:
+    - pypi_project
+  maps: []
+
+partitionBy: null
+
+# No cross-dataset relationships. Could hypothetically join to
+# github-top-repos by name overlap (probabilistic) — many top PyPI
+# packages ARE on GitHub too — but the match rate is low enough that
+# it's better left as an ad-hoc query pattern than a declared edge.
+relationships: []
+
+metadata:
+  useCases:
+    - "'What does Python actually install?' — top 200 packages ranked by real downloads"
+    - "Compare with github-top-repos to spot high-download-but-low-star (foundational) packages"
+    - "'How many top-200 packages have `requests` / `numpy` / `django` in their name?'"
+    - "Which packages saw the biggest month-over-month change — save a copy, install again, diff"
+  methodology: >
+    Hugo van Kemenade maintains a GitHub Pages static JSON dump of PyPI
+    package popularity, regenerated ~monthly from PyPI's official
+    BigQuery download-stats dataset (bigquery-public-data.pypi.file_downloads).
+    Download counts filter out CI/mirror traffic where identifiable; raw
+    figures are still dominated by cloud-provider CI, so ranks reflect
+    "packages installed on ephemeral machines" more than "packages a
+    human chose to add to a project". Take the top-200 slice at install
+    time to keep the dataset small.
+  stats:
+    rowCount: 200
+    sizeBytes: 8192
+    refreshCadence: "monthly (source refreshes on the 1st; re-install to pick up)"
+    coverage: "Top 200 of ~15 000 tracked packages. Long tail from ~2500 downloads/month up to ~4 billion for boto3."
+  furtherReading: "https://hugovk.github.io/top-pypi-packages/"

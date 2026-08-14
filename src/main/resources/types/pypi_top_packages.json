@@ -1,0 +1,9 @@
+{
+  "name": "pypi_top_packages",
+  "fields": [
+    {"name": "package_rank",       "type": "core_long"},
+    {"name": "package_name",       "type": "core_string"},
+    {"name": "monthly_downloads",  "type": "core_long"},
+    {"name": "source_last_update", "type": "core_string"}
+  ]
+}

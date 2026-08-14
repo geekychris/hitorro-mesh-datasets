@@ -37,7 +37,7 @@ record:
   fields:
     - { name: article,   type: core_string, role: "id.wikipedia_article", description: "URL slug — underscore-separated title, matches wikidata-city-sitelinks.enwiki_article" }
     - { name: title,     type: core_string, role: name,              description: "Display title (spaces instead of underscores)" }
-    - { name: rank,      type: core_long,                            description: "Position in the top-1000 (1 = highest)" }
+    - { name: view_rank, type: core_long,                            description: "Position in the top-1000 (1 = highest). Named view_rank rather than rank because `rank` is a Calcite reserved word (window function)." }
     - { name: views,     type: core_long,   role: "metric.pageviews", description: "Number of views on the sample day" }
     - { name: sample_date, type: core_string, role: "time.observed", description: "UTC date the top-1000 was sampled (YYYY-MM-DD)" }
 

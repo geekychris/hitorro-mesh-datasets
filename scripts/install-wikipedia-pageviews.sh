@@ -57,7 +57,7 @@ jq -c --arg d "$sample_date" '
     .items[0].articles[] | {
         article:     .article,
         title:       (.article | gsub("_"; " ")),
-        rank:        .rank,
+        view_rank:   .rank,
         views:       .views,
         sample_date: $d
     }
@@ -75,10 +75,10 @@ $(ok "installed $DATASET_ID")
 Try in the Datasets tab:
 
   # What's Wikipedia reading today?
-  SELECT rank, title, views FROM wikipedia_pageviews ORDER BY rank LIMIT 20;
+  SELECT view_rank, title, views FROM wikipedia_pageviews ORDER BY view_rank LIMIT 20;
 
   # Which of today's top articles look like city names Wikidata knows?
-  SELECT wp.rank, wp.title, wp.views, wd.wikidata_qid, wd.population
+  SELECT wp.view_rank, wp.title, wp.views, wd.wikidata_qid, wd.population
   FROM wikipedia_pageviews wp
   JOIN wikidata_cities wd ON wp.title = wd.name
   ORDER BY wp.views DESC LIMIT 30;

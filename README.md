@@ -52,6 +52,7 @@ cross-referenced ISO / GeoNames identifiers:
 | `huggingface-top-models` | HuggingFace — top-100 ML models by downloads | 100 | Custom (attribution) | First ML/AI dataset. Downloads, likes, pipeline task, library, license tag. Refreshable on demand. |
 | `nasa-apod` | NASA — Astronomy Picture of the Day (30 random) | 30 | Public domain | First photography/astronomy dataset. Title, explanation, image + HD URLs, media type, third-party copyright. Random sample per install. |
 | `retro-computers` | Retro home + personal computers (curated, 1975-2000) | 40 | CC-BY-SA | First retro-computing dataset. Hand-curated iconic machines with year, CPU, RAM, launch price, OS. |
+| `pypi-top-packages` | PyPI — top 200 Python packages by monthly downloads | 200 | CC0 | Python packaging ecosystem — rank, name, monthly downloads. Refreshable monthly. |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).

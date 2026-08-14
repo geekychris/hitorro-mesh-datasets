@@ -3,7 +3,7 @@
   "fields": [
     {"name": "article",     "type": "core_string"},
     {"name": "title",       "type": "core_string"},
-    {"name": "rank",        "type": "core_long"},
+    {"name": "view_rank",   "type": "core_long"},
     {"name": "views",       "type": "core_long"},
     {"name": "sample_date", "type": "core_string"}
   ]

@@ -88,6 +88,7 @@ public final class ManifestLoader {
             "github-top-repos",
             "huggingface-top-models",
             "nasa-apod",
-            "retro-computers"
+            "retro-computers",
+            "pypi-top-packages"
     };
 }

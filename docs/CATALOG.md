@@ -26,6 +26,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `huggingface-top-models` | 100 | HF public API | https://huggingface.co/api/models?sort=downloads&direction=-1&limit=100 |
 | `nasa-apod` | 30 | Public domain | https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=30 |
 | `retro-computers` | 40 | CC-BY-SA-4.0 | curated JSON in src/main/resources/data/retro-computers.json |
+| `pypi-top-packages` | 200 | CC0-1.0 | https://hugovk.github.io/top-pypi-packages/top-pypi-packages.min.json |
 
 ## Planned (see ROADMAP.md for detail)
 
