@@ -6,6 +6,7 @@ package com.hitorro.mesh.datasets;
 import com.hitorro.mesh.datasets.registry.Autoregistrar;
 import com.hitorro.mesh.datasets.registry.DatasetRegistry;
 import com.hitorro.mesh.datasets.registry.MeshRegistrar;
+import com.hitorro.mesh.datasets.semantic.PlaceJoinRewriter;
 import com.hitorro.mesh.datasets.spring.DatasetsAutoRegistrationAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -41,6 +42,9 @@ class DatasetsAutoRegistrationSpringTest {
             assertThat(ctx).hasSingleBean(DatasetRegistry.class);
             assertThat(ctx).hasSingleBean(MeshRegistrar.class);
             assertThat(ctx).hasSingleBean(Autoregistrar.class);
+            // Semantic rewriter available too — host apps that want to
+            // preprocess USING PLACE clauses just @Autowired it.
+            assertThat(ctx).hasSingleBean(PlaceJoinRewriter.class);
         });
     }
 

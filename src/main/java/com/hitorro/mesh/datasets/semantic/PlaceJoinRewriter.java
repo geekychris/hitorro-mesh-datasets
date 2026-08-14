@@ -162,15 +162,60 @@ public final class PlaceJoinRewriter {
         Relationship fwd = findExactIdTo(source.manifest, target.manifest.id());
         if (fwd != null) {
             String srcCol = singleVia(fwd, source.manifest.id());
-            String tgtCol = target.manifest.record().primaryKey();
+            String tgtCol = pickTargetColumn(source.manifest, srcCol, target.manifest);
             return castingEqui(source, srcCol, target, tgtCol);
         }
         // Reverse: target declares a relationship to source.
         Relationship rev = findExactIdTo(target.manifest, source.manifest.id());
         if (rev != null) {
             String tgtCol = singleVia(rev, target.manifest.id());
-            String srcCol = source.manifest.record().primaryKey();
+            String srcCol = pickTargetColumn(target.manifest, tgtCol, source.manifest);
             return castingEqui(source, srcCol, target, tgtCol);
+        }
+        return null;
+    }
+
+    /**
+     * Pick the target-side column for a join.
+     *
+     * <p>Prefers <em>identifier-role matching</em> when both sides declare
+     * the same namespace: if the source field has {@code role: id.iso3166alpha2}
+     * and the target has a field with the same role, that's the join column,
+     * regardless of primary keys. This is the mechanism that gets
+     * {@code wikidata_cities.country_iso → natural_earth_countries.iso_a2}
+     * right (the target's primaryKey is {@code iso_a3}, which would be wrong).</p>
+     *
+     * <p>Falls back to the target's primaryKey when no matching role is
+     * declared — the classical "foreign key into a primary key" case that
+     * {@code geonames-cities → geonames-country-info} follows.</p>
+     */
+    private static String pickTargetColumn(Manifest source, String sourceCol, Manifest target) {
+        String srcRole = roleOf(source.record(), sourceCol);
+        if (srcRole != null && srcRole.startsWith("id.")) {
+            String match = findFieldWithRole(target.record(), srcRole);
+            if (match != null) return match;
+            // The target's primary key might itself declare only role: id
+            // (unqualified). Check whether the pk's semantic namespace matches
+            // by looking at the id.* prefix.
+            String pk = target.record().primaryKey();
+            String pkRole = roleOf(target.record(), pk);
+            if (srcRole.equals(pkRole)) return pk;
+        }
+        return target.record().primaryKey();
+    }
+
+    private static String roleOf(RecordSpec spec, String colName) {
+        if (spec == null || spec.fields() == null) return null;
+        for (FieldSpec f : spec.fields()) {
+            if (f.name().equals(colName)) return f.role();
+        }
+        return null;
+    }
+
+    private static String findFieldWithRole(RecordSpec spec, String role) {
+        if (spec == null || spec.fields() == null) return null;
+        for (FieldSpec f : spec.fields()) {
+            if (role.equals(f.role())) return f.name();
         }
         return null;
     }

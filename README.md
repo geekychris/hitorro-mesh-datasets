@@ -78,16 +78,29 @@ JOIN natural_earth_countries ne USING PLACE
 WHERE gn.population > 500000
 ```
 
-and pipe it through the rewriter:
+and get one of three paths:
 
+**1. Preview locally via the CLI:**
 ```bash
 ./scripts/rewrite-sql.sh < query.sql
 ```
 
-which emits the concrete `ON` clauses computed from the declared
-`EXACT_ID` relationships (with automatic `CAST` when the source and
-target join columns have different types). Full mechanism in
-[`docs/SEMANTIC_JOINS.md`](docs/SEMANTIC_JOINS.md).
+**2. Live on the driver** (when this module is on the mesh-driver-app's
+classpath, which is now the default in `hitorro-mesh-driver-app` v3.0.1):
+```bash
+curl -X POST http://localhost:8085/mesh/queries -H 'Content-Type: application/json' -d '{
+  "sql":     "SELECT wd.name FROM wikidata_cities wd JOIN natural_earth_countries ne USING PLACE LIMIT 5",
+  "semantic": true
+}'
+```
+The response's `rewrittenSql` field carries the concrete SQL the planner
+actually saw; unchanged queries leave it `null`.
+
+**3. From Java** — inject `PlaceJoinRewriter` (auto-configured) and rewrite
+before whatever executor you're using.
+
+Full mechanism, including role-based target-column selection and CAST
+insertion, in [`docs/SEMANTIC_JOINS.md`](docs/SEMANTIC_JOINS.md).
 
 ### Auto-registration for Spring Boot drivers
 

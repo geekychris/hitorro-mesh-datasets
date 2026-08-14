@@ -107,6 +107,21 @@ class PlaceJoinRewriterTest {
     }
 
     @Test
+    void wikidata_to_natural_earth_matches_by_role_not_primary_key() {
+        // wikidata_cities.country_iso has role id.iso3166alpha2 (2-letter).
+        // natural_earth_countries has TWO ISO fields: iso_a2 with the same
+        // role, and iso_a3 as primaryKey. Naive "join to target.primaryKey"
+        // would emit ON country_iso = iso_a3 — WRONG (2-char vs 3-char, no
+        // rows would ever match). The rewriter must match by matching role
+        // so it emits iso_a2.
+        String out = rewriter.rewrite(
+                "SELECT * FROM wikidata_cities wd "
+              + "JOIN natural_earth_countries ne USING PLACE");
+        assertThat(out).contains("ON wd.country_iso = ne.iso_a2");
+        assertThat(out).doesNotContain("iso_a3");
+    }
+
+    @Test
     void reverse_declaration_from_wikidata_to_country_info() {
         // wikidata_cities.country_iso → geonames_country_info.iso
         String out = rewriter.rewrite(

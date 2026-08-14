@@ -52,15 +52,23 @@ For each `JOIN t USING PLACE`, in order:
    immediately preceding one.
 2. **Forward direction first** — does any prior manifest declare an
    `EXACT_ID` relationship whose `target` is this join's manifest? If so,
-   emit `<prior_alias>.<prior.via> = <target_alias>.<target.primaryKey>`.
+   pick the target column (see step 4) and emit
+   `<prior_alias>.<prior.via> = <target_alias>.<target_column>`.
 3. **Reverse direction** — does the join's manifest declare an `EXACT_ID`
-   relationship whose `target` is a prior manifest? If so, emit
-   `<prior_alias>.<prior.primaryKey> = <target_alias>.<target.via>`.
-4. **Type mismatch** — wrap the source column in
+   relationship whose `target` is a prior manifest? If so, pick the target
+   column and emit `<prior_alias>.<prior_column> = <target_alias>.<target.via>`.
+4. **Pick the target column by matching identifier role first, primaryKey
+   second.** If the source field carries `role: id.<namespace>` and the
+   target manifest has a field with the same role, that's the join
+   column. Otherwise fall back to `target.primaryKey`. This is what gets
+   `wikidata_cities.country_iso → natural_earth_countries.iso_a2` right
+   (naive "join to primaryKey" would emit `= iso_a3`, which is 3-letter,
+   never matches).
+5. **Type mismatch** — wrap the source column in
    `CAST(x AS <target_type>)`. Type mapping:
    `core_string→VARCHAR`, `core_long→BIGINT`, `core_int→INTEGER`,
    `core_double→DOUBLE`, `core_float→REAL`, `core_bool→BOOLEAN`.
-5. **No path found** — throw `SemanticJoinException` naming the target
+6. **No path found** — throw `SemanticJoinException` naming the target
    table and every prior it tried.
 
 ## Usage
@@ -72,14 +80,42 @@ echo "SELECT * FROM cities c JOIN countries USING PLACE" \
   | ./scripts/rewrite-sql.sh
 ```
 
-**From Java:**
+**From the mesh driver's REST endpoint** — when `hitorro-mesh-datasets`
+is on the driver-app's classpath (v3.0.1 default):
+
+```bash
+curl -X POST http://localhost:8085/mesh/queries -H 'Content-Type: application/json' -d '{
+  "sql":      "SELECT * FROM wikidata_cities wd JOIN natural_earth_countries ne USING PLACE",
+  "semantic": true
+}'
+```
+
+The response includes `rewrittenSql` (the concrete SQL that ran), or
+`null` if no rewrite was needed. Errors bubble as HTTP 400 with a message
+you can read.
+
+The driver also logs every rewrite at INFO level:
+
+```
+[semantic] rewrote USING PLACE
+  in : SELECT wd.name FROM wikidata_cities wd JOIN natural_earth_countries ne USING PLACE LIMIT 5
+  out: SELECT wd.name FROM wikidata_cities wd JOIN natural_earth_countries ne ON wd.country_iso = ne.iso_a2 LIMIT 5
+```
+
+**From Java** — Spring host apps get a `PlaceJoinRewriter` bean
+auto-configured:
+
+```java
+@Autowired PlaceJoinRewriter rewriter;
+String concreteSql = rewriter.rewrite(userSql);
+```
+
+Non-Spring hosts wire it manually:
 
 ```java
 DatasetRegistry registry = new DatasetRegistry().loadBundled();
 registry.scanInstalled();
 PlaceJoinRewriter rewriter = new PlaceJoinRewriter(registry);
-String concreteSql = rewriter.rewrite(userSql);
-// pass concreteSql to the mesh driver's /queries endpoint
 ```
 
 ## Scope of the MVP

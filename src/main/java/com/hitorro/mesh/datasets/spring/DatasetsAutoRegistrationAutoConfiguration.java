@@ -6,6 +6,7 @@ package com.hitorro.mesh.datasets.spring;
 import com.hitorro.mesh.datasets.registry.Autoregistrar;
 import com.hitorro.mesh.datasets.registry.DatasetRegistry;
 import com.hitorro.mesh.datasets.registry.MeshRegistrar;
+import com.hitorro.mesh.datasets.semantic.PlaceJoinRewriter;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -68,6 +69,19 @@ public class DatasetsAutoRegistrationAutoConfiguration {
                                        MeshRegistrar mesh,
                                        DatasetsAutoRegistrationProperties props) {
         return new Autoregistrar(registry, mesh, props.getSkip());
+    }
+
+    /**
+     * The semantic-join rewriter. Host apps (typically the mesh-driver-app)
+     * can inject this and use it to preprocess SQL that carries
+     * {@code USING PLACE} clauses. Registered here — rather than as its own
+     * autoconfig — because it's the same registry-consumer chain, and hosts
+     * that want the datasets module usually want the rewriter too.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public PlaceJoinRewriter placeJoinRewriter(DatasetRegistry registry) {
+        return new PlaceJoinRewriter(registry);
     }
 
     @Bean

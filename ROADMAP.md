@@ -46,7 +46,7 @@ Ordered by which datasets unlock them:
 | Broadcast dimension tables | Shipped | Any small lookup | Country info uses it today. |
 | `LicenseAlgebra.combine` | Shipped | Query-time license warnings | Registered but not yet consulted by the planner. |
 | **Bundled manifest → auto-registration** | Shipped | v3.0.1 | `Autoregistrar` + Spring Boot autoconfigure + CLI + `./scripts/register-installed.sh`. Zero-friction auto-registration on driver-app startup when the datasets jar is on the classpath. |
-| **`USING PLACE` SQL syntax** | Shipped (preprocessor) | v3.0.1 | `PlaceJoinRewriter` rewrites `JOIN t USING PLACE` → `JOIN t ON a.x = b.y` using declared `EXACT_ID` relationships, with automatic `CAST` on type mismatch. Regex-based; a jvssql-native Calcite grammar extension is the future upgrade. |
+| **`USING PLACE` SQL syntax** | Shipped (preprocessor) | v3.0.1 | `PlaceJoinRewriter` rewrites `JOIN t USING PLACE` → `JOIN t ON a.x = b.y` using declared `EXACT_ID` relationships, with automatic `CAST` on type mismatch and role-based target-column selection (`country_iso → iso_a2` not `iso_a3`). Wired into the mesh-driver-app's `/mesh/queries` endpoint behind a `semantic:true` request flag; auto-registered dataset manifests. Regex-based; a jvssql-native Calcite grammar extension is the future upgrade. |
 | **`USING ENTITY` SQL syntax** | Planned | Wikidata-glue joins | Same idea, but through the Wikidata cross-reference graph. |
 | **`CONFIDENCE > x` join filter** | Planned | Probabilistic joins | The confidence score already fits on a `RecordEnvelope`; needs SQL surface + planner rule. |
 | **Spatial predicate joins** | Planned | Any point-vs-polygon query | Needs a spatial index on the agent side — either JTS with an R-tree or S2 cells. |
