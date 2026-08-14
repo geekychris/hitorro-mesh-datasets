@@ -84,6 +84,7 @@ public final class ManifestLoader {
             "osm-airports",
             "wikidata-city-sitelinks",
             "openalex-institutions",
-            "coingecko-crypto"
+            "coingecko-crypto",
+            "github-top-repos"
     };
 }

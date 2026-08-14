@@ -1,0 +1,21 @@
+{
+  "name": "github_top_repos",
+  "fields": [
+    {"name": "github_id",         "type": "core_long"},
+    {"name": "full_name",         "type": "core_string"},
+    {"name": "name",              "type": "core_string"},
+    {"name": "owner_login",       "type": "core_string"},
+    {"name": "owner_type",        "type": "core_string"},
+    {"name": "description",       "type": "core_string"},
+    {"name": "stargazers_count",  "type": "core_long"},
+    {"name": "forks_count",       "type": "core_long"},
+    {"name": "watchers_count",    "type": "core_long"},
+    {"name": "open_issues_count", "type": "core_long"},
+    {"name": "primary_language",  "type": "core_string"},
+    {"name": "license_spdx",      "type": "core_string"},
+    {"name": "homepage",          "type": "core_string"},
+    {"name": "topics",            "type": "core_string"},
+    {"name": "created_at",        "type": "core_string"},
+    {"name": "updated_at",        "type": "core_string"}
+  ]
+}

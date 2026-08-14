@@ -24,7 +24,8 @@ class ManifestLoaderTest {
                 "worldbank-indicators", "usgs-earthquakes",
                 "owid-co2-latest", "wikipedia-pageviews",
                 "osm-airports", "wikidata-city-sitelinks",
-                "openalex-institutions", "coingecko-crypto" }) {
+                "openalex-institutions", "coingecko-crypto",
+                "github-top-repos" }) {
             Manifest m = ManifestLoader.loadBundled(id);
             assertThat(m.metadata())
                     .withFailMessage("%s: metadata block missing", id)
@@ -289,9 +290,26 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_github_top_repos_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("github-top-repos");
+        assertThat(m.id()).isEqualTo("github-top-repos");
+        assertThat(m.license().spdx()).isEqualTo("CC-BY-4.0");
+        assertThat(m.record().primaryKey()).isEqualTo("github_id");
+        // No cross-dataset relationships — GitHub repos don't share an
+        // identifier with any other catalog dataset.
+        assertThat(m.relationships()).isEmpty();
+        // metric.stars is what quick-query buttons hook into for "top by …"
+        assertThat(m.record().fields())
+                .filteredOn(f -> "stargazers_count".equals(f.name()))
+                .singleElement()
+                .extracting("role")
+                .isEqualTo("metric.stars");
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(14);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(15);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.

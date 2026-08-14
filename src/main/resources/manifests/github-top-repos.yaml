@@ -1,0 +1,90 @@
+id: github-top-repos
+title: GitHub — top-100 repositories by star count
+version: "1.0"
+
+description: >
+  Snapshot of the top-100 GitHub repositories ranked by star count.
+  Fetched at install time from GitHub's public search API. Rows carry
+  full name (owner/repo), owner, description, star / fork / watcher
+  counts, primary language, licence (SPDX), homepage, topic tags,
+  and created / updated timestamps.
+
+  First developer / software-domain dataset. No relationships to any
+  other catalog dataset — programming projects don't share an
+  identifier with cities, countries, or cryptocurrencies. Interesting
+  standalone for language / topic / license distributions.
+
+license:
+  spdx: CC-BY-4.0
+  attribution: "GitHub, Inc. — repository metadata via the public REST API"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://api.github.com/search/repositories?q=stars:>100000&sort=stars&order=desc&per_page=100
+  format: json
+  checksum: null
+
+record:
+  type: software.Repo
+  primaryKey: github_id
+  fields:
+    - { name: github_id,        type: core_long,   role: id,                description: "GitHub numeric repository id" }
+    - { name: full_name,        type: core_string, role: "id.github_slug",  description: "owner/repo — unique canonical slug" }
+    - { name: name,             type: core_string, role: name }
+    - { name: owner_login,      type: core_string }
+    - { name: owner_type,       type: core_string,                          description: "User | Organization" }
+    - { name: description,      type: core_string }
+    - { name: stargazers_count, type: core_long,   role: "metric.stars" }
+    - { name: forks_count,      type: core_long,   role: "metric.forks" }
+    - { name: watchers_count,   type: core_long,   role: "metric.watchers" }
+    - { name: open_issues_count, type: core_long,  role: "metric.open_issues" }
+    - { name: primary_language, type: core_string,                          description: "Primary language per GitHub linguist inference. Nullable for polyglot repos. Named primary_language rather than language because `language` is a Calcite reserved word." }
+    - { name: license_spdx,     type: core_string,                          description: "SPDX identifier of the repo's declared licence. Nullable when no LICENSE file." }
+    - { name: homepage,         type: core_string }
+    - { name: topics,           type: core_string,                          description: "Comma-separated topic tags (installer flattens the JSON array so basic SQL LIKE works)" }
+    - { name: created_at,       type: core_string,                          description: "ISO-8601 UTC" }
+    - { name: updated_at,       type: core_string,                          description: "ISO-8601 UTC — last push, roughly" }
+
+provides:
+  - metric.stars
+  - metric.forks
+
+identifiers:
+  produces:
+    - github_repo
+    - github_slug
+  maps: []
+
+partitionBy: null
+
+# No cross-dataset relationships. GitHub repos don't share an identifier
+# with any of the geographic / country / financial datasets. Could later
+# add a probabilistic language-code join to some future language dataset.
+relationships: []
+
+metadata:
+  useCases:
+    - "Language distribution across the world's most-starred repos"
+    - "'Which repos have the most stars per fork?' — engagement ratio"
+    - "License audit — how many top-100 repos are MIT vs Apache-2 vs no LICENSE at all?"
+    - "'Awesome-list' style repos filtered by topic tags (LIKE '%awesome%')"
+  methodology: >
+    Fetched at install time from api.github.com/search/repositories. The
+    query filters to stars > 100 000, sorts descending, and takes the
+    first 100 results. GitHub's search API returns eventually-consistent
+    counts — star counts can lag reality by minutes-to-hours during
+    peak load. Language inference is GitHub's linguist algorithm, which
+    can misidentify polyglot repos (returns null when confidence is
+    below threshold). Topics come from the repo's manually-set list; we
+    flatten to a comma-separated string so simple SQL LIKE works.
+  stats:
+    rowCount: 100
+    sizeBytes: 65536
+    refreshCadence: "on-demand (source updates continuously; re-install to refresh)"
+    coverage: "Global — every repo with >100k stars, currently ~123 of them"
+  furtherReading: "https://docs.github.com/en/rest/search/search#search-repositories"
