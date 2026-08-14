@@ -1,0 +1,77 @@
+id: wikidata-cities
+title: Wikidata — cities > 100 000 (with cross-references)
+version: "1.0"
+
+description: >
+  Every Wikidata entity that is-a city (Q515) with population > 100 000,
+  carrying its Wikidata QID, canonical name, coordinates, and — critically
+  — the cross-references to GeoNames (P1566) and to its country's ISO-3166
+  alpha-2 (via P17 → P297). About 1500-2500 rows depending on Wikidata's
+  freshness; small enough to broadcast.
+
+  This is the identity-glue dataset. Every other geographic table can join
+  to it, and joins that would otherwise need entity resolution ("which
+  Wikidata Q number is this NOAA station's containing country?") become
+  straight equi-joins through the QID. Wikidata's real power in this
+  catalog isn't its own rows — it's that the QID is the one identifier
+  every other dataset can be made to speak.
+
+license:
+  spdx: CC0-1.0
+  attribution: "Wikidata contributors"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  # SPARQL against Wikidata's public endpoint. The install script embeds the
+  # query. Not a plain URL because SPARQL queries are POST bodies — we record
+  # the endpoint here so the manifest still names the canonical source.
+  type: sparql
+  url: https://query.wikidata.org/sparql
+  format: sparql-results+json
+  checksum: null
+
+record:
+  type: geo.City
+  primaryKey: wikidata_qid
+  fields:
+    - { name: wikidata_qid, type: core_string, role: id,                 description: "Wikidata Q identifier" }
+    - { name: name,         type: core_string, role: name,               description: "English label (SERVICE wikibase:label)" }
+    - { name: population,   type: core_long,   role: geo.population }
+    - { name: latitude,     type: core_double, role: geo.lat }
+    - { name: longitude,    type: core_double, role: geo.lon }
+    - { name: geonames_id,  type: core_string, role: "id.geonames",      description: "P1566 — GeoNames identifier" }
+    - { name: country_qid,  type: core_string, role: "id.wikidata",      description: "P17 — Wikidata QID of the containing country" }
+    - { name: country_iso,  type: core_string, role: "id.iso3166alpha2", description: "P297 on the country entity" }
+
+provides:
+  - geo.name
+  - geo.point
+  - geo.population
+
+identifiers:
+  produces:
+    - wikidata
+  maps:
+    - geonames
+    - iso3166alpha2
+
+partitionBy: null   # broadcast — ~2k rows
+
+relationships:
+  # The whole reason this dataset exists. GeoNames IDs let us join directly
+  # to GeoNames cities without any name-matching heuristics.
+  - target: geonames-cities15000
+    kind: EXACT_ID
+    via: [geonames_id]
+
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [country_iso]
+
+  - target: natural-earth-countries
+    kind: EXACT_ID
+    via: [country_iso]

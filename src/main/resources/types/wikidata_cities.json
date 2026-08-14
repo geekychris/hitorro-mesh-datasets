@@ -1,0 +1,13 @@
+{
+  "name": "wikidata_cities",
+  "fields": [
+    {"name": "wikidata_qid", "type": "core_string"},
+    {"name": "name",         "type": "core_string"},
+    {"name": "population",   "type": "core_long"},
+    {"name": "latitude",     "type": "core_double"},
+    {"name": "longitude",    "type": "core_double"},
+    {"name": "geonames_id",  "type": "core_string"},
+    {"name": "country_qid",  "type": "core_string"},
+    {"name": "country_iso",  "type": "core_string"}
+  ]
+}

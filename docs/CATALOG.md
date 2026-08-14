@@ -11,14 +11,16 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `geonames-cities15000` | ~26 000 | CC-BY-4.0 | https://download.geonames.org/export/dump/cities15000.zip |
 | `geonames-country-info` | ~250 | CC-BY-4.0 | https://download.geonames.org/export/dump/countryInfo.txt |
 | `natural-earth-countries` | ~258 | Public domain | https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson |
+| `wikidata-cities` | ~2 200 | CC0 | https://query.wikidata.org/sparql (P31=Q515, P1082>100k) |
 
 ## Planned (see ROADMAP.md for detail)
 
 - `geonames-alternate-names-v2`
 - `natural-earth-admin1`
 - `natural-earth-rivers-lakes`
-- `wikidata-geo-subset`
-- `wikidata-full` (deferred until dump strategy is settled)
+- `wikidata-cities-with-labels-mul` (~2 k rows × ~10 languages — enlarges wikidata-cities with multilingual labels)
+- `wikidata-countries` (~200 rows — country-level cross-reference table)
+- `wikidata-full` (deferred until dump strategy is settled; SPARQL cap is ~10 M triples per query)
 - `us-census-acs5`
 - `noaa-ghcnd-normals`
 - `owid-country-indicators`
