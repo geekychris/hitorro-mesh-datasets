@@ -141,6 +141,45 @@ wins:
       set (OSM tagging quirk), so this is the tip of the iceberg;
       SPATIAL rewriter will unlock the full set once mesh phase-4b lands.
 
+  - title: "UN Least-Developed Countries with region context"
+    datasets: [geonames-country-info, un-m49-areas]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT ci.country, ci.continent,
+             m.sub_region_name, m.least_developed
+      FROM geonames_country_info ci
+      JOIN un_m49_areas m USING PLACE
+      WHERE m.least_developed = true
+      ORDER BY ci.country LIMIT 15
+    note: |
+      The 44 UN Least-Developed Countries listed with continent + UN
+      sub-region. Afghanistan (South Asia), Angola (Sub-Saharan Africa
+      / Middle Africa), Cambodia (South-eastern Asia), ... Rewriter
+      joins ISO alpha-2 (ci.iso = m.iso2). First win that uses M49's
+      development-status flags.
+
+  - title: "World Bank indicators for UN Least-Developed Countries"
+    datasets: [worldbank-indicators, un-m49-areas]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT wb.name, wb.gdp_per_capita_usd, wb.life_expectancy_years,
+             m.region_name, m.sub_region_name
+      FROM worldbank_indicators wb
+      JOIN un_m49_areas m USING PLACE
+      WHERE m.least_developed = true
+      LIMIT 20
+    note: |
+      World Bank stats slice on the UN Least-Developed Country list.
+      First query that uses M49's development classifications joined
+      to actual economic indicators. Rewriter joins ISO alpha-3
+      (wb.iso_a3 = m.iso3).
+
   - title: "USGS earthquakes near country polygons (bbox spatial)"
     datasets: [usgs-earthquakes, natural-earth-countries]
     kind: spatial

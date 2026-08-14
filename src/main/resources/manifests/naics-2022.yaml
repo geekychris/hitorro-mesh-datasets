@@ -1,0 +1,76 @@
+id: naics-2022
+title: NAICS 2022 — US industry classification (sectors + subsectors)
+version: "1.0"
+
+description: >
+  North American Industry Classification System 2022, levels 2 (sector,
+  ~24 rows) and 3 (subsector, ~100 rows). NAICS is the US federal
+  standard for statistical business classification, used by the Census
+  Bureau, BLS, SEC (via SIC/NAICS crosswalks) and the IRS. Six-digit
+  US Industries are omitted here (~1000 rows) — add on demand.
+
+  Self-joining: 2-digit sectors have parent_code = NULL, 3-digit
+  subsectors have parent_code pointing at their sector. Query
+  hierarchically with a recursive CTE or WHERE parent_code IS NULL for
+  top level only.
+
+  Sits alone in the current catalog — future SEC / company / employment
+  datasets will carry NAICS codes and join back through `code`.
+
+license:
+  spdx: Public-Domain
+  attribution: "US Census Bureau — NAICS 2022 (public domain, US Federal Government work)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: local
+  url: "src/main/resources/data/naics-2022.json (bundled in this repo)"
+  format: json
+  checksum: null
+
+record:
+  type: standards.NAICS
+  primaryKey: code
+  fields:
+    - { name: code,        type: core_string, role: "id.naics",  description: "NAICS 2022 code — 2-digit sector or 3-digit subsector" }
+    - { name: level,       type: core_long,                       description: "2 = sector, 3 = subsector" }
+    - { name: parent_code, type: core_string,                     description: "For level=3, the parent 2-digit sector; NULL for level=2" }
+    - { name: title,       type: core_string, role: name,         description: "Official NAICS title" }
+
+provides:
+  - standards.industry
+
+identifiers:
+  produces:
+    - naics
+  maps: []
+
+partitionBy: null
+
+# Self-join only for now — no other dataset in the catalog carries
+# NAICS codes. When SEC EDGAR / BLS QCEW / Census Business Patterns
+# land, they'll declare relationships back to this table.
+relationships: []
+
+metadata:
+  useCases:
+    - "'What are all 3-digit subsectors of Manufacturing?' — WHERE parent_code IN ('31','32','33')"
+    - "Enrich any SEC filing / employer dataset that carries a NAICS code with the human-readable sector name"
+    - "Roll company counts up from 6-digit to sector for high-level industry mix reports"
+  methodology: >
+    NAICS 2022 published by the US Office of Management and Budget in
+    coordination with Statistics Canada and Mexico's INEGI. This slice
+    is the 2-digit and 3-digit levels — the levels used for cross-
+    country comparability. 4-digit industry groups and 6-digit US
+    industries (~1000 more rows) are omitted here as noise for the
+    demo; add a naics-2022-full manifest to include them.
+  stats:
+    rowCount: 120
+    sizeBytes: 12288
+    refreshCadence: "static (NAICS revised every 5 years — next revision expected 2027)"
+    coverage: "All 24 sectors + all 100 subsectors of NAICS 2022. Sector titles for 31, 32, 33, 44, 45, 48, 49 were pluralised to distinguish them because NAICS collapses these ranges under a single sector name."
+  furtherReading: "https://www.census.gov/naics/"

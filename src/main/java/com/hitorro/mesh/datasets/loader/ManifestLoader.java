@@ -92,6 +92,8 @@ public final class ManifestLoader {
             "pypi-top-packages",
             "npm-top-packages",
             "iso-currencies",
-            "iso-languages"
+            "iso-languages",
+            "un-m49-areas",
+            "naics-2022"
     };
 }

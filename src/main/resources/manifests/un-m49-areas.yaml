@@ -1,0 +1,104 @@
+id: un-m49-areas
+title: UN M49 standard — countries with region hierarchy
+version: "1.0"
+
+description: >
+  The UN Statistics Division's M49 area codes: 231 countries and territories,
+  each assigned a numeric M49 code plus continental region (Africa, Americas,
+  Asia, Europe, Oceania), UN sub-region (Northern Europe, Sub-Saharan Africa,
+  ...), and (where applicable) intermediate region (Middle Africa, Caribbean,
+  Channel Islands, ...). Also carries three UN development classifications:
+  Least-Developed Countries, Landlocked Developing Countries, Small-Island
+  Developing States.
+
+  Broadcast dimension table. Joins to any country dataset via ISO alpha-3 —
+  most obviously geonames-country-info, wikidata-countries, natural-earth-
+  countries, and worldbank-indicators. Turns "GDP per country" into "GDP
+  per Sub-Saharan Africa" with one JOIN.
+
+license:
+  spdx: LicenseRef-UN-M49-Public
+  attribution: "United Nations Statistics Division — M49 standard for statistical use of countries and areas"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: local
+  url: "src/main/resources/data/un-m49-areas.json (bundled in this repo)"
+  format: json
+  checksum: null
+
+record:
+  type: standards.M49Area
+  primaryKey: m49
+  fields:
+    - { name: m49,                      type: core_string, role: "id.unm49",           description: "3-digit UN M49 country code" }
+    - { name: iso2,                     type: core_string, role: "id.iso3166alpha2",   description: "ISO 3166-1 alpha-2 — joins to geonames-country-info" }
+    - { name: iso3,                     type: core_string, role: "id.iso3166alpha3",   description: "ISO 3166-1 alpha-3 — joins to wikidata / worldbank / natural-earth" }
+    - { name: name,                     type: core_string, role: name,                 description: "UN-preferred country name" }
+    - { name: region_code,              type: core_string,                             description: "M49 continent code: 002 Africa, 019 Americas, 142 Asia, 150 Europe, 009 Oceania" }
+    - { name: region_name,              type: core_string,                             description: "Continent name" }
+    - { name: sub_region_code,          type: core_string,                             description: "M49 UN geoscheme sub-region code" }
+    - { name: sub_region_name,          type: core_string,                             description: "e.g. Northern Europe, Sub-Saharan Africa, Central Asia" }
+    - { name: intermediate_region_code, type: core_string,                             description: "M49 intermediate region — mostly for Africa & Americas" }
+    - { name: intermediate_region_name, type: core_string,                             description: "e.g. Middle Africa, Caribbean, Channel Islands" }
+    - { name: least_developed,          type: core_boolean,                            description: "UN Least-Developed Country classification" }
+    - { name: landlocked_developing,    type: core_boolean,                            description: "UN Landlocked Developing Country" }
+    - { name: small_island_developing,  type: core_boolean,                            description: "UN Small-Island Developing State" }
+
+provides:
+  - standards.region
+  - standards.sub_region
+
+identifiers:
+  produces:
+    - unm49
+    - iso3166alpha2
+    - iso3166alpha3
+  maps:
+    - iso3166alpha2
+    - iso3166alpha3
+
+partitionBy: null
+
+relationships:
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [iso2]
+
+  - target: wikidata-countries
+    kind: EXACT_ID
+    via: [iso3]
+
+  - target: natural-earth-countries
+    kind: EXACT_ID
+    via: [iso3]
+
+  - target: worldbank-indicators
+    kind: EXACT_ID
+    via: [iso3]
+
+metadata:
+  useCases:
+    - "Aggregate any country-level metric up to region / sub-region"
+    - "'Which are the small-island developing states?' — one WHERE clause"
+    - "Add continent to any city / country / airport table for map colouring"
+    - "Compare Northern Europe vs Southern Europe indicators without maintaining a manual grouping"
+  methodology: >
+    Full UN M49 standard as published by the UN Statistics Division —
+    'Standard country or area codes for statistical use (M49)'. Includes
+    every country and territory that has an M49 numeric code. The three
+    development-status flags (Least-Developed, Landlocked-Developing,
+    Small-Island Developing) are pulled from the same UN publication and
+    are the classification used across UN, World Bank, and OECD reports.
+    Antarctica has no UN region assigned; the row is included with null
+    region fields.
+  stats:
+    rowCount: 236
+    sizeBytes: 65536
+    refreshCadence: "static (UN edits M49 rarely — last major change was ~2022 for Türkiye rename)"
+    coverage: "Every UN M49 area (all countries + territories with M49 codes)"
+  furtherReading: "https://unstats.un.org/unsd/methodology/m49/"

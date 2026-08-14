@@ -1,0 +1,9 @@
+{
+  "name": "naics_2022",
+  "fields": [
+    {"name": "code",         "type": "core_string"},
+    {"name": "level",        "type": "core_long"},
+    {"name": "parent_code",  "type": "core_string"},
+    {"name": "title",        "type": "core_string"}
+  ]
+}

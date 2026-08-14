@@ -1,0 +1,18 @@
+{
+  "name": "un_m49_areas",
+  "fields": [
+    {"name": "m49",                       "type": "core_string"},
+    {"name": "iso2",                      "type": "core_string"},
+    {"name": "iso3",                      "type": "core_string"},
+    {"name": "name",                      "type": "core_string"},
+    {"name": "region_code",               "type": "core_string"},
+    {"name": "region_name",               "type": "core_string"},
+    {"name": "sub_region_code",           "type": "core_string"},
+    {"name": "sub_region_name",           "type": "core_string"},
+    {"name": "intermediate_region_code",  "type": "core_string"},
+    {"name": "intermediate_region_name",  "type": "core_string"},
+    {"name": "least_developed",           "type": "core_boolean"},
+    {"name": "landlocked_developing",     "type": "core_boolean"},
+    {"name": "small_island_developing",   "type": "core_boolean"}
+  ]
+}
