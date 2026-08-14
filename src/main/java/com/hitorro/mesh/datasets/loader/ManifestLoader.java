@@ -85,6 +85,9 @@ public final class ManifestLoader {
             "wikidata-city-sitelinks",
             "openalex-institutions",
             "coingecko-crypto",
-            "github-top-repos"
+            "github-top-repos",
+            "huggingface-top-models",
+            "nasa-apod",
+            "retro-computers"
     };
 }
