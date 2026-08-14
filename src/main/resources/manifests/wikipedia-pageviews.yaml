@@ -55,3 +55,23 @@ partitionBy: null
 # anything else in the catalog today. When wikidata sitelinks land as
 # their own dataset, we'll add a probabilistic name-based relationship.
 relationships: []
+
+metadata:
+  useCases:
+    - "'What is the internet reading about today?' — top-1000 English Wikipedia articles"
+    - "Zeitgeist / current-events layer for news and trend detection"
+    - "Join with wikidata_city_sitelinks to see which cities are trending"
+  methodology: >
+    Wikimedia's public REST API aggregates pageview logs into per-hour
+    and per-day summaries. This dataset pulls the top-1000 English
+    Wikipedia articles for the most recent complete UTC day. Bot traffic
+    is filtered out server-side (all-agents = human + spider requests,
+    minus known bots). The endpoint typically lags ~24 hours behind
+    real-time; the install script retries the last 5 days until one
+    returns.
+  stats:
+    rowCount: 1000
+    sizeBytes: 65536
+    refreshCadence: "daily (source updates ~24-48h behind real-time; re-install to refresh)"
+    coverage: "English Wikipedia only. First-page-view rank — everything at rank 1001+ is silently dropped"
+  furtherReading: "https://www.mediawiki.org/wiki/Wikimedia_REST_API"

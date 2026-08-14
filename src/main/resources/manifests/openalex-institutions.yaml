@@ -81,3 +81,24 @@ relationships:
   # Same rule applies for any other iso3-keyed target (owid-co2-latest,
   # future World Bank time-series): route through wikidata-countries or
   # geonames-country-info as the hub.
+
+metadata:
+  useCases:
+    - "Top research institutions by citation count worldwide"
+    - "Country research footprint (institutions + citations per country)"
+    - "'Which cities host the most-cited universities?'"
+    - "Baseline for future joins to individual works / authors when those datasets land"
+  methodology: >
+    OpenAlex is a free scholarly search index started by OurResearch in
+    2022, built on the retired Microsoft Academic Graph. It ingests
+    Crossref, PubMed, ORCID, ROR, and institutional web crawls, then
+    disambiguates authors and institutions using ML. Citation counts are
+    the sum of citations to every work OpenAlex has associated with the
+    institution — inflates for older, larger orgs. This dataset ships the
+    top 400 by that metric.
+  stats:
+    rowCount: 400
+    sizeBytes: 131072
+    refreshCadence: "monthly (OpenAlex refreshes counts weekly; re-install to update)"
+    coverage: "Global. Universities, national labs, hospitals, and industry R&D. Top by absolute citation count."
+  furtherReading: "https://docs.openalex.org/api-entities/institutions"

@@ -74,3 +74,23 @@ relationships:
   - target: geonames-country-info
     kind: EXACT_ID
     via: [iso_a3]
+
+metadata:
+  useCases:
+    - "Top emitters (absolute and per-capita)"
+    - "Correlate CO2/capita with GDP/capita (via worldbank_indicators, one hop)"
+    - "Coal vs oil vs gas breakdown per country"
+    - "'Which countries emit disproportionately more than their share of global GDP?'"
+  methodology: >
+    Our World in Data merges three primary sources: the Global Carbon
+    Project (annual carbon budget), the Energy Institute Statistical
+    Review of World Energy (formerly BP), and Ember (electricity). OWID's
+    contribution is transparent aggregation code + a single tidy CSV per
+    domain, plus their historical reconstructions. This dataset picks 8
+    high-coverage columns per country's latest reporting year.
+  stats:
+    rowCount: 215
+    sizeBytes: 65536
+    refreshCadence: "annually (OWID refreshes CO2 dataset every ~3 months as GCP publishes)"
+    coverage: "Every country reporting to GCP + a few territories (~215 total)"
+  furtherReading: "https://github.com/owid/co2-data"

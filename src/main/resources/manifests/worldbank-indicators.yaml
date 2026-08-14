@@ -71,3 +71,25 @@ relationships:
   - target: geonames-country-info
     kind: EXACT_ID
     via: [iso_a3]
+
+metadata:
+  useCases:
+    - "Filter any dataset by 'countries where GDP per capita > $X'"
+    - "Life expectancy vs unemployment scatterplots at country resolution"
+    - "Normalise any absolute metric to per-capita by joining on iso_a3"
+    - "Baseline socioeconomic layer for choropleth maps"
+  methodology: >
+    Aggregated by the World Bank Group from national statistical offices,
+    with modelling for gaps. Latest year per country is picked over a
+    5-year lookback window — for indicators like unemployment or
+    electricity access, some countries lag 1-3 years. World Development
+    Indicators (WDI) is the flagship compilation; this dataset picks 8
+    high-coverage columns from WDI. Aggregates (regions, income groups)
+    are blocklisted from the shipped rows so joins to country-shaped
+    datasets stay clean.
+  stats:
+    rowCount: 213
+    sizeBytes: 65536
+    refreshCadence: "annually (World Bank publishes April + October)"
+    coverage: "Every country the World Bank tracks — ~215 including some non-member territories"
+  furtherReading: "https://datatopics.worldbank.org/world-development-indicators/"

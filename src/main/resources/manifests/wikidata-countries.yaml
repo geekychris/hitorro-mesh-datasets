@@ -82,3 +82,21 @@ relationships:
   # no field pointing at a specific city). The declaration lives on the
   # wikidata-cities manifest (target: wikidata-countries, via: country_qid)
   # and the rewriter walks both directions on lookup.
+
+metadata:
+  useCases:
+    - "Cross-ID translation hub — one join hops from ISO-2 to ISO-3, FIPS, UN M.49, or Wikidata QID"
+    - "Bridge USGS/NOAA (FIPS) to World Bank / OWID (ISO-3) in one query"
+    - "Answer: which countries share both a FIPS code and a Wikidata QID (all of them, unless the mapping is broken)"
+  methodology: >
+    Fetched at install time by SPARQL. Filters items whose Wikidata P31
+    is sovereign state (Q3624078) OR country (Q6256); joins P297 (ISO
+    alpha-2), P298 (alpha-3), P299 (numeric), P901 (FIPS 10-4), P2082
+    (UN M.49), P30 (continent), P1082 (population). Wikidata is CC0 and
+    is updated as governments change (dependencies, splits, name changes).
+  stats:
+    rowCount: 217
+    sizeBytes: 32768
+    refreshCadence: "monthly (Wikidata updates continuously)"
+    coverage: "Every sovereign state + observer states + dependencies with a Wikidata Q-item"
+  furtherReading: "https://www.wikidata.org/wiki/Property:P297"

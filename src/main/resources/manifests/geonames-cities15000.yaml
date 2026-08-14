@@ -74,3 +74,22 @@ relationships:
     params:
       method: "name+geo+parent"
       minConfidence: 0.90
+
+metadata:
+  useCases:
+    - "Most-populous cities per country / continent"
+    - "Enrich any dataset carrying a city name with population, coords, timezone"
+    - "Baseline geographic reference for map visualisations"
+  methodology: >
+    GeoNames is a crowd-maintained open geographic database begun in 2005.
+    Feature-code taxonomy (P = populated place, PPL/PPLC/PPLA sub-codes)
+    lets you filter by settlement class. Data is aggregated from national
+    postal/statistical offices, US NGA/NGIA, and Wikimapia, then
+    edit-reviewed. This slice = every populated place with population
+    >= 15 000 — small enough to broadcast, big enough for global coverage.
+  stats:
+    rowCount: 26567
+    sizeBytes: 3200000
+    refreshCadence: "static (GeoNames refreshes source daily; re-run install to update)"
+    coverage: "Every UN member + territories, ~250 country codes"
+  furtherReading: "https://download.geonames.org/export/dump/readme.txt"

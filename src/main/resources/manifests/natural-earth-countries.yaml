@@ -92,3 +92,24 @@ relationships:
     params:
       predicate: contains
       targetField: [latitude, longitude]
+
+metadata:
+  useCases:
+    - "Point-in-polygon: which country does this lat/lon belong to?"
+    - "Continent / subregion / UN region roll-ups for any country dataset"
+    - "GDP-per-capita and income-group tags for country choropleths"
+    - "Bounding-box pre-filter for spatial joins (mesh SPATIAL rewriter uses this)"
+  methodology: >
+    Natural Earth is a public-domain map dataset curated by Nathaniel Vaughn
+    Kelso and volunteer contributors. Cartographically hand-generalised
+    from higher-resolution sources so scale-appropriate detail is preserved.
+    This slice = 1:110-million (world / continental) admin-0 polygons —
+    small enough to broadcast, coarse enough for country-level attribution.
+    Install script computes per-country bboxes at ingest for the SPATIAL
+    rewriter.
+  stats:
+    rowCount: 258
+    sizeBytes: 1200000
+    refreshCadence: "quarterly (Natural Earth cuts releases every 3-6 months)"
+    coverage: "Every populated country + Antarctica + disputed territories"
+  furtherReading: "https://www.naturalearthdata.com/"

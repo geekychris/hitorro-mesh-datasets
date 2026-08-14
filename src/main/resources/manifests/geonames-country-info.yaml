@@ -70,3 +70,19 @@ relationships:
   - target: geonames-cities15000
     kind: EXACT_ID
     via: [iso]
+
+metadata:
+  useCases:
+    - "Look up continent, currency, capital for any ISO-2 country code"
+    - "Small dimension table for country enrichment in every geographic query"
+    - "Ground truth for country phone / postal / timezone metadata"
+  methodology: >
+    Hand-curated country info file from GeoNames. Combines ISO 3166-1
+    codes (alpha-2, alpha-3, numeric), FIPS 10-4, ITU calling codes, and
+    postal-format regexes. Updated whenever ISO/UN publishes changes.
+  stats:
+    rowCount: 252
+    sizeBytes: 32768
+    refreshCadence: "monthly (GeoNames edits when ISO/UN changes)"
+    coverage: "Every ISO 3166-1 country + a few dependencies / disputed territories"
+  furtherReading: "https://www.geonames.org/countries/"

@@ -74,3 +74,22 @@ relationships:
     params:
       predicate: within
       targetField: geometry
+
+metadata:
+  useCases:
+    - "Look up any airport by 3-letter IATA code (LAX, JFK, LHR, HND)"
+    - "'How many airports per country?' — quick global aviation coverage"
+    - "Bridge IATA-tagged flight records (in a future dataset) into geography"
+  methodology: >
+    OpenStreetMap contributors tag airports with aeroway=aerodrome plus
+    (where verifiable) IATA and ICAO codes. This dataset queries Overpass
+    for every OSM node with aeroway=aerodrome AND a non-empty IATA tag.
+    Coverage is best for large commercial airports; small municipal
+    fields often lack IATA in OSM even when IATA has assigned one. Wikidata
+    cross-refs (osm 'wikidata' tag) are present on ~80 % of results.
+  stats:
+    rowCount: 1433
+    sizeBytes: 1200000
+    refreshCadence: "weekly (OSM edits continuously; re-install to refresh)"
+    coverage: "Global. Skew toward commercial airports; strong US/EU/AU coverage."
+  furtherReading: "https://wiki.openstreetmap.org/wiki/Aeroways"

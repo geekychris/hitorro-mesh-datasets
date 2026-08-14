@@ -84,3 +84,22 @@ relationships:
   - target: wikidata-countries
     kind: EXACT_ID
     via: [country_qid]
+
+metadata:
+  useCases:
+    - "Identity glue — bridge GeoNames city ids, Wikipedia article slugs, and Wikidata QIDs in one join"
+    - "'Which of my cities have a Wikidata entry?' — trivially answerable"
+    - "Multilingual city labels via the Wikidata sitelink pattern"
+  methodology: >
+    Fetched at install time by SPARQL against query.wikidata.org — every
+    Wikidata item that is-a city (Q515) with population > 100 000. Wikidata
+    is CC0 and community-maintained; the P1082 population statement uses
+    whichever value has the latest "point in time" qualifier per Wikidata
+    editorial policy. Coordinate + GeoNames ID + ISO country come from
+    the same item's P625 / P1566 / P17→P297 chain.
+  stats:
+    rowCount: 2176
+    sizeBytes: 800000
+    refreshCadence: "monthly (Wikidata edits daily; re-install to refresh)"
+    coverage: "Every Wikidata city with population >= 100k — ~2200 places worldwide"
+  furtherReading: "https://www.wikidata.org/wiki/Wikidata:Introduction"

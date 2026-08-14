@@ -69,3 +69,23 @@ relationships:
     params:
       predicate: within
       targetField: geometry
+
+metadata:
+  useCases:
+    - "Every quake above magnitude X in the last 30 days"
+    - "Depth-vs-magnitude scatter for the last month's seismicity"
+    - "Tsunami-flagged events (rare — check when they happen)"
+    - "PAGER alert (green/yellow/orange/red) breakdown — quick global risk snapshot"
+  methodology: >
+    USGS Earthquake Hazards Program aggregates data from ~2 000 seismic
+    stations worldwide via ANSS (Advanced National Seismic System) and
+    partner networks. Origin/magnitude solutions are reviewed and revised
+    within minutes-to-days after the event; the JSON feed carries the
+    latest version. The all_month feed is deliberately a rolling 30-day
+    window — historical events roll off and you re-install to refresh.
+  stats:
+    rowCount: 11023
+    sizeBytes: 2500000
+    refreshCadence: "continuous (USGS updates every ~15 minutes; re-install to refresh)"
+    coverage: "Every seismic event USGS detects globally — magnitudes vary from < 1 (local) to 8+ (megathrust)"
+  furtherReading: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php"

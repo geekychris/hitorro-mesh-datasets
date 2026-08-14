@@ -61,3 +61,22 @@ relationships:
   - target: wikipedia-pageviews
     kind: EXACT_ID
     via: [enwiki_article]
+
+metadata:
+  useCases:
+    - "'Which of today's top-viewed Wikipedia articles are cities?' — direct join"
+    - "'How does city population correlate with Wikipedia readership?' — proxy for online attention vs demographic size"
+    - "Anchor for future multilingual sitelink datasets (dewiki, eswiki, ...)"
+  methodology: >
+    SPARQL against query.wikidata.org for every Q515 (city) item with
+    population > 100 000 that has a schema:isPartOf link to
+    en.wikipedia.org. Sitelinks are Wikidata's canonical
+    inter-project bridge — updated whenever a Wikipedia article
+    is created, moved, or merged. Article slugs are URL-encoded
+    (Li%C3%A8ge for Liège) to match Wikipedia's URL convention.
+  stats:
+    rowCount: 1546
+    sizeBytes: 320000
+    refreshCadence: "weekly (Wikipedia articles get created / moved constantly)"
+    coverage: "Only cities with enwiki articles — about 70 % of Wikidata cities > 100k pop"
+  furtherReading: "https://www.wikidata.org/wiki/Help:Sitelinks"

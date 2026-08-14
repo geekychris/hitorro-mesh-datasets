@@ -76,3 +76,25 @@ relationships:
     params:
       predicate: within
       targetField: geometry
+
+metadata:
+  useCases:
+    - "Find the nearest weather station to any point"
+    - "Elevation profile of weather stations (mountain vs coastal)"
+    - "Count stations per country (proxy for meteorological instrumentation coverage)"
+    - "Filter to GSN / HCN / CRN networks for authoritative long-term climate records"
+  methodology: >
+    NOAA's National Centers for Environmental Information (NCEI) maintains
+    the Global Historical Climatology Network - Daily (GHCN-D) — the
+    world's largest curated collection of daily surface climate
+    observations. This dataset is the STATION INVENTORY only (metadata, not
+    the daily temperatures + precipitation, which are terabytes). Station
+    IDs encode a FIPS-like country prefix in their first two characters;
+    the install script surfaces it as fips_country so joins to
+    geonames-country-info work by role.
+  stats:
+    rowCount: 132501
+    sizeBytes: 15000000
+    refreshCadence: "monthly (NOAA adds new stations as networks expand)"
+    coverage: "Every country reporting into GHCN-D. US has 78k stations, other regions much sparser."
+  furtherReading: "https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily"

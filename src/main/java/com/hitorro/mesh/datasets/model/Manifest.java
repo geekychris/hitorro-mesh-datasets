@@ -40,5 +40,11 @@ public record Manifest(
         @JsonProperty("provides") List<String> provides,
         @JsonProperty("identifiers") IdentitySpec identifiers,
         @JsonProperty("partitionBy") String partitionBy,
-        @JsonProperty("relationships") List<Relationship> relationships
+        @JsonProperty("relationships") List<Relationship> relationships,
+        /**
+         * Human-facing metadata block — use cases, methodology, stats,
+         * further-reading. Optional and additive: the Datasets tab renders
+         * whatever's present and hides the section entirely when null.
+         */
+        @JsonProperty("metadata") DatasetMetadata metadata
 ) { }

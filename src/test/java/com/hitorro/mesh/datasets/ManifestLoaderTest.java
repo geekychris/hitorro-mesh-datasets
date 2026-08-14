@@ -13,6 +13,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ManifestLoaderTest {
 
     @Test
+    void bundled_manifests_carry_metadata_blocks() throws Exception {
+        // Every shipped manifest should have a `metadata` block with at
+        // least useCases + stats. Non-shipped can omit for MVP; catches
+        // "someone added a new dataset and forgot the docs" regressions.
+        for (String id : new String[] {
+                "geonames-cities15000", "geonames-country-info",
+                "natural-earth-countries", "wikidata-cities",
+                "wikidata-countries", "noaa-ghcnd-stations",
+                "worldbank-indicators", "usgs-earthquakes",
+                "owid-co2-latest", "wikipedia-pageviews",
+                "osm-airports", "wikidata-city-sitelinks",
+                "openalex-institutions" }) {
+            Manifest m = ManifestLoader.loadBundled(id);
+            assertThat(m.metadata())
+                    .withFailMessage("%s: metadata block missing", id)
+                    .isNotNull();
+            assertThat(m.metadata().useCases())
+                    .withFailMessage("%s: useCases missing / empty", id)
+                    .isNotNull().isNotEmpty();
+            assertThat(m.metadata().stats())
+                    .withFailMessage("%s: stats block missing", id)
+                    .isNotNull();
+            assertThat(m.metadata().stats().rowCount())
+                    .withFailMessage("%s: rowCount missing", id)
+                    .isNotNull().isPositive();
+        }
+    }
+
+    @Test
     void bundled_geonames_cities_manifest_parses() throws Exception {
         Manifest m = ManifestLoader.loadBundled("geonames-cities15000");
         assertThat(m.id()).isEqualTo("geonames-cities15000");
@@ -230,9 +259,12 @@ class ManifestLoaderTest {
         assertThat(m.id()).isEqualTo("openalex-institutions");
         assertThat(m.license().spdx()).isEqualTo("CC0-1.0");
         assertThat(m.record().primaryKey()).isEqualTo("openalex_id");
-        // Four EXACT_ID relationships back to country-shaped datasets —
-        // pulls scholarly metrics into any country query in one hop.
-        assertThat(m.relationships()).hasSize(4);
+        // Three EXACT_ID relationships back to country-shaped datasets.
+        // The direct worldbank-indicators edge was dropped when we found
+        // ISO-2 vs ISO-3 mismatch made it return zero rows — routing
+        // through wikidata-countries as an explicit hub is the correct
+        // pattern documented in the manifest.
+        assertThat(m.relationships()).hasSize(3);
         // Metric-role fields for citations + works count so quick-query
         // buttons can propose "top by cited_by_count" idioms.
         assertThat(m.record().fields())
