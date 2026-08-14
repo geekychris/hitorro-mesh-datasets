@@ -72,6 +72,7 @@ public final class ManifestLoader {
 
     private static final String[] BUNDLED = {
             "geonames-cities15000",
-            "geonames-country-info"
+            "geonames-country-info",
+            "natural-earth-countries"
     };
 }

@@ -1,0 +1,83 @@
+id: natural-earth-countries
+title: Natural Earth — admin-0 countries (1:110m)
+version: "5.1.2"
+
+description: >
+  Every world country as a GeoJSON polygon at 1:110-million scale, plus a
+  rich attribute table (ISO codes, UN/WB codes, continent, subregion, income
+  group, population estimate, GDP in millions). About 258 rows, public domain.
+  Small enough to broadcast to every jvssql agent; the polygon geometries are
+  what unlock spatial joins (city point → country polygon) once the mesh
+  agents grow a spatial index.
+
+license:
+  spdx: Public-Domain
+  attribution: "Natural Earth (https://naturalearthdata.com) — public domain"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  # Mirrored on nvkelso's canonical GitHub repository; the naturalearthdata.com
+  # zip requires shapefile parsing, so we take the GeoJSON copy instead.
+  type: http
+  url: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson
+  format: geojson
+  checksum: null
+
+record:
+  type: geo.Country
+  primaryKey: iso_a3
+  fields:
+    - { name: name,       type: core_string, role: name,                 description: "Common name" }
+    - { name: name_long,  type: core_string,                             description: "Long/formal name" }
+    - { name: iso_a2,     type: core_string, role: "id.iso3166alpha2" }
+    - { name: iso_a3,     type: core_string, role: id }
+    - { name: iso_n3,     type: core_string, role: "id.iso3166numeric" }
+    - { name: un_a3,      type: core_string, role: "id.unm49",           description: "UN M.49 code" }
+    - { name: wb_a2,      type: core_string, role: "id.worldbank_a2" }
+    - { name: wb_a3,      type: core_string, role: "id.worldbank_a3" }
+    - { name: continent,  type: core_string }
+    - { name: subregion,  type: core_string }
+    - { name: region_un,  type: core_string }
+    - { name: region_wb,  type: core_string }
+    - { name: pop_est,    type: core_long,   role: geo.population,       description: "Estimated population" }
+    - { name: gdp_md,     type: core_long,                               description: "GDP in millions of USD" }
+    - { name: economy,    type: core_string }
+    - { name: income_grp, type: core_string }
+    # geometry preserved in the NDJSON as a nested GeoJSON object; not
+    # declared in the JVS type until the mesh grows spatial-typed fields.
+    # Present-but-undeclared fields pass through untouched.
+
+provides:
+  - geo.name
+  - geo.parent.country
+  - geo.population
+  - geo.geometry
+
+identifiers:
+  produces:
+    - iso3166alpha2
+    - iso3166alpha3
+    - iso3166numeric
+    - unm49
+    - worldbank_a2
+    - worldbank_a3
+  maps:
+    - wikidata   # future — Wikidata carries all of these
+
+partitionBy: null   # broadcast — small dimension
+
+relationships:
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [iso_a2]
+
+  - target: geonames-cities15000
+    kind: SPATIAL
+    via: [geometry]
+    params:
+      predicate: contains
+      targetField: [latitude, longitude]

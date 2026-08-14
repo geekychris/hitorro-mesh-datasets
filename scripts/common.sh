@@ -9,7 +9,10 @@
 
 : "${HITORRO_DATASETS_HOME:=$HOME/.hitorro/datasets}"
 
-MODULE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# BASH_SOURCE resolves to common.sh itself no matter which script sourced us
+# or which directory that script has cd'd into. `$0` would be the caller
+# script's original path, which is stale after the caller cd's.
+MODULE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 info()  { printf "\033[1;34m→\033[0m %s\n" "$*"; }
 warn()  { printf "\033[1;33m⚠\033[0m %s\n" "$*" >&2; }

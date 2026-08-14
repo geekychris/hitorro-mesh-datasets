@@ -60,4 +60,4 @@ JSON
     ok "distributed table $TABLE_NAME registered"
 fi
 
-printf "\nCheck: curl -s %s/tables | jq .\n" "$DRIVER_URL"
+printf "\nCheck: curl -s %s/mesh/tables | jq .\n" "$DRIVER_URL"

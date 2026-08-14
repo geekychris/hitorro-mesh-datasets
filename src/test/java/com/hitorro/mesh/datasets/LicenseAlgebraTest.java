@@ -41,4 +41,21 @@ class LicenseAlgebraTest {
                 License.publicDomain("Natural Earth")));
         assertThat(r.fullyPermissive()).isTrue();
     }
+
+    @Test
+    void public_domain_plus_ccBy_still_needs_attribution_but_stays_redistributable() {
+        // Natural Earth (public domain) + GeoNames (CC-BY) — the join is
+        // freely redistributable but must credit GeoNames. Public domain
+        // adds no attribution obligation of its own.
+        LicenseAlgebra.Result r = LicenseAlgebra.combine(List.of(
+                License.publicDomain("Natural Earth"),
+                License.ccBy("GeoNames")));
+        assertThat(r.redistribution()).isTrue();
+        assertThat(r.commercialUse()).isTrue();
+        assertThat(r.shareAlike()).isFalse();
+        assertThat(r.attributionRequired()).isTrue();
+        assertThat(r.attributions())
+                .anySatisfy(a -> assertThat(a).contains("GeoNames"))
+                .noneSatisfy(a -> assertThat(a).startsWith("Natural Earth (Public-Domain)"));
+    }
 }

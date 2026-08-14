@@ -8,6 +8,10 @@ import com.hitorro.mesh.datasets.model.Manifest;
 import com.hitorro.mesh.datasets.model.Relationship;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -81,5 +85,50 @@ public final class DatasetRegistry {
         Manifest m = byId.get(datasetId);
         if (m == null || m.relationships() == null) return List.of();
         return new ArrayList<>(m.relationships());
+    }
+
+    /**
+     * Scan {@code $HITORRO_DATASETS_HOME} (default {@code ~/.hitorro/datasets})
+     * for any directory containing a {@code manifest.yaml} and load them.
+     * Positions this class as the "what's actually installed on this box"
+     * source for a future auto-registration hook — a Spring Boot module can
+     * scan on start-up and call {@code MeshRegistrar} for every hit.
+     *
+     * <p>Manifests loaded here override bundled ones with the same id — an
+     * install-time manifest is more current than the resource baked into
+     * the jar.</p>
+     *
+     * @return list of dataset ids that were loaded from disk
+     */
+    public synchronized List<String> scanInstalled() {
+        Path home = installedHome();
+        List<String> loaded = new ArrayList<>();
+        if (!Files.isDirectory(home)) return loaded;
+        try (DirectoryStream<Path> children = Files.newDirectoryStream(home)) {
+            for (Path child : children) {
+                Path mf = child.resolve("manifest.yaml");
+                if (!Files.isRegularFile(mf)) continue;
+                try {
+                    Manifest m = ManifestLoader.loadFrom(mf);
+                    byId.put(m.id(), m);
+                    loaded.add(m.id());
+                } catch (IOException e) {
+                    System.err.println("[datasets] skipping " + mf + ": " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("[datasets] scanInstalled failed at " + home + ": " + e.getMessage());
+        }
+        return loaded;
+    }
+
+    /**
+     * The install root — {@code $HITORRO_DATASETS_HOME} if set, otherwise
+     * {@code ~/.hitorro/datasets}. Matches the resolution in {@code common.sh}.
+     */
+    public static Path installedHome() {
+        String override = System.getenv("HITORRO_DATASETS_HOME");
+        if (override != null && !override.isBlank()) return Paths.get(override);
+        return Paths.get(System.getProperty("user.home"), ".hitorro", "datasets");
     }
 }

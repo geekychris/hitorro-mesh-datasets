@@ -12,7 +12,9 @@ below is planned. Each entry is roughly one iteration's worth of work.
 | **GeoNames — cities >15k** | Shipped | v3.0.1 | ~26 000 rows, CC-BY. Distributed. |
 | **GeoNames — country info** | Shipped | v3.0.1 | ~250 rows, CC-BY. Broadcast. |
 | **GeoNames — alternate names v2** | Planned | v3.1 | The multilingual layer. Enormous; needs partitioning by geoname id. |
-| **Natural Earth — countries / admin1** | Planned | v3.1 | Public domain. Blocker: shapefile → NDJSON needs GDAL or a pure-Java WKB decoder. |
+| **Natural Earth — countries (1:110m)** | Shipped | v3.0.1 | Public domain. GeoJSON; polygon geometries preserved in the NDJSON. |
+| **Natural Earth — admin1 (states/provinces)** | Planned | v3.1 | Same source pattern as countries — one level down. |
+| **Natural Earth — rivers, lakes, coastlines** | Planned | v3.2 | Physical-geography layer; unlocks distance-to-coastline queries. |
 | **Wikidata — item + labels** | Planned | v3.2 | CC0. The identity glue. The full dump is huge; MVP filters to Q-items with a GeoNames or ISO cross-reference. Enables `USING ENTITY` joins. |
 | **US Census / ACS — 5-year estimates** | Planned | v3.2 | Public domain (federal government work). API-key required — install script prompts for one. Joins to GeoNames via FIPS. |
 | **NOAA GHCN-Daily — climate normals** | Planned | v3.3 | Public domain. Station lat/lon enables spatial joins to any polygon dataset. |

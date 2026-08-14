@@ -1,0 +1,21 @@
+{
+  "name": "natural_earth_countries",
+  "fields": [
+    {"name": "name",       "type": "core_string"},
+    {"name": "name_long",  "type": "core_string"},
+    {"name": "iso_a2",     "type": "core_string"},
+    {"name": "iso_a3",     "type": "core_string"},
+    {"name": "iso_n3",     "type": "core_string"},
+    {"name": "un_a3",      "type": "core_string"},
+    {"name": "wb_a2",      "type": "core_string"},
+    {"name": "wb_a3",      "type": "core_string"},
+    {"name": "continent",  "type": "core_string"},
+    {"name": "subregion",  "type": "core_string"},
+    {"name": "region_un",  "type": "core_string"},
+    {"name": "region_wb",  "type": "core_string"},
+    {"name": "pop_est",    "type": "core_long"},
+    {"name": "gdp_md",     "type": "core_long"},
+    {"name": "economy",    "type": "core_string"},
+    {"name": "income_grp", "type": "core_string"}
+  ]
+}

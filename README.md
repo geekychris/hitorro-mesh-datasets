@@ -25,12 +25,14 @@ the substrate.
 
 ## Datasets shipped in v3.0.1
 
-Small, correct, and enough to prove the model end-to-end:
+Small, correct, and enough to prove the model end-to-end across three licence
+classes:
 
 | id | title | rows | licence | role |
 |----|-------|-----:|---------|------|
 | `geonames-cities15000` | GeoNames — cities > 15 000 population | ~26 000 | CC-BY-4.0 | Distributed table |
 | `geonames-country-info` | GeoNames — country info | ~250 | CC-BY-4.0 | Broadcast dimension |
+| `natural-earth-countries` | Natural Earth — admin-0 countries (1:110m) | ~258 | Public domain | Broadcast dimension (+ polygon geometry) |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).

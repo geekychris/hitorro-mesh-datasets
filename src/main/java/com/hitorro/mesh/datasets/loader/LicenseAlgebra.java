@@ -70,7 +70,12 @@ public final class LicenseAlgebra {
             mod &= l.modification();
             attribReq |= l.attributionRequired();
             shareAlike |= l.shareAlike();
-            if (l.attribution() != null && !l.attribution().isBlank()) {
+            // Collect attribution strings only from sources whose licence
+            // actually requires credit. A public-domain source with an
+            // attribution string is a "courtesy" name — not part of the
+            // combined result's obligations.
+            if (l.attributionRequired()
+                    && l.attribution() != null && !l.attribution().isBlank()) {
                 attribs.add(l.attribution() + " (" + l.spdx() + ")");
             }
             if (l.shareAlike()) {
