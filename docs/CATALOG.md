@@ -18,6 +18,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `usgs-earthquakes` | ~11 000 | Public domain | https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson |
 | `owid-co2-latest` | ~215 | CC-BY-4.0 | https://github.com/owid/co2-data/raw/master/owid-co2-data.csv |
 | `wikipedia-pageviews` | 1 000 | CC-BY-SA-3.0 | https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/{Y}/{M}/{D} |
+| `osm-airports` | ~1 400 | ODbL-1.0 | https://overpass-api.de/api/interpreter (aeroway=aerodrome, iata=*) |
 
 ## Planned (see ROADMAP.md for detail)
 

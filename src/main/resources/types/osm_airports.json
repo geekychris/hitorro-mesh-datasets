@@ -1,0 +1,14 @@
+{
+  "name": "osm_airports",
+  "fields": [
+    {"name": "iata_code",    "type": "core_string"},
+    {"name": "icao_code",    "type": "core_string"},
+    {"name": "osm_id",       "type": "core_long"},
+    {"name": "name",         "type": "core_string"},
+    {"name": "name_en",      "type": "core_string"},
+    {"name": "latitude",     "type": "core_double"},
+    {"name": "longitude",    "type": "core_double"},
+    {"name": "country_code", "type": "core_string"},
+    {"name": "wikidata_qid", "type": "core_string"}
+  ]
+}

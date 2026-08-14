@@ -1,0 +1,76 @@
+id: osm-airports
+title: OpenStreetMap — airports with IATA codes
+version: "1.0"
+
+description: >
+  Every airport OpenStreetMap has tagged with an IATA airline code —
+  ~4 000 rows worldwide. Sourced from the Overpass API. Point geometry
+  (lat/lon), IATA code as the natural primary key, ICAO and country
+  where OSM has them.
+
+  First dataset in the catalog with an ODbL licence — combining it with
+  anything means the joined result inherits share-alike as a database,
+  and the LicenseAlgebra will surface a warning to callers. That's the
+  whole point of tracking licences as capabilities rather than SPDX
+  strings — a query touching osm-airports plus wikidata-cities lights
+  the share-alike flag automatically.
+
+license:
+  spdx: ODbL-1.0
+  attribution: "OpenStreetMap contributors, via Overpass API"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: true
+  modification: true
+
+source:
+  type: http
+  url: https://overpass-api.de/api/interpreter
+  format: overpass-json
+  checksum: null
+
+record:
+  type: geo.Airport
+  primaryKey: iata_code
+  fields:
+    - { name: iata_code,    type: core_string, role: "id.iata",         description: "IATA 3-letter airline code (LAX, JFK, LHR, ...)" }
+    - { name: icao_code,    type: core_string, role: "id.icao",         description: "ICAO 4-letter code, when tagged" }
+    - { name: osm_id,       type: core_long,   role: "id.osm.node",     description: "OpenStreetMap node ID" }
+    - { name: name,         type: core_string, role: name,              description: "Airport name from OSM 'name' tag" }
+    - { name: name_en,      type: core_string,                          description: "English name from OSM 'name:en' tag when different" }
+    - { name: latitude,     type: core_double, role: geo.lat }
+    - { name: longitude,    type: core_double, role: geo.lon }
+    - { name: country_code, type: core_string, role: "id.iso3166alpha2", description: "ISO 3166-1 alpha-2 from OSM 'addr:country' tag" }
+    - { name: wikidata_qid, type: core_string, role: "id.wikidata",      description: "Wikidata Q-id from OSM 'wikidata' tag" }
+
+provides:
+  - geo.name
+  - geo.point
+
+identifiers:
+  produces:
+    - iata
+    - icao
+    - osm.node
+  maps:
+    - iso3166alpha2
+    - wikidata
+
+partitionBy: null
+
+relationships:
+  - target: wikidata-countries
+    kind: EXACT_ID
+    via: [country_code]
+
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [country_code]
+
+  - target: natural-earth-countries
+    kind: SPATIAL
+    via: [latitude, longitude]
+    params:
+      predicate: within
+      targetField: geometry

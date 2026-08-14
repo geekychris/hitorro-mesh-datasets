@@ -32,7 +32,8 @@ below is planned. Each entry is roughly one iteration's worth of work.
 | **OpenAlex — works + authors** | Planned | v3.4 | CC0. Enables the "papers about X, filtered by institution country" kind of query. |
 | **Crossref — DOI metadata** | Planned | v3.4 | Mostly free reuse. Bibliographic backbone; abstracts need per-record caution. |
 | **Overture Maps — places + buildings** | Planned | v3.5 | CDLA-permissive for their own layers, ODbL for OSM-derived layers — `LicenseAlgebra` should surface the mixed obligation cleanly. |
-| **OpenStreetMap — POI + roads** | Planned | v3.5 | ODbL. Kept deliberately separate from any CC-* dataset so share-alike inheritance is visible in queries. |
+| **OpenStreetMap — airports (via Overpass)** | Shipped | v3.0.1 | ODbL. ~1 400 rows via Overpass API. First share-alike dataset — the UI now shows an ODbL warning callout on the Datasets tab explaining the obligation. |
+| **OpenStreetMap — full POI + roads** | Planned | v3.5 | ODbL. Broader Overpass queries or bulk PBF ingestion via a spatial extract step. |
 | **World Bank — country indicators (snapshot)** | Shipped | v3.0.1 | CC-BY. 213 countries × 8 latest-year indicators (GDP, per-capita GDP, population, life expectancy, urban %, unemployment %, electricity access %). Joins via ISO alpha-3. |
 | **World Bank — indicators time-series** | Planned | v3.2 | Same source, but the full 30-year history per (country, indicator). Second dataset in the catalog needing partition-by-something-not-country. |
 | **USGS — earthquakes (last-month feed)** | Shipped | v3.0.1 | Public domain. ~11 000 events with point geometry + magnitude + alert level. Refreshable daily. |

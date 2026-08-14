@@ -80,6 +80,7 @@ public final class ManifestLoader {
             "worldbank-indicators",
             "usgs-earthquakes",
             "owid-co2-latest",
-            "wikipedia-pageviews"
+            "wikipedia-pageviews",
+            "osm-airports"
     };
 }

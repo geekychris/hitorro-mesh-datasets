@@ -183,9 +183,30 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_osm_airports_manifest_parses_with_share_alike_license() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("osm-airports");
+        assertThat(m.id()).isEqualTo("osm-airports");
+        assertThat(m.license().spdx()).isEqualTo("ODbL-1.0");
+        // First share-alike licence in the shipped catalog. Locking this
+        // in so any downstream change breaks a test not a query — every
+        // join that touches osm-airports needs to warn about share-alike
+        // as a database inheritance.
+        assertThat(m.license().shareAlike()).isTrue();
+        assertThat(m.license().attributionRequired()).isTrue();
+
+        assertThat(m.record().primaryKey()).isEqualTo("iata_code");
+        // Both EXACT_ID (country_code hop) and SPATIAL (point-in-polygon)
+        // relationships to Natural Earth.
+        assertThat(m.relationships()).hasSizeGreaterThanOrEqualTo(3);
+        assertThat(m.relationships())
+                .extracting(r -> r.kind().name())
+                .contains("EXACT_ID", "SPATIAL");
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(10);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(11);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.
