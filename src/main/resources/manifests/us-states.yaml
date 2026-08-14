@@ -1,0 +1,105 @@
+id: us-states
+title: US States, Territories, and DC — Census + geographic reference
+version: "1.0"
+
+description: >
+  All 50 US states, the District of Columbia, and the 5 populated US
+  territories (American Samoa, Guam, Northern Mariana Islands, Puerto
+  Rico, US Virgin Islands) — 56 rows. Each row carries USPS postal
+  code (CA, NY, TX), FIPS 5-2 state code, capital city, 2020 decennial
+  Census population, area in square miles, statehood year, and the US
+  Census Bureau's four-region (Northeast, Midwest, South, West) +
+  nine-division (Pacific, Mountain, New England, ...) classification.
+
+  Broadcast dimension. Joins to geonames-cities15000 on admin1_code
+  (GeoNames uses the USPS 2-letter code for US admin1) and to noaa-
+  ghcnd-stations on the 2-char state code parsed out of GHCN-D
+  station_id ('USC00' + FIPS + station-number).
+
+  The missing "US administrative hierarchy" the catalog needed for
+  domestic queries — one JOIN adds state name + region + population
+  to any US city / weather station / earthquake / airport point.
+
+license:
+  spdx: Public-Domain
+  attribution: "US Census Bureau — decennial census + regional/divisional definitions (public domain, US Federal Government work)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: local
+  url: "src/main/resources/data/us-states.json (bundled in this repo)"
+  format: json
+  checksum: null
+
+record:
+  type: standards.USState
+  primaryKey: postal
+  fields:
+    - { name: postal,          type: core_string, role: "id.usps",              description: "USPS 2-letter code (CA, NY, TX) — same code GeoNames uses in admin1_code for US cities" }
+    - { name: fips,             type: core_string, role: "id.fips52",             description: "FIPS 5-2 state code (2-digit numeric)" }
+    - { name: name,             type: core_string, role: name,                    description: "Official state / territory name" }
+    - { name: capital,          type: core_string,                                description: "Capital city name" }
+    - { name: region,           type: core_string,                                description: "US Census region: Northeast, Midwest, South, West. NULL for territories." }
+    - { name: division,         type: core_string,                                description: "US Census division (e.g. Pacific, Mountain, New England, Middle Atlantic). NULL for territories." }
+    - { name: population_2020,  type: core_long,   role: geo.population,          description: "2020 decennial census population" }
+    - { name: area_sq_mi,       type: core_long,                                  description: "Total area in square miles (land + water)" }
+    - { name: statehood_year,   type: core_long,                                  description: "Year admitted to the Union. NULL for DC and territories." }
+    - { name: type,             type: core_string,                                description: "state | federal-district | territory" }
+
+provides:
+  - standards.us_state
+  - geo.parent.admin1
+
+identifiers:
+  produces:
+    - usps
+    - fips52
+  maps: []
+
+partitionBy: null
+
+relationships:
+  # US weather stations in the broadcast noaa-ghcnd-stations table
+  # carry a state 2-letter code that matches us-states.postal for
+  # US and USPS-territory stations. First cross-dataset join for
+  # us-states — proves the state-postal namespace is queryable.
+  - target: noaa-ghcnd-stations
+    kind: EXACT_ID
+    via: [postal]
+    note: "NOAA station.state = US-postal for US / territory stations. Filter noaa on fips_country = 'US' if you want US-only."
+
+  # US cities in the partitioned geonames-cities15000 table also join
+  # on admin1_code (USPS 2-letter). Declared for the future — the
+  # mesh smoke stack currently only loads broadcast tables, so this
+  # edge won't execute end-to-end until the driver learns to fan
+  # queries out across partitions of geonames-cities15000.
+  - target: geonames-cities15000
+    kind: EXACT_ID
+    via: [postal]
+    note: "Filter cities to country_code = 'US' before joining."
+
+metadata:
+  useCases:
+    - "'What are the largest cities in California?' — JOIN with cities filtered to US"
+    - "State-level rollups: SUM(population) per region — Northeast vs South vs West"
+    - "Enrich US weather stations / airports / earthquakes with state name + region"
+    - "'Which states joined the Union before 1800?' — WHERE statehood_year < 1800"
+    - "Territory vs state analysis (type='territory')"
+  methodology: >
+    50 states + DC + 5 populated territories, hand-curated from Census
+    Bureau publications. Population is 2020 decennial (not estimates).
+    Region/division follow the US Census Bureau's four-region /
+    nine-division scheme. Statehood year for original 13 colonies is
+    the year they ratified the Constitution. Non-state entries
+    (DC + territories) have NULL region/division/statehood_year and
+    type is 'federal-district' or 'territory'.
+  stats:
+    rowCount: 56
+    sizeBytes: 8192
+    refreshCadence: "static (Census decennial — refresh in 2031 for 2030 census)"
+    coverage: "All 50 states + DC + 5 populated territories. Uninhabited possessions (Baker Island, Wake, etc.) omitted."
+  furtherReading: "https://www.census.gov/programs-surveys/decennial-census.html"

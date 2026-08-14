@@ -180,6 +180,29 @@ wins:
       to actual economic indicators. Rewriter joins ISO alpha-3
       (wb.iso_a3 = m.iso3).
 
+  - title: "High-altitude US weather stations enriched with state + region"
+    datasets: [noaa-ghcnd-stations, us-states]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: false
+    sql: |
+      SELECT n.name, n.elevation,
+             s.name AS state, s.region, s.division
+      FROM noaa_ghcnd_stations n
+      JOIN us_states s ON n.state = s.postal
+      WHERE n.fips_country = 'US'
+        AND n.elevation > 3000
+      ORDER BY n.elevation DESC LIMIT 15
+    note: |
+      First us-states cross-dataset join to fire end-to-end. Adds
+      state name + US Census region + division to every US weather
+      station above 3000m. Mauna Kea (Hawaii / West), White Mtn
+      (California / West / Pacific), Chepeta (Utah / West / Mountain),
+      Red Cliff Pass (Colorado / West / Mountain), ... Uses the raw
+      state postal-code equijoin — rewriter would pick this up too
+      once us-states.postal + noaa.state get a shared role.
+
   - title: "USGS earthquakes near country polygons (bbox spatial)"
     datasets: [usgs-earthquakes, natural-earth-countries]
     kind: spatial

@@ -1,0 +1,15 @@
+{
+  "name": "us_states",
+  "fields": [
+    {"name": "postal",          "type": "core_string"},
+    {"name": "fips",            "type": "core_string"},
+    {"name": "name",            "type": "core_string"},
+    {"name": "capital",         "type": "core_string"},
+    {"name": "region",          "type": "core_string"},
+    {"name": "division",        "type": "core_string"},
+    {"name": "population_2020", "type": "core_long"},
+    {"name": "area_sq_mi",      "type": "core_long"},
+    {"name": "statehood_year",  "type": "core_long"},
+    {"name": "type",            "type": "core_string"}
+  ]
+}

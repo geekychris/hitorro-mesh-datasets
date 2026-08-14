@@ -94,6 +94,7 @@ public final class ManifestLoader {
             "iso-currencies",
             "iso-languages",
             "un-m49-areas",
-            "naics-2022"
+            "naics-2022",
+            "us-states"
     };
 }
