@@ -1,0 +1,24 @@
+{
+  "name": "geonames_country_info",
+  "fields": [
+    {"name": "iso",                "type": "core_string"},
+    {"name": "iso3",               "type": "core_string"},
+    {"name": "iso_numeric",        "type": "core_string"},
+    {"name": "fips",               "type": "core_string"},
+    {"name": "country",            "type": "core_string"},
+    {"name": "capital",            "type": "core_string"},
+    {"name": "area_sq_km",         "type": "core_double"},
+    {"name": "population",         "type": "core_long"},
+    {"name": "continent",          "type": "core_string"},
+    {"name": "tld",                "type": "core_string"},
+    {"name": "currency_code",      "type": "core_string"},
+    {"name": "currency_name",      "type": "core_string"},
+    {"name": "phone",              "type": "core_string"},
+    {"name": "postal_code_format", "type": "core_string"},
+    {"name": "postal_code_regex",  "type": "core_string"},
+    {"name": "languages",          "type": "core_string"},
+    {"name": "geonameid",          "type": "core_long"},
+    {"name": "neighbours",         "type": "core_string"},
+    {"name": "equivalent_fips",    "type": "core_string"}
+  ]
+}

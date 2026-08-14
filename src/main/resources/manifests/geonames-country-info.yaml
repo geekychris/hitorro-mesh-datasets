@@ -1,0 +1,72 @@
+id: geonames-country-info
+title: GeoNames — country info
+version: "1.0"
+
+description: >
+  One row per country: ISO codes, capital, area, population, continent,
+  currency, phone prefix, geoname id of the country polygon, and a handful
+  of neighbour codes. About 250 rows — the canonical broadcast table for
+  every geographic query the mesh will run.
+
+license:
+  spdx: CC-BY-4.0
+  attribution: "GeoNames (https://www.geonames.org)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://download.geonames.org/export/dump/countryInfo.txt
+  format: tsv
+  checksum: null
+
+record:
+  type: geo.Country
+  primaryKey: iso
+  fields:
+    - { name: iso,               type: core_string, role: id,             description: "ISO-3166-1 alpha-2 code" }
+    - { name: iso3,              type: core_string, role: "id.iso3166alpha3" }
+    - { name: iso_numeric,       type: core_string, role: "id.iso3166numeric" }
+    - { name: fips,              type: core_string, role: "id.fips",      description: "FIPS 10-4 country code (US government)" }
+    - { name: country,           type: core_string, role: name }
+    - { name: capital,           type: core_string }
+    - { name: area_sq_km,        type: core_double }
+    - { name: population,        type: core_long,   role: geo.population }
+    - { name: continent,         type: core_string,                       description: "AF, AS, EU, NA, OC, SA, AN" }
+    - { name: tld,               type: core_string,                       description: "Top-level domain, e.g. .us" }
+    - { name: currency_code,     type: core_string }
+    - { name: currency_name,     type: core_string }
+    - { name: phone,             type: core_string }
+    - { name: postal_code_format, type: core_string }
+    - { name: postal_code_regex, type: core_string }
+    - { name: languages,         type: core_string,                       description: "Comma-separated BCP-47 tags" }
+    - { name: geonameid,         type: core_long,   role: "id.geonames" }
+    - { name: neighbours,        type: core_string,                       description: "Comma-separated ISO-2 codes" }
+    - { name: equivalent_fips,   type: core_string }
+
+provides:
+  - geo.name
+  - geo.parent.country
+
+identifiers:
+  produces:
+    - iso3166alpha2
+    - iso3166alpha3
+    - iso3166numeric
+    - fips
+  maps:
+    - geonames
+    # Whenever the Wikidata dataset lands it will map country QIDs
+    # to ISO codes, closing the loop.
+    - wikidata
+
+# Broadcast, not partitioned — every agent needs the whole thing.
+partitionBy: null
+
+relationships:
+  - target: geonames-cities15000
+    kind: EXACT_ID
+    via: [iso]

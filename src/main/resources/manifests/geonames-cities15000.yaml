@@ -1,0 +1,76 @@
+id: geonames-cities15000
+title: GeoNames — cities with population > 15 000
+version: "1.0"
+
+description: >
+  Every populated place with more than 15 000 inhabitants, from the GeoNames
+  world gazetteer. Roughly 26 000 rows and about 3 MB compressed — a good
+  starter dataset for the mesh: small enough to install in seconds, rich
+  enough to demonstrate identifier joins (GeoNames ↔ ISO country), hierarchical
+  joins (city → country), and eventual spatial joins (city point → any polygon).
+
+license:
+  spdx: CC-BY-4.0
+  attribution: "GeoNames (https://www.geonames.org)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://download.geonames.org/export/dump/cities15000.zip
+  format: tsv.zip
+  # No checksum — GeoNames refreshes this file continuously. The install
+  # script prints the sha256 of what it downloaded so users can pin it.
+  checksum: null
+
+record:
+  type: geo.Place
+  primaryKey: geonameid
+  fields:
+    - { name: geonameid,      type: core_long,   role: id,                description: "GeoNames unique identifier" }
+    - { name: name,           type: core_string, role: name,              description: "UTF-8 place name" }
+    - { name: asciiname,      type: core_string,                          description: "ASCII fold of name — legacy" }
+    - { name: alternatenames, type: core_string,                          description: "Comma-separated alternate names — see the multilingual v2 dump for language codes" }
+    - { name: latitude,       type: core_double, role: geo.lat }
+    - { name: longitude,      type: core_double, role: geo.lon }
+    - { name: feature_class,  type: core_string,                          description: "Single-letter code (P = populated place)" }
+    - { name: feature_code,   type: core_string,                          description: "GeoNames feature code (PPL, PPLC, ...)" }
+    - { name: country_code,   type: core_string, role: geo.parent.country, description: "ISO-3166-1 alpha-2" }
+    - { name: cc2,            type: core_string,                          description: "Comma-separated alternate country codes for disputed areas" }
+    - { name: admin1_code,    type: core_string, role: geo.parent.admin1 }
+    - { name: admin2_code,    type: core_string, role: geo.parent.admin2 }
+    - { name: population,     type: core_long,   role: geo.population }
+    - { name: elevation,      type: core_long,   role: geo.elevation,     description: "Metres above sea level; may be empty" }
+    - { name: timezone,       type: core_string,                          description: "IANA timezone" }
+
+provides:
+  - geo.name
+  - geo.point
+  - geo.population
+  - geo.parent.country
+
+identifiers:
+  produces:
+    - geonames
+  maps:
+    - iso3166alpha2
+
+partitionBy: country_code
+
+relationships:
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [country_code]
+
+  # Placeholders for the datasets in the ROADMAP — the planner ignores
+  # relationships whose target isn't loaded yet, so declaring them now
+  # costs nothing and future-you gets an instant join when Wikidata lands.
+  - target: wikidata
+    kind: PROBABILISTIC
+    via: [name, country_code, latitude, longitude]
+    params:
+      method: "name+geo+parent"
+      minConfidence: 0.90
