@@ -19,8 +19,10 @@ the substrate.
 | **Model** (`com.hitorro.mesh.datasets.model`) | `Manifest`, `License`, `Source`, `RecordSpec`, `Relationship`, `RelationshipKind`, `IdentitySpec` — the publishable descriptors. |
 | **Envelope** (`com.hitorro.mesh.datasets.envelope.RecordEnvelope`) | The common `@id` / `@type` / `names` / `links` wrapper every normalised record wears. Native record preserved verbatim. |
 | **Loader** (`com.hitorro.mesh.datasets.loader`) | YAML → `Manifest` parser, plus a `LicenseAlgebra` that answers "can I combine A + B and redistribute the result?" |
-| **Registry** (`com.hitorro.mesh.datasets.registry`) | In-memory catalog (`DatasetRegistry`) + a REST client (`MeshRegistrar`) that announces installed datasets to a running mesh driver. |
-| **Install scripts** (`scripts/`) | Bash + awk downloaders that materialise the raw source into NDJSON + a JVS type file under `$HITORRO_DATASETS_HOME`. No Python. |
+| **Registry** (`com.hitorro.mesh.datasets.registry`) | In-memory catalog (`DatasetRegistry`) + REST client (`MeshRegistrar`) + one-shot orchestrator (`Autoregistrar`) that scans installed datasets and posts each to a running driver. |
+| **Spring autoconfig** (`com.hitorro.mesh.datasets.spring`) | Optional Spring Boot integration: adds `hitorro.mesh.datasets.*` properties + an `ApplicationRunner` that auto-registers on startup. Spring is `<optional>true</optional>` — non-Spring consumers pay nothing. |
+| **CLI** (`com.hitorro.mesh.datasets.cli`) | `RegisterInstalledCli` main class + `scripts/register-installed.sh` wrapper for manual / cron invocation. |
+| **Install scripts** (`scripts/`) | Bash + awk (+ jq for GeoJSON) downloaders that materialise the raw source into NDJSON + a JVS type file under `$HITORRO_DATASETS_HOME`. No Python. |
 | **JVS types** (`src/main/resources/types/`) | The schema files the mesh agent-app loads to know how to read the NDJSON. |
 
 ## Datasets shipped in v3.0.1
@@ -40,17 +42,16 @@ NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](R
 ## Quick start
 
 ```bash
-# 1. install both datasets (about 5 seconds; downloads ~3 MB from geonames.org)
+# 1. install every shipped dataset (~5 seconds; downloads ~4 MB total)
 ./scripts/install-all.sh
 
 # 2. start a mesh (see hitorro-mesh-examples/scripts/mesh-up.sh)
 
-# 3. configure agents to load the data — see the note the install script prints,
-#    or just add these lines to your agent yaml under hitorro.mesh.agent.
+# 3. configure agents to load the NDJSON — see the note each install
+#    script prints for the exact yaml block.
 
-# 4. tell the driver
-./scripts/register-with-mesh.sh geonames-country-info --broadcast
-./scripts/register-with-mesh.sh geonames-cities15000
+# 4. tell the driver about everything you've installed, in one shot:
+./scripts/register-installed.sh
 
 # 5. query
 curl -s http://localhost:8085/queries -H 'Content-Type: application/json' -d '{
@@ -61,6 +62,26 @@ curl -s http://localhost:8085/queries -H 'Content-Type: application/json' -d '{
           ORDER BY c.population DESC LIMIT 20"
 }'
 ```
+
+### Auto-registration for Spring Boot drivers
+
+If your mesh-driver-app has `hitorro-mesh-datasets` on its classpath,
+registration happens on startup — no script needed:
+
+```yaml
+# application.yml
+hitorro:
+  mesh:
+    datasets:
+      auto-register: true          # default
+      driver-url: http://localhost:8085
+      # skip: [docs]               # ids to leave alone
+      # fail-on-error: false       # true → boot fails on any registration error
+```
+
+The autoconfig kicks in only when Spring is on the classpath; non-Spring
+consumers pay nothing. Under the hood it's the same `Autoregistrar` class
+the CLI wraps.
 
 ## The design in one page
 

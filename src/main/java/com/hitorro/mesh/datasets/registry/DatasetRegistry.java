@@ -123,12 +123,18 @@ public final class DatasetRegistry {
     }
 
     /**
-     * The install root — {@code $HITORRO_DATASETS_HOME} if set, otherwise
-     * {@code ~/.hitorro/datasets}. Matches the resolution in {@code common.sh}.
+     * The install root — resolved in this order:
+     * <ol>
+     *   <li>{@code hitorro.datasets.home} system property (tests, launcher flags)</li>
+     *   <li>{@code HITORRO_DATASETS_HOME} env var (matches {@code common.sh})</li>
+     *   <li>{@code ~/.hitorro/datasets}</li>
+     * </ol>
      */
     public static Path installedHome() {
-        String override = System.getenv("HITORRO_DATASETS_HOME");
-        if (override != null && !override.isBlank()) return Paths.get(override);
+        String prop = System.getProperty("hitorro.datasets.home");
+        if (prop != null && !prop.isBlank()) return Paths.get(prop);
+        String env = System.getenv("HITORRO_DATASETS_HOME");
+        if (env != null && !env.isBlank()) return Paths.get(env);
         return Paths.get(System.getProperty("user.home"), ".hitorro", "datasets");
     }
 }

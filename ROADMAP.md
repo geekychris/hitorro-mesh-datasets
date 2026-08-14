@@ -42,7 +42,7 @@ Ordered by which datasets unlock them:
 | Runtime table registration API | Shipped | Everything | Already in the driver (phase 7p). This module talks to it. |
 | Broadcast dimension tables | Shipped | Any small lookup | Country info uses it today. |
 | `LicenseAlgebra.combine` | Shipped | Query-time license warnings | Registered but not yet consulted by the planner. |
-| **Bundled manifest → auto-registration** | Planned | UX polish | A Spring Boot module that reads bundled manifests and auto-registers any dataset it finds installed. |
+| **Bundled manifest → auto-registration** | Shipped | v3.0.1 | `Autoregistrar` + Spring Boot autoconfigure + CLI + `./scripts/register-installed.sh`. Zero-friction auto-registration on driver-app startup when the datasets jar is on the classpath. |
 | **`USING PLACE` SQL syntax** | Planned | GeoNames ↔ Census ↔ NOAA | Needs jvssql planner extension. Resolves to an EXACT_ID or HIERARCHICAL join walk. |
 | **`USING ENTITY` SQL syntax** | Planned | Wikidata-glue joins | Same idea, but through the Wikidata cross-reference graph. |
 | **`CONFIDENCE > x` join filter** | Planned | Probabilistic joins | The confidence score already fits on a `RecordEnvelope`; needs SQL surface + planner rule. |

@@ -24,6 +24,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <jackson.version>2.17.1</jackson.version>
+        <spring-boot.version>3.2.5</spring-boot.version>
     </properties>
 
     <dependencies>
@@ -43,6 +44,23 @@
             <version>${jackson.version}</version>
         </dependency>
 
+        <!-- Optional Spring Boot integration. If Spring is on the classpath
+             at runtime the autoconfigure class kicks in and installed
+             datasets get registered with the local driver on startup.
+             Non-Spring users pay nothing for these being declared here. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring-boot.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${spring-boot.version}</version>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -55,6 +73,12 @@
             <version>3.24.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -63,6 +87,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+            </plugin>
+            <!-- Allows scripts/register-installed.sh to invoke the CLI:
+                 mvn -q exec:java -Dexec.mainClass=... -Dexec.args="..."     -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <mainClass>com.hitorro.mesh.datasets.cli.RegisterInstalledCli</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
