@@ -47,6 +47,17 @@ record:
     - { name: gdp_md,     type: core_long,                               description: "GDP in millions of USD" }
     - { name: economy,    type: core_string }
     - { name: income_grp, type: core_string }
+    # Bounding-box columns computed by the install script from the polygon
+    # geometry. Used by the SPATIAL semantic-join rewriter to emit a fast
+    # BETWEEN join — approximates point-in-polygon well enough for country
+    # attribution against city / weather station / earthquake points.
+    # Known limits: countries crossing the antimeridian (Russia, USA with
+    # Alaska, Fiji) get bboxes spanning most of the planet, so a proper
+    # spatial index (JTS R-tree, S2 cells) is on the roadmap.
+    - { name: min_lon,    type: core_double, role: "geo.bbox.min_lon" }
+    - { name: max_lon,    type: core_double, role: "geo.bbox.max_lon" }
+    - { name: min_lat,    type: core_double, role: "geo.bbox.min_lat" }
+    - { name: max_lat,    type: core_double, role: "geo.bbox.max_lat" }
     # geometry preserved in the NDJSON as a nested GeoJSON object; not
     # declared in the JVS type until the mesh grows spatial-typed fields.
     # Present-but-undeclared fields pass through untouched.

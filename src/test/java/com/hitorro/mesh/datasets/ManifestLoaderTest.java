@@ -68,15 +68,16 @@ class ManifestLoaderTest {
         assertThat(m.identifiers().maps())
                 .contains("geonames", "iso3166alpha2");
 
-        // Three declared relationships, one per join target — the reason
-        // Wikidata unlocks queries the other datasets couldn't do alone.
-        assertThat(m.relationships()).hasSize(3);
+        // Four declared relationships — the country_qid FK back to
+        // wikidata-countries was added when the hub dataset landed.
+        assertThat(m.relationships()).hasSize(4);
         assertThat(m.relationships())
                 .extracting(r -> r.target())
                 .containsExactlyInAnyOrder(
                         "geonames-cities15000",
                         "geonames-country-info",
-                        "natural-earth-countries");
+                        "natural-earth-countries",
+                        "wikidata-countries");
     }
 
     @Test
@@ -115,9 +116,12 @@ class ManifestLoaderTest {
         // any dataset in the catalog speaks.
         assertThat(m.identifiers().maps())
                 .contains("iso3166alpha2", "iso3166alpha3", "iso3166numeric", "fips", "unm49");
-        // Four relationships — one per country-shaped dataset it can be
-        // joined to. That's the "hub" property.
-        assertThat(m.relationships()).hasSize(4);
+        // Three relationships out to the other country-shaped datasets.
+        // The wikidata-cities edge is declared on the CITY manifest instead
+        // (via: country_qid) — a country doesn't join to a city via its
+        // own QID, and the earlier reverse declaration made the rewriter
+        // emit nonsense wd.wikidata_qid = wc.wikidata_qid.
+        assertThat(m.relationships()).hasSize(3);
     }
 
     @Test
@@ -146,9 +150,42 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_owid_co2_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("owid-co2-latest");
+        assertThat(m.id()).isEqualTo("owid-co2-latest");
+        assertThat(m.license().spdx()).isEqualTo("CC-BY-4.0");
+        assertThat(m.record().primaryKey()).isEqualTo("iso_a3");
+        // Four EXACT_ID relationships — one hop from any country dataset.
+        assertThat(m.relationships()).hasSize(4);
+    }
+
+    @Test
+    void bundled_wikipedia_pageviews_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("wikipedia-pageviews");
+        assertThat(m.id()).isEqualTo("wikipedia-pageviews");
+        assertThat(m.license().spdx()).isEqualTo("CC-BY-SA-3.0");
+        assertThat(m.license().shareAlike()).isTrue();
+        // Deliberately no relationships — this is a fresh identifier
+        // namespace that will get name-based probabilistic joins later.
+        assertThat(m.relationships()).isEmpty();
+    }
+
+    @Test
+    void natural_earth_manifest_declares_bbox_role_fields() throws Exception {
+        // Bounding-box columns are what the SPATIAL rewriter needs to
+        // resolve. Lock them into the manifest so removing them without
+        // a migration path breaks a test, not a query.
+        Manifest m = ManifestLoader.loadBundled("natural-earth-countries");
+        assertThat(m.record().fields())
+                .extracting("role")
+                .contains("geo.bbox.min_lat", "geo.bbox.max_lat",
+                          "geo.bbox.min_lon", "geo.bbox.max_lon");
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(8);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(10);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.

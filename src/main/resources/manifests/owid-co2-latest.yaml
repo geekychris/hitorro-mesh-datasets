@@ -1,0 +1,76 @@
+id: owid-co2-latest
+title: Our World in Data — CO2 & energy (latest year snapshot)
+version: "1.0"
+
+description: >
+  Latest-year snapshot of Our World in Data's CO2/energy dataset: one row
+  per country carrying total CO2 emissions, per-capita CO2, coal/oil/gas
+  breakdown, primary energy consumption, and renewables share. Sourced
+  from the owid/co2-data CSV on GitHub — kept in sync with the OWID team's
+  monthly refresh cycle.
+
+  Latest reporting year varies per (country, metric). The install script
+  picks the most recent year that has a non-null CO2 total per country
+  and takes the whole row's values from that year — a small approximation
+  that keeps the schema simple. Full time-series is on the roadmap.
+
+license:
+  spdx: CC-BY-4.0
+  attribution: "Our World in Data (Ritchie, Roser, Rosado) — CO2 and Greenhouse Gas Emissions"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://github.com/owid/co2-data/raw/master/owid-co2-data.csv
+  format: csv
+  checksum: null
+
+record:
+  type: geo.CountryEmissions
+  primaryKey: iso_a3
+  fields:
+    - { name: iso_a3,                     type: core_string, role: "id.iso3166alpha3" }
+    - { name: country,                    type: core_string, role: name }
+    - { name: year,                       type: core_long,                             description: "Latest year with non-null total CO2 for this country" }
+    - { name: population,                 type: core_long,   role: geo.population }
+    - { name: gdp,                        type: core_double,                           description: "GDP in international $ (constant PPP)" }
+    - { name: co2_mt,                     type: core_double, role: "metric.co2_total", description: "Total CO2 emissions (million tonnes)" }
+    - { name: co2_per_capita_t,           type: core_double, role: "metric.co2_per_capita", description: "CO2 emissions per person (tonnes)" }
+    - { name: coal_co2_mt,                type: core_double,                           description: "CO2 emissions from coal (Mt)" }
+    - { name: oil_co2_mt,                 type: core_double,                           description: "CO2 emissions from oil (Mt)" }
+    - { name: gas_co2_mt,                 type: core_double,                           description: "CO2 emissions from gas (Mt)" }
+    - { name: primary_energy_consumption_twh, type: core_double,                       description: "Primary energy consumption (terawatt-hours)" }
+    - { name: energy_per_capita_kwh,      type: core_double,                          description: "Primary energy per person (kWh)" }
+    - { name: share_global_co2_pct,       type: core_double,                           description: "Share of the world's CO2 emissions (%)" }
+
+provides:
+  - metric.co2_total
+  - metric.co2_per_capita
+
+identifiers:
+  produces: []
+  maps:
+    - iso3166alpha3
+
+partitionBy: null
+
+relationships:
+  - target: wikidata-countries
+    kind: EXACT_ID
+    via: [iso_a3]
+
+  - target: worldbank-indicators
+    kind: EXACT_ID
+    via: [iso_a3]
+
+  - target: natural-earth-countries
+    kind: EXACT_ID
+    via: [iso_a3]
+
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [iso_a3]

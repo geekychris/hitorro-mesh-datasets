@@ -122,6 +122,49 @@ class PlaceJoinRewriterTest {
     }
 
     @Test
+    void spatial_join_emits_cross_join_plus_where_bbox() {
+        // usgs_earthquakes declares SPATIAL → natural_earth_countries via
+        // [latitude, longitude]. natural_earth_countries carries bbox
+        // columns tagged with role geo.bbox.{min,max}_{lat,lon}. Because
+        // jvssql phase-1 rejects range-only ON conditions, the rewriter
+        // emits CROSS JOIN and lifts the bbox into WHERE.
+        String out = rewriter.rewrite(
+                "SELECT * FROM usgs_earthquakes e "
+              + "JOIN natural_earth_countries ne USING PLACE "
+              + "WHERE e.magnitude > 5");
+        assertThat(out)
+                .contains("CROSS JOIN natural_earth_countries ne")
+                .contains("e.latitude BETWEEN ne.min_lat AND ne.max_lat")
+                .contains("e.longitude BETWEEN ne.min_lon AND ne.max_lon")
+                // The existing WHERE clause is preserved — new bbox
+                // predicates get spliced in front of it via " (...) AND ".
+                .contains("e.magnitude > 5");
+    }
+
+    @Test
+    void spatial_join_without_where_adds_one() {
+        String out = rewriter.rewrite(
+                "SELECT * FROM usgs_earthquakes e "
+              + "JOIN natural_earth_countries ne USING PLACE");
+        assertThat(out)
+                .contains("CROSS JOIN natural_earth_countries ne")
+                .contains("WHERE e.latitude BETWEEN ne.min_lat AND ne.max_lat");
+    }
+
+    @Test
+    void spatial_join_places_where_before_order_by() {
+        String out = rewriter.rewrite(
+                "SELECT e.title FROM usgs_earthquakes e "
+              + "JOIN natural_earth_countries ne USING PLACE "
+              + "ORDER BY e.magnitude DESC LIMIT 5");
+        // WHERE must appear BEFORE ORDER BY, not appended at the end.
+        int wherePos = out.toUpperCase().indexOf("WHERE");
+        int orderPos = out.toUpperCase().indexOf("ORDER BY");
+        assertThat(wherePos).isPositive();
+        assertThat(orderPos).isGreaterThan(wherePos);
+    }
+
+    @Test
     void noaa_stations_hop_to_natural_earth_via_wikidata_countries_hub() {
         // Before wikidata-countries: NOAA (fips) → Natural Earth (iso_a2 / a3)
         // needs an intermediate — no direct EXACT_ID path. With the hub

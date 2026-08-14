@@ -1,0 +1,57 @@
+id: wikipedia-pageviews
+title: Wikipedia — top-1000 pageviews (English, most recent complete day)
+version: "1.0"
+
+description: >
+  Every article in the top 1 000 of English Wikipedia pageviews for the
+  most recent complete UTC day, straight from Wikimedia's REST API. One
+  row per article carrying rank, view count, and the article slug.
+  Refreshable via HITORRO_DATASETS_FORCE=1.
+
+  Not directly joinable to any other dataset by identifier — Wikipedia
+  article titles rarely match structured labels exactly ("New_York_City"
+  vs "New York City" is easy; "Ronaldo" vs Cristiano Ronaldo vs the
+  Brazilian isn't). Use LIKE / REGEXP or substitute the wikidata sitelink
+  join on a future iteration. Shipped now as a "zeitgeist" layer that's
+  interesting on its own and shows the mesh happily handling non-
+  identifier data.
+
+license:
+  spdx: CC-BY-SA-3.0
+  attribution: "Wikimedia Foundation — pageview statistics"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: true
+  modification: true
+
+source:
+  type: http
+  url: https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/{YYYY}/{MM}/{DD}
+  format: json
+  checksum: null
+
+record:
+  type: media.PageviewSummary
+  primaryKey: article
+  fields:
+    - { name: article,   type: core_string, role: id,                description: "Article slug (underscore-separated title)" }
+    - { name: title,     type: core_string, role: name,              description: "Display title (spaces instead of underscores)" }
+    - { name: rank,      type: core_long,                            description: "Position in the top-1000 (1 = highest)" }
+    - { name: views,     type: core_long,   role: "metric.pageviews", description: "Number of views on the sample day" }
+    - { name: sample_date, type: core_string, role: "time.observed", description: "UTC date the top-1000 was sampled (YYYY-MM-DD)" }
+
+provides:
+  - metric.pageviews
+
+identifiers:
+  produces:
+    - wikipedia_article
+  maps: []
+
+partitionBy: null
+
+# Wikipedia articles don't declare a clean id namespace overlap with
+# anything else in the catalog today. When wikidata sitelinks land as
+# their own dataset, we'll add a probabilistic name-based relationship.
+relationships: []

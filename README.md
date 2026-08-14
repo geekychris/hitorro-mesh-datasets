@@ -42,6 +42,8 @@ cross-referenced ISO / GeoNames identifiers:
 | `wikidata-countries` | Wikidata — countries with full identifier cross-references | ~217 | CC0 | The country identifier hub — one row per Wikidata QID carrying ISO-2/ISO-3/ISO-numeric/FIPS/M.49 so any dataset speaking any country id can hop through it |
 | `worldbank-indicators` | World Bank — country socioeconomic indicators (snapshot) | ~213 | CC-BY | GDP, GDP/capita, population, life expectancy, urban %, unemployment %, electricity access %. Latest year per country. First socioeconomic dataset. |
 | `usgs-earthquakes` | USGS — earthquakes (last 30 days) | ~11 000 | Public domain | Every seismic event in the last month, with mag/lat/lon/depth/alert. Refreshable daily via `HITORRO_DATASETS_FORCE=1`. First event stream. |
+| `owid-co2-latest` | Our World in Data — CO2 & energy (latest year) | ~215 | CC-BY | Total/per-capita CO2, coal/oil/gas breakdown, primary energy, share-of-global. Joins to worldbank/wikidata/natural-earth via ISO-3. |
+| `wikipedia-pageviews` | Wikipedia — top-1000 pageviews (English, latest day) | 1 000 | CC-BY-SA | Yesterday's most-viewed articles. Refreshable daily. First zeitgeist dataset. |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).

@@ -16,6 +16,10 @@
     {"name": "pop_est",    "type": "core_long"},
     {"name": "gdp_md",     "type": "core_long"},
     {"name": "economy",    "type": "core_string"},
-    {"name": "income_grp", "type": "core_string"}
+    {"name": "income_grp", "type": "core_string"},
+    {"name": "min_lon",    "type": "core_double"},
+    {"name": "max_lon",    "type": "core_double"},
+    {"name": "min_lat",    "type": "core_double"},
+    {"name": "max_lat",    "type": "core_double"}
   ]
 }

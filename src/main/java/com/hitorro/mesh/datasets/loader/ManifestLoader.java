@@ -78,6 +78,8 @@ public final class ManifestLoader {
             "wikidata-countries",
             "noaa-ghcnd-stations",
             "worldbank-indicators",
-            "usgs-earthquakes"
+            "usgs-earthquakes",
+            "owid-co2-latest",
+            "wikipedia-pageviews"
     };
 }

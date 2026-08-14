@@ -103,6 +103,13 @@ public final class PlaceJoinRewriter {
         List<TableRef> priors = new ArrayList<>();
         priors.add(tableRefOrThrow(fromM.group(1), stripKeyword(fromM.group(2))));
 
+        // Accumulate SPATIAL bbox predicates as we scan JOINs; they get
+        // spliced into the WHERE clause after all replacements finish
+        // because jvssql phase-1 requires an equijoin key in every
+        // ON clause. CROSS JOIN + WHERE bbox is the closest correct
+        // rewrite that today's engine can dispatch.
+        List<String> spatialWherePreds = new ArrayList<>();
+
         StringBuilder out = new StringBuilder();
         Matcher joinM = JOIN_USING_PLACE.matcher(sql);
         int cursor = 0;
@@ -112,18 +119,79 @@ public final class PlaceJoinRewriter {
             String rawAlias = stripKeyword(joinM.group(2));
             TableRef target = tableRefOrThrow(table, rawAlias);
 
-            String onClause = resolve(priors, target);
+            Resolved r = resolveWithKind(priors, target);
 
             out.append(sql, cursor, joinM.start());
-            out.append("JOIN ").append(table);
-            if (rawAlias != null) out.append(" ").append(rawAlias);
-            out.append(" ON ").append(onClause);
+            if (r.spatial) {
+                // CROSS JOIN + WHERE bbox — the only shape today's
+                // phase-1 planner will actually dispatch for a range join.
+                out.append("CROSS JOIN ").append(table);
+                if (rawAlias != null) out.append(" ").append(rawAlias);
+                spatialWherePreds.add(r.clause);
+            } else {
+                out.append("JOIN ").append(table);
+                if (rawAlias != null) out.append(" ").append(rawAlias);
+                out.append(" ON ").append(r.clause);
+            }
             cursor = joinM.end();
 
             priors.add(target);
         }
         out.append(sql, cursor, sql.length());
-        return out.toString();
+        String rewritten = out.toString();
+
+        if (!spatialWherePreds.isEmpty()) {
+            rewritten = injectIntoWhere(rewritten, spatialWherePreds);
+        }
+        return rewritten;
+    }
+
+    /**
+     * Splice the collected SPATIAL bbox predicates into the query's WHERE
+     * clause. If no WHERE exists, append one before ORDER BY / GROUP BY /
+     * LIMIT / etc; if none of those exist either, append at end.
+     */
+    private static String injectIntoWhere(String sql, List<String> preds) {
+        String joined = String.join(" AND ", preds);
+        Matcher whereM = Pattern.compile("\\bWHERE\\b", Pattern.CASE_INSENSITIVE).matcher(sql);
+        if (whereM.find()) {
+            int after = whereM.end();
+            return sql.substring(0, after) + " (" + joined + ") AND"
+                 + sql.substring(after);
+        }
+        // No WHERE — find the first clause that comes after FROM/JOIN so
+        // we can slot WHERE in before it (Calcite parses left-to-right).
+        Matcher tailM = Pattern.compile(
+                "\\b(GROUP\\s+BY|ORDER\\s+BY|HAVING|LIMIT|OFFSET|UNION|INTERSECT|EXCEPT)\\b",
+                Pattern.CASE_INSENSITIVE).matcher(sql);
+        if (tailM.find()) {
+            return sql.substring(0, tailM.start()) + "WHERE " + joined + " "
+                 + sql.substring(tailM.start());
+        }
+        return sql + " WHERE " + joined;
+    }
+
+    /** Small record so the JOIN-scan loop can distinguish spatial from exact. */
+    private record Resolved(String clause, boolean spatial) { }
+
+    private Resolved resolveWithKind(List<TableRef> priors, TableRef target) {
+        // EXACT_ID pass, then SPATIAL — same order as resolve() but this
+        // variant tells the caller which one landed so it can pick JOIN
+        // shape (ON vs CROSS JOIN + WHERE).
+        for (TableRef prior : priors) {
+            String c = tryBuildExactId(prior, target);
+            if (c != null) return new Resolved(c, false);
+        }
+        for (TableRef prior : priors) {
+            String c = tryBuildSpatial(prior, target);
+            if (c != null) return new Resolved(c, true);
+        }
+        String priorList = priors.stream().map(r -> r.tableName).toList().toString();
+        throw new SemanticJoinException(
+                "no EXACT_ID or SPATIAL relationship declared between " + target.tableName
+                + " and any prior table " + priorList + " — either add a "
+                + "relationships: entry to one of the manifests, or write "
+                + "the JOIN with an explicit ON clause.");
     }
 
     /**
@@ -139,38 +207,114 @@ public final class PlaceJoinRewriter {
 
     // ------------------------------------------------------------------
 
-    /**
-     * Find a prior table with an EXACT_ID relationship to {@code target}
-     * (or vice versa) and build the ON clause.
-     */
-    private String resolve(List<TableRef> priors, TableRef target) {
-        for (TableRef prior : priors) {
-            String on = tryBuildOn(prior, target);
-            if (on != null) return on;
-        }
-        String priorList = priors.stream().map(r -> r.tableName).toList().toString();
-        throw new SemanticJoinException(
-                "no EXACT_ID relationship declared between " + target.tableName
-                + " and any prior table " + priorList + " — either add a "
-                + "relationships: entry to one of the manifests, or write "
-                + "the JOIN with an explicit ON clause.");
-    }
 
-    /** @return an ON clause body, or null if no relationship links the pair. */
-    private String tryBuildOn(TableRef source, TableRef target) {
+    /** @return an EXACT_ID ON clause body, or null if none exists between the pair. */
+    private String tryBuildExactId(TableRef source, TableRef target) {
         // Forward: source declares a relationship to target.
-        Relationship fwd = findExactIdTo(source.manifest, target.manifest.id());
+        Relationship fwd = findRelationshipTo(source.manifest, target.manifest.id(), RelationshipKind.EXACT_ID);
         if (fwd != null) {
             String srcCol = singleVia(fwd, source.manifest.id());
             String tgtCol = pickTargetColumn(source.manifest, srcCol, target.manifest);
             return castingEqui(source, srcCol, target, tgtCol);
         }
         // Reverse: target declares a relationship to source.
-        Relationship rev = findExactIdTo(target.manifest, source.manifest.id());
+        Relationship rev = findRelationshipTo(target.manifest, source.manifest.id(), RelationshipKind.EXACT_ID);
         if (rev != null) {
             String tgtCol = singleVia(rev, target.manifest.id());
             String srcCol = pickTargetColumn(target.manifest, tgtCol, source.manifest);
             return castingEqui(source, srcCol, target, tgtCol);
+        }
+        return null;
+    }
+
+    /**
+     * @return a SPATIAL bounding-box ON clause body, or null if no SPATIAL
+     *         relationship links the pair. MVP — see {@link #buildSpatial}
+     *         for the semantics.
+     */
+    private String tryBuildSpatial(TableRef source, TableRef target) {
+        Relationship sfwd = findRelationshipTo(source.manifest, target.manifest.id(), RelationshipKind.SPATIAL);
+        if (sfwd != null) return buildSpatial(source, sfwd, target);
+        Relationship srev = findRelationshipTo(target.manifest, source.manifest.id(), RelationshipKind.SPATIAL);
+        if (srev != null) return buildSpatial(source, srev, target);
+        return null;
+    }
+
+    /**
+     * Emit a bounding-box join for a SPATIAL relationship.
+     *
+     * <p>MVP: assumes target carries four columns with roles
+     * {@code geo.bbox.min_lat}, {@code geo.bbox.max_lat},
+     * {@code geo.bbox.min_lon}, {@code geo.bbox.max_lon} — the
+     * install-time-computed envelope of each row's polygon. Emits
+     * {@code src.lat BETWEEN tgt.min_lat AND tgt.max_lat AND
+     * src.lon BETWEEN tgt.min_lon AND tgt.max_lon}.</p>
+     *
+     * <p>Known limits (see also the docs):</p>
+     * <ul>
+     *   <li>Bounding-box only — a point inside the bbox but outside the
+     *       polygon still matches. Fine for coarse country attribution;
+     *       wrong for anything requiring true PIP.</li>
+     *   <li>Countries crossing the antimeridian get planet-spanning bboxes.
+     *       Every earthquake worldwide will match Fiji / Russia / USA.</li>
+     *   <li>Multiple polygons per country get one merged bbox. Kiribati's
+     *       three island groups become one huge Pacific rectangle.</li>
+     * </ul>
+     *
+     * <p>The right long-term fix is a spatial index at the agent (JTS
+     * R-tree or S2 cells) — this MVP is what a preprocessor can do without
+     * touching the mesh's execution layer. It's often good enough for
+     * demoing the SPATIAL surface and testing the join graph.</p>
+     */
+    private static String buildSpatial(TableRef source, Relationship rel, TableRef target) {
+        List<String> via = rel.via();
+        if (via == null || via.size() != 2) {
+            throw new SemanticJoinException(
+                    "SPATIAL relationship on " + rel.target()
+                    + " needs exactly two `via` columns (lat, lon or lon, lat) — got " + via);
+        }
+
+        // Convention on the source side: via is [latColumn, lonColumn].
+        // We validate by checking roles when available.
+        String latSrc = via.get(0);
+        String lonSrc = via.get(1);
+        // Swap if the first via column is clearly the longitude.
+        String r0 = roleOf(source.manifest.record(), via.get(0));
+        String r1 = roleOf(source.manifest.record(), via.get(1));
+        if ("geo.lon".equals(r0) && "geo.lat".equals(r1)) {
+            latSrc = via.get(1);
+            lonSrc = via.get(0);
+        }
+
+        // Target-side bbox columns by role.
+        String minLat = findFieldWithRole(target.manifest.record(), "geo.bbox.min_lat");
+        String maxLat = findFieldWithRole(target.manifest.record(), "geo.bbox.max_lat");
+        String minLon = findFieldWithRole(target.manifest.record(), "geo.bbox.min_lon");
+        String maxLon = findFieldWithRole(target.manifest.record(), "geo.bbox.max_lon");
+        if (minLat == null || maxLat == null || minLon == null || maxLon == null) {
+            throw new SemanticJoinException(
+                    "SPATIAL join to " + target.tableName + " needs role-tagged "
+                    + "bbox columns (geo.bbox.{min,max}_{lat,lon}) — install "
+                    + "scripts for polygon datasets should emit them from "
+                    + "geometry. Fall back to an explicit ST_Contains "
+                    + "predicate until a spatial index lands.");
+        }
+
+        // Returned as the bbox predicate body — the caller lifts it into
+        // a WHERE clause via a CROSS JOIN, because jvssql phase-1 rejects
+        // ON conditions with no equijoin key. The two BETWEEN predicates
+        // together are what actually prune to the containing polygon(s).
+        return source.alias + "." + latSrc + " BETWEEN "
+             + target.alias + "." + minLat + " AND " + target.alias + "." + maxLat
+             + " AND "
+             + source.alias + "." + lonSrc + " BETWEEN "
+             + target.alias + "." + minLon + " AND " + target.alias + "." + maxLon;
+    }
+
+    private static Relationship findRelationshipTo(Manifest source, String targetId, RelationshipKind kind) {
+        if (source.relationships() == null) return null;
+        for (Relationship r : source.relationships()) {
+            if (targetId.equals(r.target()) && r.kind() == kind) return r;
         }
         return null;
     }
@@ -254,14 +398,6 @@ public final class PlaceJoinRewriter {
             case "core_bool"   -> "BOOLEAN";
             default            -> "VARCHAR";   // permissive fallback
         };
-    }
-
-    private static Relationship findExactIdTo(Manifest source, String targetId) {
-        if (source.relationships() == null) return null;
-        for (Relationship r : source.relationships()) {
-            if (targetId.equals(r.target()) && r.kind() == RelationshipKind.EXACT_ID) return r;
-        }
-        return null;
     }
 
     private static String singleVia(Relationship r, String manifestId) {

@@ -16,6 +16,8 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `wikidata-countries` | ~217 | CC0 | https://query.wikidata.org/sparql (Q3624078 or Q6256, with P297/P298/P299/P901/P2082) |
 | `worldbank-indicators` | ~213 | CC-BY-4.0 | https://api.worldbank.org/v2/country/all/indicator/{code}?format=json (8 indicators) |
 | `usgs-earthquakes` | ~11 000 | Public domain | https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson |
+| `owid-co2-latest` | ~215 | CC-BY-4.0 | https://github.com/owid/co2-data/raw/master/owid-co2-data.csv |
+| `wikipedia-pageviews` | 1 000 | CC-BY-SA-3.0 | https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/{Y}/{M}/{D} |
 
 ## Planned (see ROADMAP.md for detail)
 

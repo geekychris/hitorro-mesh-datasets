@@ -27,25 +27,57 @@ info "sha256: $(sha256_of "$RAW_DIR/ne_110m_admin_0_countries.geojson")"
 # to match the JVS type. Use `// null` guards so absent keys become explicit
 # nulls rather than missing (matches TSV loader behaviour in common.sh).
 info "geojson → ndjson (jq)"
-jq -c '.features[] | {
-    name:       (.properties.NAME       // null),
-    name_long:  (.properties.NAME_LONG  // null),
-    iso_a2:     (.properties.ISO_A2     // null),
-    iso_a3:     (.properties.ISO_A3     // null),
-    iso_n3:     (.properties.ISO_N3     // null),
-    un_a3:      (.properties.UN_A3      // null),
-    wb_a2:      (.properties.WB_A2      // null),
-    wb_a3:      (.properties.WB_A3      // null),
-    continent:  (.properties.CONTINENT  // null),
-    subregion:  (.properties.SUBREGION  // null),
-    region_un:  (.properties.REGION_UN  // null),
-    region_wb:  (.properties.REGION_WB  // null),
-    pop_est:    (.properties.POP_EST    // null),
-    gdp_md:     (.properties.GDP_MD     // null),
-    economy:    (.properties.ECONOMY    // null),
-    income_grp: (.properties.INCOME_GRP // null),
-    geometry:    .geometry
-  }' "$RAW_DIR/ne_110m_admin_0_countries.geojson" > "$DATA_DIR/countries.ndjson"
+jq -c '
+    # Flatten to a plain list of [lon, lat] pairs regardless of Polygon /
+    # MultiPolygon nesting. Countries that cross the antimeridian (Russia,
+    # USA with Alaska) end up with a bbox spanning most of the globe —
+    # documented as a known MVP limitation.
+    def coord_pairs:
+        if .type == "Polygon" then .coordinates | .[]?
+        elif .type == "MultiPolygon" then .coordinates | .[]? | .[]?
+        else empty end
+        | .[]?;
+
+    def bbox:
+        [ coord_pairs ] as $pairs
+        | if ($pairs | length) == 0 then null
+          else {
+            min_lon: ($pairs | map(.[0]) | min),
+            max_lon: ($pairs | map(.[0]) | max),
+            min_lat: ($pairs | map(.[1]) | min),
+            max_lat: ($pairs | map(.[1]) | max)
+          }
+          end;
+
+    .features[]
+    | (.geometry | bbox) as $bb
+    | {
+        name:       (.properties.NAME       // null),
+        name_long:  (.properties.NAME_LONG  // null),
+        iso_a2:     (.properties.ISO_A2     // null),
+        iso_a3:     (.properties.ISO_A3     // null),
+        iso_n3:     (.properties.ISO_N3     // null),
+        un_a3:      (.properties.UN_A3      // null),
+        wb_a2:      (.properties.WB_A2      // null),
+        wb_a3:      (.properties.WB_A3      // null),
+        continent:  (.properties.CONTINENT  // null),
+        subregion:  (.properties.SUBREGION  // null),
+        region_un:  (.properties.REGION_UN  // null),
+        region_wb:  (.properties.REGION_WB  // null),
+        pop_est:    (.properties.POP_EST    // null),
+        gdp_md:     (.properties.GDP_MD     // null),
+        economy:    (.properties.ECONOMY    // null),
+        income_grp: (.properties.INCOME_GRP // null),
+        # Bounding-box columns pre-computed at install time. Used by the
+        # rewriter'"'"'s SPATIAL MVP to emit a fast BETWEEN join that
+        # approximates point-in-polygon well enough for country
+        # attribution. See docs/SEMANTIC_JOINS.md#spatial.
+        min_lon:    (if $bb then $bb.min_lon else null end),
+        max_lon:    (if $bb then $bb.max_lon else null end),
+        min_lat:    (if $bb then $bb.min_lat else null end),
+        max_lat:    (if $bb then $bb.max_lat else null end),
+        geometry:    .geometry
+      }' "$RAW_DIR/ne_110m_admin_0_countries.geojson" > "$DATA_DIR/countries.ndjson"
 ok "wrote $(wc -l < "$DATA_DIR/countries.ndjson") records to $DATA_DIR/countries.ndjson"
 
 cp "$MODULE_ROOT/src/main/resources/types/natural_earth_countries.json" "$TYPES_DIR/"

@@ -1,0 +1,18 @@
+{
+  "name": "owid_co2_latest",
+  "fields": [
+    {"name": "iso_a3",                          "type": "core_string"},
+    {"name": "country",                         "type": "core_string"},
+    {"name": "year",                            "type": "core_long"},
+    {"name": "population",                      "type": "core_long"},
+    {"name": "gdp",                             "type": "core_double"},
+    {"name": "co2_mt",                          "type": "core_double"},
+    {"name": "co2_per_capita_t",                "type": "core_double"},
+    {"name": "coal_co2_mt",                     "type": "core_double"},
+    {"name": "oil_co2_mt",                      "type": "core_double"},
+    {"name": "gas_co2_mt",                      "type": "core_double"},
+    {"name": "primary_energy_consumption_twh",  "type": "core_double"},
+    {"name": "energy_per_capita_kwh",           "type": "core_double"},
+    {"name": "share_global_co2_pct",            "type": "core_double"}
+  ]
+}
