@@ -1,0 +1,81 @@
+id: wikidata-countries
+title: Wikidata — countries with full identifier cross-references
+version: "1.0"
+
+description: >
+  One row per Wikidata sovereign state (Q3624078) or country (Q6256), carrying
+  every widely-used country identifier in a single record: Wikidata QID, name,
+  ISO-3166 alpha-2 / alpha-3 / numeric, FIPS 10-4, UN M.49, plus continent
+  and population where present. About 200 rows.
+
+  The point of this dataset is to close the identifier loop. GeoNames-country-info
+  produces iso3166alpha2/alpha3/numeric/fips. Natural-earth-countries produces
+  iso3166alpha2/alpha3/numeric plus UN M.49 and World Bank codes. NOAA
+  stations map to fips. Wikidata cities map to wikidata. Before this
+  dataset, joining GeoNames-only tables to NOAA-only tables via Wikidata
+  wasn't possible — nothing carried both sides of the mapping. Now it is.
+
+license:
+  spdx: CC0-1.0
+  attribution: "Wikidata contributors"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: sparql
+  url: https://query.wikidata.org/sparql
+  format: sparql-results+json
+  checksum: null
+
+record:
+  type: geo.Country
+  primaryKey: wikidata_qid
+  fields:
+    - { name: wikidata_qid, type: core_string, role: id }
+    - { name: name,         type: core_string, role: name }
+    - { name: iso_a2,       type: core_string, role: "id.iso3166alpha2" }
+    - { name: iso_a3,       type: core_string, role: "id.iso3166alpha3" }
+    - { name: iso_num,      type: core_string, role: "id.iso3166numeric" }
+    - { name: fips,         type: core_string, role: "id.fips" }
+    - { name: un_m49,       type: core_string, role: "id.unm49" }
+    - { name: continent,    type: core_string }
+    - { name: population,   type: core_long,   role: geo.population }
+
+provides:
+  - geo.name
+  - geo.parent.country
+
+identifiers:
+  produces:
+    - wikidata
+  maps:
+    - iso3166alpha2
+    - iso3166alpha3
+    - iso3166numeric
+    - fips
+    - unm49
+
+partitionBy: null   # broadcast — ~200 rows
+
+# Every other country-shaped dataset can now hop through Wikidata via any
+# of the ISO variants it speaks. Only EXACT_ID relationships declared;
+# every join a semantic query needs is one hop.
+relationships:
+  - target: geonames-country-info
+    kind: EXACT_ID
+    via: [iso_a2]
+
+  - target: natural-earth-countries
+    kind: EXACT_ID
+    via: [iso_a2]
+
+  - target: noaa-ghcnd-stations
+    kind: EXACT_ID
+    via: [fips]
+
+  - target: wikidata-cities
+    kind: EXACT_ID
+    via: [wikidata_qid]

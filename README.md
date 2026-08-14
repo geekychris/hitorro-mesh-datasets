@@ -39,6 +39,7 @@ cross-referenced ISO / GeoNames identifiers:
 | `natural-earth-countries` | Natural Earth — admin-0 countries (1:110m) | ~258 | Public domain | Broadcast dimension (+ polygon geometry) |
 | `wikidata-cities` | Wikidata — cities > 100 000 with cross-references | ~2 200 | CC0 | Identity glue (broadcast, produces the `wikidata` namespace) |
 | `noaa-ghcnd-stations` | NOAA — GHCN-Daily station inventory | ~132 500 | Public domain | Point geometry (broadcast, derived `fips_country` joins to country info; declares SPATIAL to Natural Earth for the eventual spatial-join iteration) |
+| `wikidata-countries` | Wikidata — countries with full identifier cross-references | ~217 | CC0 | The country identifier hub — one row per Wikidata QID carrying ISO-2/ISO-3/ISO-numeric/FIPS/M.49 so any dataset speaking any country id can hop through it |
 
 Everything else in the design (Wikidata, Natural Earth, OSM/Overture, Census,
 NOAA, Our World in Data, OpenAlex, Crossref) is planned — see [`ROADMAP.md`](ROADMAP.md).

@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-for s in install-geonames-country-info.sh install-geonames-cities15000.sh install-natural-earth-countries.sh install-wikidata-cities.sh install-noaa-ghcnd-stations.sh; do
+for s in install-geonames-country-info.sh install-geonames-cities15000.sh install-natural-earth-countries.sh install-wikidata-cities.sh install-wikidata-countries.sh install-noaa-ghcnd-stations.sh; do
     printf "\n=== %s ===\n" "$s"
     ./"$s"
 done

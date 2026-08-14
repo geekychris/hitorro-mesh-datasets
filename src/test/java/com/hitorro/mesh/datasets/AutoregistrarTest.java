@@ -100,7 +100,10 @@ class AutoregistrarTest {
         @SuppressWarnings("unchecked")
         Map<String, Object> dist = json.readValue(distBody, Map.class);
         assertThat(dist).containsKey("name");
-        assertThat((String) dist.get("typeJsonResource")).startsWith("file:");
+        // MeshRegistrar now inlines the type JSON into the request body
+        // (typeJson) rather than passing a file: URL (typeJsonResource) —
+        // matches the driver's RegisterTableRequest shape.
+        assertThat((String) dist.get("typeJson")).startsWith("{");
         assertThat((List<?>) dist.get("partitions")).hasSize(1);
     }
 

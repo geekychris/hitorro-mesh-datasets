@@ -122,6 +122,22 @@ class PlaceJoinRewriterTest {
     }
 
     @Test
+    void noaa_stations_hop_to_natural_earth_via_wikidata_countries_hub() {
+        // Before wikidata-countries: NOAA (fips) → Natural Earth (iso_a2 / a3)
+        // needs an intermediate — no direct EXACT_ID path. With the hub
+        // dataset in place, USING PLACE resolves each hop using the
+        // matching id.* role: NOAA.fips_country (id.fips) → wc.fips (id.fips),
+        // wc.iso_a2 (id.iso3166alpha2) → ne.iso_a2 (id.iso3166alpha2).
+        String out = rewriter.rewrite(
+                "SELECT s.name, ne.name AS country FROM noaa_ghcnd_stations s "
+              + "JOIN wikidata_countries wc USING PLACE "
+              + "JOIN natural_earth_countries ne USING PLACE");
+        assertThat(out).contains("ON s.fips_country = wc.fips");
+        assertThat(out).contains("ON wc.iso_a2 = ne.iso_a2");
+        assertThat(out).doesNotContain("iso_a3");
+    }
+
+    @Test
     void noaa_station_to_country_info_via_derived_fips_role() {
         // noaa_ghcnd_stations.fips_country has role id.fips.
         // geonames_country_info.fips also has role id.fips.

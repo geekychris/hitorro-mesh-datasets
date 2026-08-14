@@ -13,6 +13,7 @@ This file is hand-maintained and matches the `BUNDLED` array in
 | `natural-earth-countries` | ~258 | Public domain | https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson |
 | `wikidata-cities` | ~2 200 | CC0 | https://query.wikidata.org/sparql (P31=Q515, P1082>100k) |
 | `noaa-ghcnd-stations` | ~132 500 | Public domain | https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt |
+| `wikidata-countries` | ~217 | CC0 | https://query.wikidata.org/sparql (Q3624078 or Q6256, with P297/P298/P299/P901/P2082) |
 
 ## Planned (see ROADMAP.md for detail)
 

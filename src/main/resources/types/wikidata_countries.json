@@ -1,0 +1,14 @@
+{
+  "name": "wikidata_countries",
+  "fields": [
+    {"name": "wikidata_qid", "type": "core_string"},
+    {"name": "name",         "type": "core_string"},
+    {"name": "iso_a2",       "type": "core_string"},
+    {"name": "iso_a3",       "type": "core_string"},
+    {"name": "iso_num",      "type": "core_string"},
+    {"name": "fips",         "type": "core_string"},
+    {"name": "un_m49",       "type": "core_string"},
+    {"name": "continent",    "type": "core_string"},
+    {"name": "population",   "type": "core_long"}
+  ]
+}

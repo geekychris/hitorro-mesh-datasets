@@ -104,9 +104,26 @@ class ManifestLoaderTest {
     }
 
     @Test
+    void bundled_wikidata_countries_manifest_parses() throws Exception {
+        Manifest m = ManifestLoader.loadBundled("wikidata-countries");
+        assertThat(m.id()).isEqualTo("wikidata-countries");
+        assertThat(m.license().spdx()).isEqualTo("CC0-1.0");
+        assertThat(m.record().primaryKey()).isEqualTo("wikidata_qid");
+        assertThat(m.partitionBy()).isNull();
+
+        // Full identifier menagerie — maps to every other country namespace
+        // any dataset in the catalog speaks.
+        assertThat(m.identifiers().maps())
+                .contains("iso3166alpha2", "iso3166alpha3", "iso3166numeric", "fips", "unm49");
+        // Four relationships — one per country-shaped dataset it can be
+        // joined to. That's the "hub" property.
+        assertThat(m.relationships()).hasSize(4);
+    }
+
+    @Test
     void registry_loads_bundled_and_can_find_by_identifier() {
         DatasetRegistry reg = new DatasetRegistry().loadBundled();
-        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(5);
+        assertThat(reg.all()).hasSizeGreaterThanOrEqualTo(6);
 
         // All country-shaped manifests speak iso3166alpha2 — country-info
         // produces it, Natural Earth produces it, Wikidata cities maps to it.
