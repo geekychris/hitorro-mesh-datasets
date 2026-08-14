@@ -203,6 +203,224 @@ wins:
       state postal-code equijoin — rewriter would pick this up too
       once us-states.postal + noaa.state get a shared role.
 
+  # ────────────────────────────────────────────────────────────────────
+  # Direct ISO-alpha-3 joins across country-shaped datasets
+  # ────────────────────────────────────────────────────────────────────
+
+  - title: "Emitters compared: CO2 next to GDP per capita"
+    datasets: [worldbank-indicators, owid-co2-latest]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT wb.name, wb.gdp_per_capita_usd,
+             co.co2_mt, co.co2_per_capita_t
+      FROM worldbank_indicators wb
+      JOIN owid_co2_latest co USING PLACE
+      WHERE wb.gdp_per_capita_usd IS NOT NULL
+      ORDER BY co.co2_per_capita_t DESC LIMIT 15
+    note: |
+      One JOIN gives you the classic emissions × wealth scatter dataset.
+      Rewriter matches on ISO 3166-1 alpha-3 (wb.iso_a3 = co.iso_a3).
+      No hub needed — both tables key on the same code.
+
+  - title: "GDP for high-income OECD countries"
+    datasets: [natural-earth-countries, worldbank-indicators]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT ne.name, ne.income_grp, wb.gdp_per_capita_usd
+      FROM natural_earth_countries ne
+      JOIN worldbank_indicators wb USING PLACE
+      WHERE ne.income_grp LIKE '1.%'
+      ORDER BY wb.gdp_per_capita_usd DESC LIMIT 15
+    note: |
+      Natural Earth carries a hand-classified income_grp column
+      ("1. High income: OECD" / "2. High income: nonOECD" / ...).
+      Filter to income group 1 then rank by real World Bank GDP.
+      Luxembourg, Ireland, Switzerland, US usually top the list.
+
+  - title: "CO2 across UN Least-Developed Countries"
+    datasets: [owid-co2-latest, un-m49-areas]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT co.country, co.co2_per_capita_t, m.sub_region_name
+      FROM owid_co2_latest co
+      JOIN un_m49_areas m USING PLACE
+      WHERE m.least_developed = true
+      ORDER BY co.co2_per_capita_t DESC LIMIT 15
+    note: |
+      Slices CO2 data by the UN's Least-Developed Country flag —
+      Angola, Bangladesh, Cambodia, ... each with their per-capita
+      emissions and UN sub-region. Rewriter joins on iso3.
+
+  - title: "High-income countries ranked by CO2 per capita"
+    datasets: [natural-earth-countries, owid-co2-latest]
+    kind: exact-id
+    hops: 1
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT ne.name, ne.income_grp, co.co2_per_capita_t
+      FROM natural_earth_countries ne
+      JOIN owid_co2_latest co USING PLACE
+      WHERE ne.income_grp LIKE '1.%'
+      ORDER BY co.co2_per_capita_t DESC LIMIT 10
+    note: |
+      Which of the world's high-income countries emit the most per
+      person? Australia, US, Canada usually surface at the top;
+      France + UK lower thanks to nuclear. Fires the same iso_a3
+      matcher as CO2 × GDP but uses Natural Earth's own income tier.
+
+  # ────────────────────────────────────────────────────────────────────
+  # Three-way hub joins — a bridge dataset connects two orthogonal ones
+  # ────────────────────────────────────────────────────────────────────
+
+  - title: "OSM airports enriched with UN region + sub-region"
+    datasets: [osm-airports, wikidata-countries, un-m49-areas]
+    kind: hub
+    hops: 2
+    license: share-alike
+    semantic: true
+    sql: |
+      SELECT a.name AS airport, a.iata_code,
+             m.region_name, m.sub_region_name
+      FROM osm_airports a
+      JOIN wikidata_countries wc USING PLACE
+      JOIN un_m49_areas m USING PLACE
+      LIMIT 15
+    note: |
+      Two-hop through wikidata-countries — OSM's ISO alpha-2 → country
+      QID → M49. Adds continent + UN sub-region to every airport
+      without a separate lookup step. First win that combines an
+      ODbL dataset (osm-airports) with M49 — LicenseAlgebra propagates
+      share-alike through the result.
+
+  - title: "OSM airports in high-GDP countries"
+    datasets: [osm-airports, wikidata-countries, worldbank-indicators]
+    kind: hub
+    hops: 2
+    license: share-alike
+    semantic: true
+    sql: |
+      SELECT a.name AS airport, a.iata_code,
+             wb.name AS country, wb.gdp_per_capita_usd
+      FROM osm_airports a
+      JOIN wikidata_countries wc USING PLACE
+      JOIN worldbank_indicators wb USING PLACE
+      WHERE wb.gdp_per_capita_usd > 40000
+      ORDER BY wb.gdp_per_capita_usd DESC LIMIT 15
+    note: |
+      Three-way through the wikidata-countries hub. Only ~6 OSM
+      airports have addr:country tags set — a known OSM tagging
+      quirk — but the rewrite is exercised end-to-end and the
+      share-alike propagation is visible in the result banner.
+
+  - title: "Top research institutions grouped by UN region"
+    datasets: [openalex-institutions, wikidata-countries, un-m49-areas]
+    kind: hub
+    hops: 2
+    license: attribution-required
+    semantic: true
+    sql: |
+      SELECT o.display_name, o.city, o.cited_by_count, m.region_name
+      FROM openalex_institutions o
+      JOIN wikidata_countries wc USING PLACE
+      JOIN un_m49_areas m USING PLACE
+      ORDER BY o.cited_by_count DESC LIMIT 15
+    note: |
+      Adds M49 region to the citation-ranked institution leaderboard —
+      CNRS (Paris, Europe), Harvard (Cambridge MA, Americas), Chinese
+      Academy of Sciences (Beijing, Asia). Sister query to the
+      GDP-per-capita version (win #2); different enrichment axis.
+
+  # ────────────────────────────────────────────────────────────────────
+  # JVS-flavored: multi-value column filtering with LIKE / POSITION
+  # ────────────────────────────────────────────────────────────────────
+  # Many JVS datasets carry a "single column, comma-separated" list —
+  # a legacy shape from source TSVs where one row is truly N values.
+  # Until UNNEST support lands, LIKE '%<item>%' is the practical way to
+  # query these fields. Not a JOIN in the traditional sense — a SET-
+  # membership predicate on JVS's multi-value column pattern.
+
+  - title: "Countries where English is a recognised language"
+    datasets: [geonames-country-info]
+    kind: multi-value
+    hops: 0
+    license: attribution-required
+    semantic: false
+    sql: |
+      SELECT country, capital, languages
+      FROM geonames_country_info
+      WHERE languages LIKE '%en%'
+      ORDER BY country LIMIT 20
+    note: |
+      GeoNames stores the languages column as a comma-separated list
+      of BCP-47 tags ("en-US,es-US,haw,fr"). LIKE '%en%' is the JVS-
+      idiomatic way to ask "does this row's multi-value list contain
+      the token 'en'?" — until UNNEST/SPLIT operators land. Returns
+      every country whose entry mentions any en-* variant.
+
+  - title: "Countries bordering China"
+    datasets: [geonames-country-info]
+    kind: multi-value
+    hops: 0
+    license: attribution-required
+    semantic: false
+    sql: |
+      SELECT country, capital, neighbours
+      FROM geonames_country_info
+      WHERE neighbours LIKE '%CN%'
+      ORDER BY country LIMIT 15
+    note: |
+      neighbours is a comma-separated list of ISO-2 codes. LIKE '%CN%'
+      finds every country whose neighbour set contains China.
+      Afghanistan, Bhutan, India, Kazakhstan, Kyrgyzstan, Laos, ...
+      Same JVS multi-value pattern as the language query.
+
+  - title: "AI-tagged top GitHub repos"
+    datasets: [github-top-repos]
+    kind: multi-value
+    hops: 0
+    license: attribution-required
+    semantic: false
+    sql: |
+      SELECT full_name, primary_language, stargazers_count
+      FROM github_top_repos
+      WHERE topics LIKE '%ai%'
+      ORDER BY stargazers_count DESC LIMIT 15
+    note: |
+      GitHub topic tags land as one comma-separated string. LIKE '%ai%'
+      picks up both explicit 'ai' tags and words containing 'ai'
+      (fair-warning: this is a substring match, not a token match —
+      that's the JVS multi-value tradeoff until proper array types
+      arrive).
+
+  - title: "HuggingFace transformer-library models with 10M+ downloads"
+    datasets: [huggingface-top-models]
+    kind: multi-value
+    hops: 0
+    license: attribution-required
+    semantic: false
+    sql: |
+      SELECT model_id, downloads, pipeline_tag
+      FROM huggingface_top_models
+      WHERE library_name = 'transformers'
+        AND downloads > 10000000
+      ORDER BY downloads DESC LIMIT 15
+    note: |
+      Not multi-value per se — this exercises HuggingFace's namespaced
+      tag columns (library_name, pipeline_tag, license_tag,
+      language_tag). Model registry rows carry many single-token tag
+      columns; combine them for population-scale slices. BERT, GPT-2,
+      RoBERTa, distilBERT usually surface.
+
   - title: "USGS earthquakes near country polygons (bbox spatial)"
     datasets: [usgs-earthquakes, natural-earth-countries]
     kind: spatial

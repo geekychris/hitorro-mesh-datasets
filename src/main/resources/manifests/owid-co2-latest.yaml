@@ -75,6 +75,10 @@ relationships:
     kind: EXACT_ID
     via: [iso_a3]
 
+  - target: un-m49-areas
+    kind: EXACT_ID
+    via: [iso_a3]
+
 metadata:
   useCases:
     - "Top emitters (absolute and per-capita)"

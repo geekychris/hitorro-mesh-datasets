@@ -81,6 +81,14 @@ relationships:
     kind: EXACT_ID
     via: [iso3]
 
+  - target: owid-co2-latest
+    kind: EXACT_ID
+    via: [iso3]
+
+  - target: osm-airports
+    kind: EXACT_ID
+    via: [iso2]
+
 metadata:
   useCases:
     - "Aggregate any country-level metric up to region / sub-region"
