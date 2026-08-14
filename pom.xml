@@ -25,6 +25,9 @@
         <maven.compiler.target>21</maven.compiler.target>
         <jackson.version>2.17.1</jackson.version>
         <spring-boot.version>3.2.5</spring-boot.version>
+        <!-- Default main class for the exec plugin; overridden per-wrapper
+             (register-installed.sh vs rewrite-sql.sh) via -Dexec.mainClass. -->
+        <exec.mainClass>com.hitorro.mesh.datasets.cli.RegisterInstalledCli</exec.mainClass>
     </properties>
 
     <dependencies>
@@ -88,14 +91,15 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
             </plugin>
-            <!-- Allows scripts/register-installed.sh to invoke the CLI:
-                 mvn -q exec:java -Dexec.mainClass=... -Dexec.args="..."     -->
+            <!-- Wrappers under scripts/ invoke this via mvn exec:java. The
+                 mainClass is a property so each wrapper can point at its own
+                 CLI without touching the pom. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
-                    <mainClass>com.hitorro.mesh.datasets.cli.RegisterInstalledCli</mainClass>
+                    <mainClass>${exec.mainClass}</mainClass>
                 </configuration>
             </plugin>
         </plugins>

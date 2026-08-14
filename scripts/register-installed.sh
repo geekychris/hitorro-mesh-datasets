@@ -10,13 +10,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-if [[ ! -d target/classes ]]; then
-    ./mvnw -q compile 2>/dev/null || mvn -q compile
-fi
-
+# Chained compile + exec so the classpath always reflects current source.
 # Pass all flags through as one exec.args string so the CLI's arg parser
 # (not shell) handles them.
 ARGS="$*"
-exec mvn -q exec:java \
+exec mvn -q compile exec:java \
     -Dexec.mainClass=com.hitorro.mesh.datasets.cli.RegisterInstalledCli \
     -Dexec.args="$ARGS"

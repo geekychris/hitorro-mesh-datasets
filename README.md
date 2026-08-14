@@ -21,7 +21,8 @@ the substrate.
 | **Loader** (`com.hitorro.mesh.datasets.loader`) | YAML → `Manifest` parser, plus a `LicenseAlgebra` that answers "can I combine A + B and redistribute the result?" |
 | **Registry** (`com.hitorro.mesh.datasets.registry`) | In-memory catalog (`DatasetRegistry`) + REST client (`MeshRegistrar`) + one-shot orchestrator (`Autoregistrar`) that scans installed datasets and posts each to a running driver. |
 | **Spring autoconfig** (`com.hitorro.mesh.datasets.spring`) | Optional Spring Boot integration: adds `hitorro.mesh.datasets.*` properties + an `ApplicationRunner` that auto-registers on startup. Spring is `<optional>true</optional>` — non-Spring consumers pay nothing. |
-| **CLI** (`com.hitorro.mesh.datasets.cli`) | `RegisterInstalledCli` main class + `scripts/register-installed.sh` wrapper for manual / cron invocation. |
+| **Semantic joins** (`com.hitorro.mesh.datasets.semantic`) | `PlaceJoinRewriter` — turns `JOIN t USING PLACE` into a concrete `ON a.x = b.y` clause by walking the declared relationships. Handles type-mismatch with `CAST`, forward + reverse declaration lookup, multi-hop chains. See [`docs/SEMANTIC_JOINS.md`](docs/SEMANTIC_JOINS.md). |
+| **CLI** (`com.hitorro.mesh.datasets.cli`) | `RegisterInstalledCli` + `RewriteSqlCli`, each wrapped by a `scripts/*.sh` for manual / cron invocation. |
 | **Install scripts** (`scripts/`) | Bash + awk (+ jq for GeoJSON) downloaders that materialise the raw source into NDJSON + a JVS type file under `$HITORRO_DATASETS_HOME`. No Python. |
 | **JVS types** (`src/main/resources/types/`) | The schema files the mesh agent-app loads to know how to read the NDJSON. |
 
@@ -64,6 +65,29 @@ curl -s http://localhost:8085/queries -H 'Content-Type: application/json' -d '{
           ORDER BY c.population DESC LIMIT 20"
 }'
 ```
+
+### Semantic joins — `USING PLACE`
+
+The relationships each manifest declares aren't documentation. Write:
+
+```sql
+SELECT gn.name, ci.continent, ne.income_grp
+FROM geonames_cities15000 gn
+JOIN geonames_country_info  ci USING PLACE
+JOIN natural_earth_countries ne USING PLACE
+WHERE gn.population > 500000
+```
+
+and pipe it through the rewriter:
+
+```bash
+./scripts/rewrite-sql.sh < query.sql
+```
+
+which emits the concrete `ON` clauses computed from the declared
+`EXACT_ID` relationships (with automatic `CAST` when the source and
+target join columns have different types). Full mechanism in
+[`docs/SEMANTIC_JOINS.md`](docs/SEMANTIC_JOINS.md).
 
 ### Auto-registration for Spring Boot drivers
 

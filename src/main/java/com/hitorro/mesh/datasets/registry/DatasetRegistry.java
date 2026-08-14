@@ -54,6 +54,31 @@ public final class DatasetRegistry {
         return byId.get(id);
     }
 
+    /**
+     * Look up a manifest by the SQL table name it produces.
+     *
+     * <p>Manifest ids use kebab-case for readability
+     * ({@code geonames-cities15000}); SQL tables use underscores
+     * ({@code geonames_cities15000}). This is the reverse of
+     * {@code MeshRegistrar.tableName(Manifest)} and lets the semantic-join
+     * rewriter go from a table name in SQL back to the manifest that
+     * declares its relationships.</p>
+     *
+     * @return the manifest, or {@code null} if no bundled/installed manifest
+     *         produces a table of that name.
+     */
+    public synchronized Manifest byTableName(String tableName) {
+        String id = tableName.replace('_', '-');
+        Manifest exact = byId.get(id);
+        if (exact != null) return exact;
+        // Fallback: some ids contain non-hyphenated digits (e.g. cities15000).
+        // Try every manifest and compare its computed table name.
+        for (Manifest m : byId.values()) {
+            if (m.id().replace('-', '_').equals(tableName)) return m;
+        }
+        return null;
+    }
+
     public synchronized Collection<Manifest> all() {
         return new ArrayList<>(byId.values());
     }
