@@ -39,7 +39,7 @@ jq -c '.features[] | {
     url:           (.properties.url         // null),
     title:         (.properties.title       // null)
   }' "$RAW_DIR/all_month.geojson" > "$DATA_DIR/events.ndjson"
-ok "wrote $(wc -l < "$DATA_DIR/events.ndjson") records to $DATA_DIR/events.ndjson"
+finalize_ndjson "$DATA_DIR/events.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/usgs_earthquakes.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/usgs-earthquakes.yaml" "$INSTALL_DIR/manifest.yaml"

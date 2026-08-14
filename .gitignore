@@ -5,3 +5,15 @@ target/
 *.iml
 .vscode/
 .DS_Store
+
+# Belt-and-braces — dataset data lives under $HITORRO_DATASETS_HOME
+# (outside this repo) but block anything vaguely data-shaped from
+# accidental git-add. Manifests + JVS types are under src/main/resources/
+# so they're not affected.
+/data/
+*.ndjson
+*.ndjson.bzip
+*.ndjson.gz
+*.geojson
+*.csv
+!src/main/resources/**

@@ -53,7 +53,7 @@ jq -sc '
     }
 ' "$RAW_DIR"/institutions-page*.json > "$DATA_DIR/institutions.ndjson"
 
-ok "wrote $(wc -l < "$DATA_DIR/institutions.ndjson") records to $DATA_DIR/institutions.ndjson"
+finalize_ndjson "$DATA_DIR/institutions.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/openalex_institutions.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/openalex-institutions.yaml" "$INSTALL_DIR/manifest.yaml"

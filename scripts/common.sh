@@ -46,6 +46,56 @@ fetch() {
     fi
 }
 
+# ---- optional bzip compression of NDJSON outputs ----
+# By default every install script that writes an NDJSON file also gzip/bzip
+# compresses it. Set HITORRO_DATASETS_COMPRESS=0 to opt out (useful for
+# quick debugging by hand). Set HITORRO_DATASETS_COMPRESS=gz for gzip
+# instead of the default bz2 (gz is faster to decode, bz2 is smaller).
+# Mesh agents read through NdjsonLocalTable which transparently decodes
+# by extension.
+: "${HITORRO_DATASETS_COMPRESS:=bz2}"
+
+# maybe_compress <ndjson_path>
+# When compression is on, gzip/bzip the file in-place and echo the new
+# path (adds .bz2 / .gz suffix). When off, echo the input path unchanged.
+maybe_compress() {
+    local path="$1"
+    case "$HITORRO_DATASETS_COMPRESS" in
+        0|no|off|false|"")
+            printf "%s" "$path"
+            ;;
+        gz)
+            require_cmd gzip
+            gzip -f "$path"
+            printf "%s.gz" "$path"
+            ;;
+        bz2|bzip|bzip2)
+            require_cmd bzip2
+            bzip2 -f "$path"
+            printf "%s.bz2" "$path"
+            ;;
+        *)
+            warn "unknown HITORRO_DATASETS_COMPRESS=$HITORRO_DATASETS_COMPRESS — writing uncompressed"
+            printf "%s" "$path"
+            ;;
+    esac
+}
+
+# finalize_ndjson <uncompressed_path>
+# One-line replacement for the `ok "wrote N records to X"` pattern.
+# Counts rows, compresses (respecting HITORRO_DATASETS_COMPRESS), reports.
+# Echoes the final path so callers that need it can capture:
+#     final=$(finalize_ndjson "$DATA_DIR/x.ndjson")
+finalize_ndjson() {
+    local path="$1"
+    local rows
+    rows=$(wc -l < "$path")
+    local final
+    final=$(maybe_compress "$path")
+    ok "wrote ${rows// /} records → $final" >&2
+    printf "%s" "$final"
+}
+
 sha256_of() {
     if command -v sha256sum >/dev/null 2>&1; then
         sha256sum "$1" | awk '{print $1}'
@@ -94,5 +144,5 @@ tsv_to_ndjson() {
         out = out "}"
         print out
     }' "$infile" > "$outfile"
-    ok "wrote $(wc -l < "$outfile") records to $outfile"
+    finalize_ndjson "$outfile" > /dev/null
 }

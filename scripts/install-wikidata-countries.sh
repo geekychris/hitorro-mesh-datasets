@@ -77,7 +77,7 @@ jq -c '
   | map(reduce .[] as $r ({}; . * $r))
   | .[]
 ' "$RAW_DIR/countries.json" > "$DATA_DIR/countries.ndjson"
-ok "wrote $(wc -l < "$DATA_DIR/countries.ndjson") records to $DATA_DIR/countries.ndjson"
+finalize_ndjson "$DATA_DIR/countries.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/wikidata_countries.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/wikidata-countries.yaml" "$INSTALL_DIR/manifest.yaml"

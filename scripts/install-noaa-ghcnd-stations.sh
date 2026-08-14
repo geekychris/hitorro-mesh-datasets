@@ -70,7 +70,7 @@ awk 'BEGIN { OFS="" }
         print  "}"
     }
 ' "$RAW_DIR/ghcnd-stations.txt" > "$DATA_DIR/stations.ndjson"
-ok "wrote $(wc -l < "$DATA_DIR/stations.ndjson") records to $DATA_DIR/stations.ndjson"
+finalize_ndjson "$DATA_DIR/stations.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/noaa_ghcnd_stations.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/noaa-ghcnd-stations.yaml" "$INSTALL_DIR/manifest.yaml"

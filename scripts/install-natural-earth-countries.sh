@@ -78,7 +78,7 @@ jq -c '
         max_lat:    (if $bb then $bb.max_lat else null end),
         geometry:    .geometry
       }' "$RAW_DIR/ne_110m_admin_0_countries.geojson" > "$DATA_DIR/countries.ndjson"
-ok "wrote $(wc -l < "$DATA_DIR/countries.ndjson") records to $DATA_DIR/countries.ndjson"
+finalize_ndjson "$DATA_DIR/countries.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/natural_earth_countries.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/natural-earth-countries.yaml" "$INSTALL_DIR/manifest.yaml"

@@ -131,7 +131,7 @@ jq -sc '
     | select(.iso_a3 != null and .iso_a3 != "")
 ' "$RAW_DIR/all_parts.ndjson" > "$merged"
 
-ok "wrote $(wc -l < "$merged") records to $merged"
+finalize_ndjson "$merged" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/worldbank_indicators.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/worldbank-indicators.yaml" "$INSTALL_DIR/manifest.yaml"

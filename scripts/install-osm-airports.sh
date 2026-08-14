@@ -61,7 +61,7 @@ jq -c '
     }
 ' "$RAW_DIR/airports.json" > "$DATA_DIR/airports.ndjson"
 
-ok "wrote $(wc -l < "$DATA_DIR/airports.ndjson") records to $DATA_DIR/airports.ndjson"
+finalize_ndjson "$DATA_DIR/airports.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/osm_airports.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/osm-airports.yaml" "$INSTALL_DIR/manifest.yaml"

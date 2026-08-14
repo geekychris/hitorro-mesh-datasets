@@ -53,7 +53,7 @@ jq -c '.results.bindings[] | {
     enwiki_title:   (.article.value | sub("https://en.wikipedia.org/wiki/"; "") | gsub("_"; " ")),
     enwiki_url:     .article.value
 }' "$RAW_DIR/sitelinks.json" > "$DATA_DIR/sitelinks.ndjson"
-ok "wrote $(wc -l < "$DATA_DIR/sitelinks.ndjson") records to $DATA_DIR/sitelinks.ndjson"
+finalize_ndjson "$DATA_DIR/sitelinks.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/wikidata_city_sitelinks.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/wikidata-city-sitelinks.yaml" "$INSTALL_DIR/manifest.yaml"

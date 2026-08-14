@@ -71,7 +71,7 @@ jq -c '.results.bindings[] | {
     country_qid:  (if .country then (.country.value | sub("http://www.wikidata.org/entity/"; "")) else null end),
     country_iso:  ((.countryIso // {}).value // null)
   }' "$RAW_DIR/cities.json" > "$DATA_DIR/cities.ndjson"
-ok "wrote $(wc -l < "$DATA_DIR/cities.ndjson") records to $DATA_DIR/cities.ndjson"
+finalize_ndjson "$DATA_DIR/cities.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/wikidata_cities.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/wikidata-cities.yaml" "$INSTALL_DIR/manifest.yaml"

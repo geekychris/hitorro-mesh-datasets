@@ -63,7 +63,7 @@ jq -c --arg d "$sample_date" '
     }
 ' "$RAW_DIR/top.json" > "$DATA_DIR/pageviews.ndjson"
 
-ok "wrote $(wc -l < "$DATA_DIR/pageviews.ndjson") records to $DATA_DIR/pageviews.ndjson"
+finalize_ndjson "$DATA_DIR/pageviews.ndjson" > /dev/null
 
 cp "$MODULE_ROOT/src/main/resources/types/wikipedia_pageviews.json" "$TYPES_DIR/"
 cp "$MODULE_ROOT/src/main/resources/manifests/wikipedia-pageviews.yaml" "$INSTALL_DIR/manifest.yaml"
