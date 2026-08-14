@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -69,7 +70,10 @@ public final class MeshRegistrar {
         String tableName = tableName(manifest);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("name", tableName);
-        body.put("typeJsonResource", "file:" + typeJsonPath.toAbsolutePath());
+        // The driver's registerTable endpoint expects the JVS type inline as
+        // a JSON string, not a file:// URL — the RegisterTableRequest.typeJson
+        // field. Read the file's bytes and stringify them.
+        body.put("typeJson", Files.readString(typeJsonPath));
 
         List<Map<String, Object>> parts = partitionKeys.stream().map(k -> {
             Map<String, Object> p = new LinkedHashMap<>();
@@ -91,6 +95,45 @@ public final class MeshRegistrar {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("name", tableName(manifest));
         post("/mesh/broadcast-tables", body);
+    }
+
+    /**
+     * Extra registration that goes alongside {@link #registerBroadcast}:
+     * declares the same broadcast dataset as a distributed table with a
+     * single synthetic partition that any jvssql agent can serve.
+     *
+     * <p>Why this matters: the mesh's planner requires the {@code FROM}
+     * table to appear in the distributed set. Broadcast-only tables can
+     * only be JOIN targets. Registering the broadcast dataset as
+     * distributed-single-partition too lets users run
+     * {@code SELECT * FROM wikidata_cities} directly — the standalone
+     * "let me look at this dataset" flow the UI's Datasets tab wants.</p>
+     *
+     * <p>Every jvssql agent that carries the broadcast data can serve
+     * this partition (capability = {@code [jvssql]}) because
+     * {@code TaskExecutor} already registers all
+     * {@link com.hitorro.mesh.agent.AgentConfig#broadcastTables()} into
+     * every task's engine builder. The dual registration is small — a
+     * table name plus one partition entry — and doesn't duplicate data
+     * anywhere.</p>
+     */
+    public void registerBroadcastAsDistributed(Manifest manifest, Path typeJsonPath)
+            throws IOException, InterruptedException {
+
+        String tableName = tableName(manifest);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("name", tableName);
+        body.put("typeJson", Files.readString(typeJsonPath));
+
+        Map<String, Object> partition = new LinkedHashMap<>();
+        partition.put("key", "broadcast");
+        // Only [jvssql] — no per-partition capability, so any jvssql agent
+        // can serve it. That's exactly the "runs anywhere" semantic we want
+        // for a fully-replicated broadcast dataset.
+        partition.put("requiredCapabilities", List.of("jvssql"));
+        body.put("partitions", List.of(partition));
+
+        post("/mesh/tables", body);
     }
 
     public void unregister(Manifest manifest) throws IOException, InterruptedException {

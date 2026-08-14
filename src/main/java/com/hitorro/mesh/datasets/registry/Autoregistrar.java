@@ -72,7 +72,14 @@ public final class Autoregistrar {
             }
             try {
                 if (m.partitionBy() == null) {
+                    // Broadcast side — makes the dataset a legal JOIN target.
                     mesh.registerBroadcast(m);
+                    // Distributed-single-partition side — makes the dataset
+                    // queryable standalone via SELECT * FROM. The mesh's
+                    // planner requires the FROM table to be distributed;
+                    // any jvssql agent carrying the broadcast data can
+                    // serve this synthetic partition.
+                    mesh.registerBroadcastAsDistributed(m, typeJsonPathFor(id));
                 } else {
                     mesh.registerDistributed(m, typeJsonPathFor(id), List.of("all"));
                 }

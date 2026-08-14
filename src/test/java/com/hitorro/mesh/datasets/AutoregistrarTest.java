@@ -64,10 +64,10 @@ class AutoregistrarTest {
     void autoregister_walks_installed_root_and_posts_each_manifest(@TempDir Path home) throws Exception {
         installFakeManifest(home, "geonames-cities15000", "partitionBy: country_code");
         installFakeManifest(home, "natural-earth-countries", "partitionBy: null");
-        // Distributed dataset needs a type json — Autoregistrar checks.
-        Path typesDir = Files.createDirectories(home.resolve("geonames-cities15000/types"));
-        Files.writeString(typesDir.resolve("geonames_cities15000.json"),
-                "{\"name\":\"geonames_cities15000\",\"fields\":[]}");
+        // Both datasets need a type json now — the broadcast one also POSTs
+        // to /mesh/tables (the distributed-single-partition side-registration).
+        writeFakeType(home, "geonames-cities15000");
+        writeFakeType(home, "natural-earth-countries");
 
         System.setProperty("hitorro.datasets.home", home.toString());
 
@@ -89,12 +89,17 @@ class AutoregistrarTest {
         Map<String, Object> broadcast = json.readValue(broadcastBody, Map.class);
         assertThat(broadcast).containsEntry("name", "natural_earth_countries");
 
-        // Distributed POST included capabilities + type-json path.
+        // Every broadcast dataset also gets a distributed-single-partition
+        // registration so SELECT * FROM works standalone. Distinguish which
+        // /mesh/tables POST is which by name.
+        // (The fake driver captures ONE body per path — last write wins. With
+        // both natural-earth and geonames-cities registering as distributed,
+        // the last one seen is whichever the map iteration order emits last.)
         String distBody = lastBodyByPath.get("/mesh/tables");
         assertThat(distBody).isNotNull();
         @SuppressWarnings("unchecked")
         Map<String, Object> dist = json.readValue(distBody, Map.class);
-        assertThat(dist).containsEntry("name", "geonames_cities15000");
+        assertThat(dist).containsKey("name");
         assertThat((String) dist.get("typeJsonResource")).startsWith("file:");
         assertThat((List<?>) dist.get("partitions")).hasSize(1);
     }
@@ -103,6 +108,8 @@ class AutoregistrarTest {
     void skip_ids_are_left_alone(@TempDir Path home) throws Exception {
         installFakeManifest(home, "natural-earth-countries", "partitionBy: null");
         installFakeManifest(home, "docs", "partitionBy: null");
+        writeFakeType(home, "natural-earth-countries");
+        writeFakeType(home, "docs");
 
         System.setProperty("hitorro.datasets.home", home.toString());
 
@@ -118,6 +125,15 @@ class AutoregistrarTest {
     }
 
     // ------------------------------------------------------------------
+
+    /** Every broadcast/distributed dataset needs a type json for
+     *  Autoregistrar's file-existence check. */
+    private static void writeFakeType(Path home, String id) throws IOException {
+        String tableName = id.replace('-', '_');
+        Path typesDir = Files.createDirectories(home.resolve(id).resolve("types"));
+        Files.writeString(typesDir.resolve(tableName + ".json"),
+                "{\"name\":\"" + tableName + "\",\"fields\":[]}");
+    }
 
     private static void installFakeManifest(Path home, String id, String extra) throws IOException {
         Path dir = Files.createDirectories(home.resolve(id));
