@@ -1,0 +1,9 @@
+id: hts-tariff
+title: US Harmonized Tariff Schedule (HTS)
+version: "1.0"
+description: >
+  Every US HTS code — ~19 000 across chapters 01-99 — with duty rates,
+  units, and special-rate footnotes. Updated ~quarterly by USITC.
+license: { spdx: "US Government Work / Public Domain", attribution: "US International Trade Commission" }
+source: { type: http, url: https://hts.usitc.gov/reststop/exportList, format: json }
+partitionBy: null

@@ -1,0 +1,10 @@
+id: un-locode
+title: UN/LOCODE — UN Code for Trade and Transport Locations
+version: "1.0"
+description: >
+  Every port, airport, rail terminal, and inland location UN/CEFACT
+  publishes codes for. ~110 000 rows spanning 249 countries. Refreshed
+  twice yearly. CC0.
+license: { spdx: CC0-1.0, attribution: "UNECE / UN/CEFACT" }
+source: { type: http, url: https://service.unece.org/trade/locode/loc242csv.zip, format: csv.zip }
+partitionBy: null

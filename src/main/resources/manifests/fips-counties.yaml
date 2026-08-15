@@ -1,0 +1,10 @@
+id: fips-counties
+title: FIPS 6-4 US counties (~3200)
+version: "1.0"
+description: >
+  Every US county + county-equivalent (Louisiana parishes, Alaska
+  boroughs, Puerto Rico municipios, etc). FIPS code + ANSI/INCITS
+  code + Census GEOID. Refreshed by Census each decade.
+license: { spdx: "US Government Work / Public Domain", attribution: "US Census Bureau" }
+source: { type: http, url: https://www2.census.gov/geo/docs/reference/codes2020/national_county2020.txt, format: psv }
+partitionBy: state

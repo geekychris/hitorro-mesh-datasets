@@ -1,0 +1,10 @@
+{"name":"fips_counties","fields":[
+  {"name":"state","type":"core_string"},
+  {"name":"state_fips","type":"core_string"},
+  {"name":"county_fips","type":"core_string"},
+  {"name":"county_ansi","type":"core_string"},
+  {"name":"county_name","type":"core_string"},
+  {"name":"class_fips","type":"core_string"},
+  {"name":"functional","type":"core_string"},
+  {"name":"geoid","type":"core_string"}
+]}

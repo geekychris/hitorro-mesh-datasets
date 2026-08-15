@@ -1,0 +1,9 @@
+id: soc-2018
+title: SOC 2018 — US Standard Occupational Classification
+version: "1.0"
+description: >
+  ~1000 occupations across 23 major groups. Used by BLS, Census, and
+  every federal agency for labor statistics.
+license: { spdx: "US Government Work / Public Domain", attribution: "US Bureau of Labor Statistics" }
+source: { type: http, url: https://www.bls.gov/soc/2018/soc_2018_definitions.csv, format: csv }
+partitionBy: null

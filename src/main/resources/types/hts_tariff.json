@@ -1,0 +1,13 @@
+{"name":"hts_tariff","fields":[
+  {"name":"hts_number","type":"core_string"},
+  {"name":"indent","type":"core_long"},
+  {"name":"description","type":"core_string"},
+  {"name":"unit_of_qty","type":"core_string"},
+  {"name":"general_rate","type":"core_string"},
+  {"name":"special_rate","type":"core_string"},
+  {"name":"other_rate","type":"core_string"},
+  {"name":"quota","type":"core_string"},
+  {"name":"additional_dut","type":"core_string"},
+  {"name":"addressed_by","type":"core_string"},
+  {"name":"footnotes","type":"core_string"}
+]}

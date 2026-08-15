@@ -1,0 +1,10 @@
+id: iso-3166-2
+title: ISO 3166-2 country subdivisions (states / provinces / regions)
+version: "1.0"
+description: >
+  Subdivisions of every ISO 3166-1 country — US states, Canadian
+  provinces, UK constituent countries, Chinese provinces, etc.
+  ~5000 entries. CC0.
+license: { spdx: CC0-1.0, attribution: "ISO 3166 Maintenance Agency" }
+source: { type: http, url: https://raw.githubusercontent.com/olahol/iso-3166-2.json/master/iso-3166-2.json, format: json }
+partitionBy: null

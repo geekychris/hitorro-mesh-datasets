@@ -1,0 +1,10 @@
+{"name":"iso_639_3","fields":[
+  {"name":"alpha3","type":"core_string"},
+  {"name":"alpha3_bibliographic","type":"core_string"},
+  {"name":"alpha3_terminologic","type":"core_string"},
+  {"name":"alpha2","type":"core_string"},
+  {"name":"scope","type":"core_string"},
+  {"name":"language_type","type":"core_string"},
+  {"name":"reference_name","type":"core_string"},
+  {"name":"comment","type":"core_string"}
+]}

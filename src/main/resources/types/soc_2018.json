@@ -1,0 +1,6 @@
+{"name":"soc_2018","fields":[
+  {"name":"soc_code","type":"core_string"},
+  {"name":"title","type":"core_string"},
+  {"name":"definition","type":"core_string"},
+  {"name":"major_group","type":"core_string"}
+]}

@@ -1,0 +1,6 @@
+{"name":"iso_3166_2","fields":[
+  {"name":"code","type":"core_string"},
+  {"name":"name","type":"core_string"},
+  {"name":"country_code","type":"core_string"},
+  {"name":"country_name","type":"core_string"}
+]}

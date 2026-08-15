@@ -1,0 +1,11 @@
+id: iso-639-3
+title: ISO 639-3 — every language SIL knows (~8000)
+version: "1.0"
+description: >
+  Superset of ISO 639-1 (which is our iso-languages dataset with ~180
+  entries). Includes constructed, ancient, and extinct languages
+  alongside living ones. Sourced from SIL, the ISO 639-3
+  registration authority.
+license: { spdx: "SIL Open License v1.1", attribution: "SIL International" }
+source: { type: http, url: https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab, format: tsv }
+partitionBy: null
