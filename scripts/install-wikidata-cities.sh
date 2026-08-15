@@ -27,10 +27,19 @@ mkdir -p "$RAW_DIR" "$DATA_DIR" "$TYPES_DIR"
 require_cmd jq
 require_cmd curl
 
-QUERY='SELECT DISTINCT ?item ?itemLabel ?population ?lat ?lon ?geonames ?country ?countryIso WHERE {
-  ?item wdt:P31 wd:Q515.
+# Tunables — override at install time to grow / shrink the dataset:
+#   HITORRO_WIKIDATA_CITIES_MIN_POP=10000   # lower threshold → more places
+#   HITORRO_WIKIDATA_CITIES_LIMIT=200000    # SPARQL LIMIT (endpoint caps ~1M)
+#   HITORRO_WIKIDATA_CITIES_INSTANCE=Q515   # human-settlement class (Q515 city,
+#                                           # Q486972 human settlement)
+: "${HITORRO_WIKIDATA_CITIES_MIN_POP:=100000}"
+: "${HITORRO_WIKIDATA_CITIES_LIMIT:=20000}"
+: "${HITORRO_WIKIDATA_CITIES_INSTANCE:=Q515}"
+
+QUERY="SELECT DISTINCT ?item ?itemLabel ?population ?lat ?lon ?geonames ?country ?countryIso WHERE {
+  ?item wdt:P31 wd:${HITORRO_WIKIDATA_CITIES_INSTANCE}.
   ?item wdt:P1082 ?population.
-  FILTER(?population > 100000)
+  FILTER(?population > ${HITORRO_WIKIDATA_CITIES_MIN_POP})
   ?item p:P625 ?coordStmt.
   ?coordStmt psv:P625 ?coordNode.
   ?coordNode wikibase:geoLatitude ?lat;
@@ -40,9 +49,11 @@ QUERY='SELECT DISTINCT ?item ?itemLabel ?population ?lat ?lon ?geonames ?country
     ?item wdt:P17 ?country.
     ?country wdt:P297 ?countryIso.
   }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
 }
-LIMIT 20000'
+LIMIT ${HITORRO_WIKIDATA_CITIES_LIMIT}"
+
+info "SPARQL: min_pop=${HITORRO_WIKIDATA_CITIES_MIN_POP} limit=${HITORRO_WIKIDATA_CITIES_LIMIT} instance=${HITORRO_WIKIDATA_CITIES_INSTANCE}"
 
 if [[ -f "$RAW_DIR/cities.json" && -z "${HITORRO_DATASETS_FORCE:-}" ]]; then
     info "cached: $RAW_DIR/cities.json — set HITORRO_DATASETS_FORCE=1 to refresh"

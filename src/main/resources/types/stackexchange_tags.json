@@ -1,0 +1,4 @@
+{"name":"stackexchange_tags","fields":[
+  {"name":"Id","type":"core_long"},
+  {"name":"CreationDate","type":"core_string"}
+]}

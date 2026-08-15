@@ -1,0 +1,34 @@
+id: wikipedia-abstracts
+title: Wikipedia article abstracts (per-language dump)
+version: "1.0"
+
+description: >
+  Article intros + URLs from Wikimedia's abstract dump. Roughly ~6M
+  English articles, ~1GB gzipped, ~5GB uncompressed. Streams to NDJSON.
+  Good source of medium-length text for enrichment / retrieval demos.
+
+license:
+  spdx: CC-BY-SA-4.0
+  attribution: "Wikipedia — Wikimedia Foundation"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: true
+  shareAlike: true
+  modification: true
+
+source:
+  type: http
+  url: https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-abstract.xml.gz
+  format: xml.gz
+  checksum: null
+
+record:
+  type: text.WikiAbstract
+  primaryKey: url
+  fields:
+    - { name: title,    type: core_string, role: title }
+    - { name: url,      type: core_string, role: id }
+    - { name: abstract, type: core_string, role: body }
+    - { name: lang,     type: core_string }
+
+partitionBy: null

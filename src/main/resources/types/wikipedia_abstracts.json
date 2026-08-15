@@ -1,0 +1,9 @@
+{
+  "name": "wikipedia_abstracts",
+  "fields": [
+    {"name": "title",    "type": "core_string"},
+    {"name": "url",      "type": "core_string"},
+    {"name": "abstract", "type": "core_string"},
+    {"name": "lang",     "type": "core_string"}
+  ]
+}

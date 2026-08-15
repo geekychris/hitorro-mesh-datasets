@@ -1,0 +1,16 @@
+{
+  "name": "arxiv",
+  "fields": [
+    {"name": "arxiv_id",         "type": "core_string"},
+    {"name": "title",            "type": "core_string"},
+    {"name": "abstract",         "type": "core_string"},
+    {"name": "authors",          "type": "core_string", "vector": true},
+    {"name": "categories",       "type": "core_string", "vector": true},
+    {"name": "primary_category", "type": "core_string"},
+    {"name": "created",          "type": "core_string"},
+    {"name": "updated",          "type": "core_string"},
+    {"name": "doi",              "type": "core_string"},
+    {"name": "journal_ref",      "type": "core_string"},
+    {"name": "license",          "type": "core_string"}
+  ]
+}

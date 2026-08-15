@@ -1,0 +1,13 @@
+{"name":"stackexchange_users","fields":[
+  {"name":"Id","type":"core_long"},
+  {"name":"Reputation","type":"core_long"},
+  {"name":"CreationDate","type":"core_string"},
+  {"name":"DisplayName","type":"core_string"},
+  {"name":"LastAccessDate","type":"core_string"},
+  {"name":"WebsiteUrl","type":"core_string"},
+  {"name":"Location","type":"core_string"},
+  {"name":"AboutMe","type":"core_string"},
+  {"name":"Views","type":"core_long"},
+  {"name":"UpVotes","type":"core_long"},
+  {"name":"DownVotes","type":"core_long"}
+]}

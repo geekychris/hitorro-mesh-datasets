@@ -1,0 +1,16 @@
+id: arxiv
+title: arXiv preprints (OAI-PMH metadata + abstracts)
+version: "1.0"
+description: >
+  arXiv metadata + full abstracts via the public OAI-PMH endpoint. Pulls a
+  configurable date range (default = last 7 days). Scale via
+  HITORRO_ARXIV_FROM / _UNTIL. ~2.5M papers total across all fields.
+license:
+  spdx: CC0-1.0
+  attribution: "arXiv.org"
+  commercialUse: true
+source:
+  type: http
+  url: https://export.arxiv.org/oai2
+  format: xml
+partitionBy: null

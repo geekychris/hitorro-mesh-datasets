@@ -1,0 +1,15 @@
+id: stackexchange
+title: Stack Exchange data dumps
+version: "1.0"
+description: >
+  Any Stack Exchange site's Q&A / users / tags / comments / votes / badges
+  as NDJSON. Site + table chosen at install time via env vars.
+license:
+  spdx: CC-BY-SA-4.0
+  attribution: "Stack Exchange"
+  shareAlike: true
+source:
+  type: http
+  url: https://archive.org/download/stackexchange
+  format: 7z(xml)
+partitionBy: null

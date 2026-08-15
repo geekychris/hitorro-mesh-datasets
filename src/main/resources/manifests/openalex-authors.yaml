@@ -1,0 +1,41 @@
+id: openalex-authors
+title: OpenAlex Authors — scholarly authors + h-index
+version: "1.0"
+
+description: >
+  Authors from OpenAlex with citation stats, h-index, i10-index, and their
+  last-known institution. Default pulls 1000 top-cited authors globally;
+  scale up or narrow to an institution / concept via env vars.
+
+license:
+  spdx: CC0-1.0
+  attribution: "OpenAlex (https://openalex.org) — data in the public domain"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://api.openalex.org/authors
+  format: json
+  checksum: null
+
+record:
+  type: scholarly.Author
+  primaryKey: openalex_id
+  fields:
+    - { name: openalex_id,         type: core_string, role: id }
+    - { name: orcid,               type: core_string }
+    - { name: display_name,        type: core_string }
+    - { name: works_count,         type: core_long }
+    - { name: cited_by_count,      type: core_long }
+    - { name: h_index,             type: core_long }
+    - { name: i10_index,           type: core_long }
+    - { name: institution_id,      type: core_string }
+    - { name: institution_display, type: core_string }
+    - { name: institution_country, type: core_string }
+    - { name: top_concept,         type: core_string }
+
+partitionBy: null

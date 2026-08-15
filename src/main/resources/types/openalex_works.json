@@ -1,0 +1,19 @@
+{
+  "name": "openalex_works",
+  "fields": [
+    {"name": "openalex_id",      "type": "core_string"},
+    {"name": "doi",              "type": "core_string"},
+    {"name": "title",            "type": "core_string"},
+    {"name": "publication_year", "type": "core_long"},
+    {"name": "publication_date", "type": "core_string"},
+    {"name": "work_type",        "type": "core_string"},
+    {"name": "cited_by_count",   "type": "core_long"},
+    {"name": "is_oa",            "type": "core_boolean"},
+    {"name": "oa_url",           "type": "core_string"},
+    {"name": "language",         "type": "core_string"},
+    {"name": "authors_count",    "type": "core_long"},
+    {"name": "first_author",     "type": "core_string"},
+    {"name": "primary_topic",    "type": "core_string"},
+    {"name": "primary_concept",  "type": "core_string"}
+  ]
+}

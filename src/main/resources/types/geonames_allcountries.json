@@ -1,0 +1,20 @@
+{
+  "name": "geonames_allcountries",
+  "fields": [
+    {"name": "geonameid",      "type": "core_long"},
+    {"name": "name",           "type": "core_string"},
+    {"name": "asciiname",      "type": "core_string"},
+    {"name": "alternatenames", "type": "core_string"},
+    {"name": "latitude",       "type": "core_double"},
+    {"name": "longitude",      "type": "core_double"},
+    {"name": "feature_class",  "type": "core_string"},
+    {"name": "feature_code",   "type": "core_string"},
+    {"name": "country_code",   "type": "core_string"},
+    {"name": "cc2",            "type": "core_string"},
+    {"name": "admin1_code",    "type": "core_string"},
+    {"name": "admin2_code",    "type": "core_string"},
+    {"name": "population",     "type": "core_long"},
+    {"name": "elevation",      "type": "core_long"},
+    {"name": "timezone",       "type": "core_string"}
+  ]
+}

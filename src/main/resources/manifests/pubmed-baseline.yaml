@@ -1,0 +1,16 @@
+id: pubmed-baseline
+title: NIH PubMed / MEDLINE annual baseline
+version: "1.0"
+description: >
+  Biomedical citations (title + abstract + authors + MeSH headings) from the
+  annual NIH baseline. Default installs one baseline file (~30k citations,
+  ~30MB); scale to the full ~30M-citation baseline via HITORRO_PUBMED_FILES.
+license:
+  spdx: CC0-1.0
+  attribution: "NIH National Library of Medicine — MEDLINE / PubMed"
+  commercialUse: true
+source:
+  type: http
+  url: https://ftp.ncbi.nlm.nih.gov/pubmed/baseline
+  format: xml.gz
+partitionBy: null

@@ -1,0 +1,14 @@
+{
+  "name": "pubmed",
+  "fields": [
+    {"name": "pmid",       "type": "core_string"},
+    {"name": "title",      "type": "core_string"},
+    {"name": "abstract",   "type": "core_string"},
+    {"name": "journal",    "type": "core_string"},
+    {"name": "year",       "type": "core_long"},
+    {"name": "doi",        "type": "core_string"},
+    {"name": "authors",    "type": "core_string", "vector": true},
+    {"name": "keywords",   "type": "core_string", "vector": true},
+    {"name": "mesh_terms", "type": "core_string", "vector": true}
+  ]
+}

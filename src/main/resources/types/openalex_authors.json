@@ -1,0 +1,16 @@
+{
+  "name": "openalex_authors",
+  "fields": [
+    {"name": "openalex_id",         "type": "core_string"},
+    {"name": "orcid",               "type": "core_string"},
+    {"name": "display_name",        "type": "core_string"},
+    {"name": "works_count",         "type": "core_long"},
+    {"name": "cited_by_count",      "type": "core_long"},
+    {"name": "h_index",             "type": "core_long"},
+    {"name": "i10_index",           "type": "core_long"},
+    {"name": "institution_id",      "type": "core_string"},
+    {"name": "institution_display", "type": "core_string"},
+    {"name": "institution_country", "type": "core_string"},
+    {"name": "top_concept",         "type": "core_string"}
+  ]
+}

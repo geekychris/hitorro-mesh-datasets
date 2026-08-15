@@ -17,9 +17,18 @@ mkdir -p "$RAW_DIR" "$DATA_DIR" "$TYPES_DIR"
 require_cmd jq
 require_cmd curl
 
+# Tunables — override at install to pull more pages:
+#   HITORRO_OPENALEX_INSTITUTIONS_PAGES=2    # 200 per page (max)
+#   HITORRO_OPENALEX_MAILTO=you@example.com  # rate-limit friendliness
+: "${HITORRO_OPENALEX_INSTITUTIONS_PAGES:=2}"
+: "${HITORRO_OPENALEX_MAILTO:=chris@hitorro.com}"
+
+info "Pulling ${HITORRO_OPENALEX_INSTITUTIONS_PAGES} page(s) x 200 institutions"
+
 # OpenAlex asks for a User-Agent + polite mailto in the query string; both
-# earn faster / more predictable rate limits. Two pages fetched sequentially.
-for page in 1 2; do
+# earn faster / more predictable rate limits.
+_pages=$(seq 1 "$HITORRO_OPENALEX_INSTITUTIONS_PAGES")
+for page in $_pages; do
     raw="$RAW_DIR/institutions-page${page}.json"
     if [[ -f "$raw" && -z "${HITORRO_DATASETS_FORCE:-}" ]]; then
         info "cached: $(basename "$raw")"
@@ -27,8 +36,8 @@ for page in 1 2; do
     fi
     info "fetching page $page..."
     curl -sSf \
-        -H "User-Agent: hitorro-mesh-datasets/3.0.1 (https://github.com/geekychris/hitorro-mesh-datasets; mailto:chris@hitorro.com)" \
-        "https://api.openalex.org/institutions?per-page=200&page=${page}&sort=cited_by_count:desc&mailto=chris@hitorro.com" \
+        -H "User-Agent: hitorro-mesh-datasets/3.0.1 (https://github.com/geekychris/hitorro-mesh-datasets; mailto:${HITORRO_OPENALEX_MAILTO})" \
+        "https://api.openalex.org/institutions?per-page=200&page=${page}&sort=cited_by_count:desc&mailto=${HITORRO_OPENALEX_MAILTO}" \
         -o "$raw.part"
     mv "$raw.part" "$raw"
 done

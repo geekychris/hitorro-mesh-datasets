@@ -1,0 +1,45 @@
+id: openalex-works
+title: OpenAlex Works — scholarly papers, articles, datasets
+version: "1.0"
+
+description: >
+  Scholarly works from OpenAlex (papers, articles, book chapters, datasets, etc).
+  Tranched by publication year and type via env vars — default pulls a single
+  year of one type, 1000 rows. Real OpenAlex has 250M+ works; scale up via
+  HITORRO_OPENALEX_WORKS_PAGES.
+
+license:
+  spdx: CC0-1.0
+  attribution: "OpenAlex (https://openalex.org) — data in the public domain"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://api.openalex.org/works
+  format: json
+  checksum: null
+
+record:
+  type: scholarly.Work
+  primaryKey: openalex_id
+  fields:
+    - { name: openalex_id,      type: core_string, role: id }
+    - { name: doi,              type: core_string }
+    - { name: title,            type: core_string }
+    - { name: publication_year, type: core_long }
+    - { name: publication_date, type: core_string }
+    - { name: work_type,        type: core_string }
+    - { name: cited_by_count,   type: core_long }
+    - { name: is_oa,            type: core_boolean }
+    - { name: oa_url,           type: core_string }
+    - { name: language,         type: core_string }
+    - { name: authors_count,    type: core_long }
+    - { name: first_author,     type: core_string }
+    - { name: primary_topic,    type: core_string }
+    - { name: primary_concept,  type: core_string }
+
+partitionBy: null

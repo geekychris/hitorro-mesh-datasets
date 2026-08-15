@@ -1,0 +1,18 @@
+{"name":"stackexchange_posts","fields":[
+  {"name":"Id","type":"core_long"},
+  {"name":"PostTypeId","type":"core_long"},
+  {"name":"AcceptedAnswerId","type":"core_long"},
+  {"name":"ParentId","type":"core_long"},
+  {"name":"CreationDate","type":"core_string"},
+  {"name":"Score","type":"core_long"},
+  {"name":"ViewCount","type":"core_long"},
+  {"name":"Body","type":"core_string"},
+  {"name":"OwnerUserId","type":"core_long"},
+  {"name":"LastEditorUserId","type":"core_long"},
+  {"name":"LastEditDate","type":"core_string"},
+  {"name":"Title","type":"core_string"},
+  {"name":"Tags","type":"core_string"},
+  {"name":"AnswerCount","type":"core_long"},
+  {"name":"CommentCount","type":"core_long"},
+  {"name":"FavoriteCount","type":"core_long"}
+]}
