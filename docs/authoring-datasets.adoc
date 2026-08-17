@@ -1,0 +1,291 @@
+= Authoring Datasets
+:toc: left
+:toclevels: 3
+:sectnums:
+:source-highlighter: rouge
+
+Every reference dataset shipped with HiTorro is one install script,
+one JVS type JSON, and one manifest YAML. This doc walks you through
+authoring a new one end-to-end.
+
+Related:
+xref:DESIGN.md[Design overview] ·
+xref:SEMANTIC_JOINS.md[Semantic joins] ·
+xref:CATALOG.md[Catalog] ·
+xref:../../hitorro-jsontypesystem/docs/jvs-types.adoc[JVS Types]
+
+== Ingredients
+
+Three files, per convention:
+
+....
+hitorro-mesh-datasets/
+├── scripts/install-<id>.sh                          ← fetch + convert + finalize
+└── src/main/resources/
+    ├── manifests/<id>.yaml                          ← describes the dataset
+    └── types/<id_with_underscores>.json             ← JVS type definition
+....
+
+The install script copies the manifest + type into the install
+directory so they land next to the data:
+
+....
+$HITORRO_DATASETS_HOME/<id>/
+├── raw/<original-download>                          ← untouched
+├── data/<rows>.ndjson[.bz2|.gz]                     ← what the mesh loads
+├── types/<id_with_underscores>.json                 ← copied from src/main/resources
+├── manifest.yaml                                    ← copied from src/main/resources
+└── installed.json                                   ← written by finalize_ndjson
+....
+
+== Step 1 — write the type
+
+Types live at `src/main/resources/types/<id_with_underscores>.json`.
+Snake_case the id (`iso-639-3` → `iso_639_3`) to match the table name
+the mesh uses.
+
+Example — `types/currency_rates.json`:
+
+[source,json]
+----
+{
+  "name": "currency_rates",
+  "fields": [
+    { "name": "base",        "type": "core_string",
+      "groups": [{ "name": "index", "method": "identifier" }] },
+    { "name": "quote",       "type": "core_string",
+      "groups": [{ "name": "index", "method": "identifier" }] },
+    { "name": "rate",        "type": "core_double",
+      "groups": [{ "name": "index", "method": "double" }] },
+    { "name": "asof_date",   "type": "core_string",
+      "groups": [{ "name": "index", "method": "identifier" }] }
+  ]
+}
+----
+
+Every field that should be queryable via SQL needs an `index` group.
+For docs and mls-shaped content, extend `sysobject` — you get
+`id/title/body/description/times` for free. See
+xref:../../hitorro-jsontypesystem/docs/jvs-types.adoc[JVS Types] for
+the full model.
+
+== Step 2 — write the manifest
+
+Manifests live at `src/main/resources/manifests/<id>.yaml`. Minimum
+viable manifest:
+
+[source,yaml]
+----
+id: currency-rates
+title: FX rates — daily reference exchange rates
+category: reference
+version: "1.0"
+
+description: >
+  Daily FX reference rates for major currency pairs, published by
+  the European Central Bank. Broadcast — every agent holds the full
+  table for cheap JOIN.
+
+license:
+  spdx: CC0-1.0
+  attribution: "European Central Bank (https://www.ecb.europa.eu)"
+  commercialUse: true
+  redistribution: true
+  attributionRequired: false
+  shareAlike: false
+  modification: true
+
+source:
+  type: http
+  url: https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml
+  format: xml
+  checksum: null
+
+record:
+  type: currency_rates
+  primaryKey: quote
+  fields:
+    - { name: base,       type: core_string,  role: id }
+    - { name: quote,      type: core_string,  role: id }
+    - { name: rate,       type: core_double }
+    - { name: asof_date,  type: core_string }
+
+partitionBy: null                # null → broadcast; otherwise partition key
+----
+
+For datasets participating in semantic joins, add `identifiers` +
+`relationships`:
+
+[source,yaml]
+----
+identifiers:
+  produces: [iso4217]           # this dataset makes iso4217 codes available
+  maps: []                       # ... and doesn't map any others
+
+relationships:
+  - target: iso-currencies
+    on:  { local: base,  remote: alpha3 }
+    kind: many-to-one
+----
+
+Full semantic-join model: xref:SEMANTIC_JOINS.md[semantic joins].
+
+== Step 3 — write the install script
+
+Live at `scripts/install-<id>.sh`. Skeleton:
+
+[source,bash]
+----
+#!/usr/bin/env bash
+# ECB reference FX rates — daily.
+set -euo pipefail
+cd "$(dirname "$0")"
+source ./common.sh
+
+DATASET_ID="currency-rates"
+URL="https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+
+INSTALL_DIR="$HITORRO_DATASETS_HOME/$DATASET_ID"
+RAW_DIR="$INSTALL_DIR/raw"
+DATA_DIR="$INSTALL_DIR/data"
+TYPES_DIR="$INSTALL_DIR/types"
+
+mkdir -p "$RAW_DIR" "$DATA_DIR" "$TYPES_DIR"
+
+fetch "$URL" "$RAW_DIR/rates.xml"
+info "sha256: $(sha256_of "$RAW_DIR/rates.xml")"
+
+# XML → NDJSON via xmlstarlet + jq (or python, awk, whatever you like)
+require_cmd xmlstarlet
+require_cmd jq
+
+DATE=$(xmlstarlet sel -N gesmes="http://www.gesmes.org/xml/2002-08-01" \
+                       -N ecb="http://www.ecb.int/vocabulary/2002-08-01/eurofxref" \
+                       -t -v "//ecb:Cube/ecb:Cube/@time" "$RAW_DIR/rates.xml")
+
+xmlstarlet sel -N ecb="http://www.ecb.int/vocabulary/2002-08-01/eurofxref" \
+    -t -m "//ecb:Cube/ecb:Cube/ecb:Cube" \
+    -o '{"base":"EUR","quote":"' -v "@currency" \
+    -o '","rate":' -v "@rate" \
+    -o ',"asof_date":"'"$DATE"'"}' \
+    -n "$RAW_DIR/rates.xml" > "$DATA_DIR/rates.ndjson"
+
+# Copy shipped type + manifest into the install
+cp "$MODULE_ROOT/src/main/resources/types/currency_rates.json" "$TYPES_DIR/"
+cp "$MODULE_ROOT/src/main/resources/manifests/currency-rates.yaml" "$INSTALL_DIR/manifest.yaml"
+
+# Compress + write installed.json + warn if mesh is running
+final=$(finalize_ndjson "$DATA_DIR/rates.ndjson")
+
+cat <<EOF
+
+$(ok "installed $DATASET_ID")
+
+Try:
+  SELECT quote, rate FROM currency_rates WHERE base = 'EUR' ORDER BY rate DESC LIMIT 10;
+EOF
+----
+
+== Helpers in `common.sh`
+
+Every install script sources `./common.sh` — read it once, then just
+call the helpers:
+
+[cols="2,3", options="header"]
+|===
+| Helper                                          | What it does
+| `fetch <url> <dest>`                            | curl/wget download, skips if cached (`HITORRO_DATASETS_FORCE=1` to re-download)
+| `require_cmd <name>`                            | die if `<name>` not on `PATH`
+| `sha256_of <file>`                              | portable sha256 (sha256sum / shasum fallback)
+| `tsv_to_ndjson <in> <out> <cols> <numeric>`     | AWK-based TSV → NDJSON, respects comment lines
+| `maybe_compress <path>`                         | bzip/gzip in place per `HITORRO_DATASETS_COMPRESS` env
+| `finalize_ndjson <path>`                        | Count rows, compress, write `installed.json`, echo final path. Warns if the mesh is running.
+| `info / warn / die / ok`                        | Colored logging
+|===
+
+== Testing the install
+
+[source,bash]
+----
+# Force re-download + install
+HITORRO_DATASETS_FORCE=1 ./scripts/install-currency-rates.sh
+
+# Confirm the layout
+ls -la $HITORRO_DATASETS_HOME/currency-rates/
+# → raw/rates.xml data/rates.ndjson.bz2 types/currency_rates.json manifest.yaml installed.json
+
+# Verify the shape
+bzcat $HITORRO_DATASETS_HOME/currency-rates/data/rates.ndjson.bz2 | head -3
+# → {"base":"EUR","quote":"USD","rate":1.0842,"asof_date":"2026-08-16"}
+----
+
+Load into the mesh:
+
+[source,bash]
+----
+cd hitorro-mesh-examples/scripts
+./mesh-down.sh
+./mesh-up.sh                     # regenerates agent configs, restarts, loads the new dataset
+./mesh-query.sh "SELECT quote, rate FROM currency_rates WHERE base = 'EUR' LIMIT 5"
+----
+
+== Partitioned datasets
+
+If a dataset is too large for every agent to hold in memory, partition
+it. Set `partitionBy: <field>` in the manifest:
+
+[source,yaml]
+----
+partitionBy: state
+----
+
+Then produce ONE ndjson file per partition value:
+
+[source,bash]
+----
+# Split by state
+mkdir -p "$DATA_DIR"
+awk -F',' 'NR > 1 { print > ("'$DATA_DIR'/" $3 ".ndjson.tmp") }' input.csv
+for f in "$DATA_DIR"/*.ndjson.tmp; do
+    state=$(basename "$f" .ndjson.tmp)
+    # convert tmp to ndjson properly...
+    finalize_ndjson "$DATA_DIR/${state}.ndjson"
+done
+----
+
+Configure `mesh-init-data.sh` to assign one partition per agent. The
+generator supports this if your files follow the `<partition>.ndjson`
+convention.
+
+Partitioning trade-off: JOIN across partitioned + broadcast tables
+becomes a shuffle-JOIN (agents exchange partition keys). See the
+xref:../../hitorro-mesh-core/docs/user-guide/mesh-user-guide.adoc[Mesh
+User Guide] for plan variant details.
+
+== Common pitfalls
+
+Data too large for broadcast::
+  Rule of thumb: broadcast if the full table fits comfortably in every
+  agent's memory (say < 500 MB). Otherwise partition.
+
+Column names with hyphens or spaces::
+  SQL identifiers hate them. Snake_case in the NDJSON, snake_case in
+  the JVS type, snake_case in the manifest's `fields[]`.
+
+Manifest `partitionBy: null` but agents don't load the data::
+  Confirm the manifest is at the install dir root
+  (`$HITORRO_DATASETS_HOME/<id>/manifest.yaml`), not in a subdirectory.
+  `mesh-init-data.sh` greps for `^partitionBy:` at the top level.
+
+Type doesn't load — `no such type: my_type`::
+  The type file must live at `$HITORRO_DATASETS_HOME/<id>/types/<snake_id>.json`
+  and the type's `name` field must match `<snake_id>` exactly.
+
+== Where to read more
+
+* xref:DESIGN.md[Dataset design principles]
+* xref:SEMANTIC_JOINS.md[Semantic join model]
+* xref:CATALOG.md[Full catalog of shipped datasets]
+* xref:LICENSE_ALGEBRA.md[How dataset licenses compose]
+* xref:../../hitorro-jsontypesystem/docs/jvs-types.adoc[JVS Types] — how to author your type
+* xref:../../docs/hitorro-user-guide.adoc[HiTorro User Guide] — full ingest walkthrough

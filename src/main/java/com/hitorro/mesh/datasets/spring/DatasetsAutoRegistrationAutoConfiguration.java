@@ -84,6 +84,7 @@ public class DatasetsAutoRegistrationAutoConfiguration {
         return new PlaceJoinRewriter(registry);
     }
 
+
     @Bean
     @ConditionalOnProperty(prefix = "hitorro.mesh.datasets",
                            name = "auto-register", havingValue = "true", matchIfMissing = true)

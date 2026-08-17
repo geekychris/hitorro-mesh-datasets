@@ -1,5 +1,6 @@
 id: fips-counties
 title: FIPS 6-4 US counties (~3200)
+category: codification
 version: "1.0"
 description: >
   Every US county + county-equivalent (Louisiana parishes, Alaska

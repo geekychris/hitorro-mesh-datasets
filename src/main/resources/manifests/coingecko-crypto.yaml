@@ -1,5 +1,6 @@
 id: coingecko-crypto
 title: CoinGecko — top-100 cryptocurrencies by market cap
+category: reference
 version: "1.0"
 
 description: >

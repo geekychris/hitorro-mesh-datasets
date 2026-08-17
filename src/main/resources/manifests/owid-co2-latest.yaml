@@ -1,5 +1,6 @@
 id: owid-co2-latest
 title: Our World in Data — CO2 & energy (latest year snapshot)
+category: time-series
 version: "1.0"
 
 description: >

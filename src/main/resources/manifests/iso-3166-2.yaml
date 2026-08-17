@@ -1,5 +1,6 @@
 id: iso-3166-2
 title: ISO 3166-2 country subdivisions (states / provinces / regions)
+category: codification
 version: "1.0"
 description: >
   Subdivisions of every ISO 3166-1 country — US states, Canadian

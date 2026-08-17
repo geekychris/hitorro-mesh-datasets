@@ -1,5 +1,6 @@
 id: iso-currencies
 title: ISO 4217 currency codes (curated, ~90 in-use)
+category: codification
 version: "1.0"
 
 description: >

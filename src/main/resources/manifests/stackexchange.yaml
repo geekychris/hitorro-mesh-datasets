@@ -1,5 +1,6 @@
 id: stackexchange
 title: Stack Exchange data dumps
+category: reference
 version: "1.0"
 description: >
   Any Stack Exchange site's Q&A / users / tags / comments / votes / badges

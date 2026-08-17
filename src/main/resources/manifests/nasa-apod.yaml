@@ -1,5 +1,6 @@
 id: nasa-apod
 title: NASA — Astronomy Picture of the Day (30 random)
+category: reference
 version: "1.0"
 
 description: >

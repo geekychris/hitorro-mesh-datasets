@@ -1,5 +1,6 @@
 id: openalex-authors
 title: OpenAlex Authors — scholarly authors + h-index
+category: scholarly
 version: "1.0"
 
 description: >

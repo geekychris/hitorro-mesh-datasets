@@ -1,5 +1,6 @@
 id: natural-earth-countries
 title: Natural Earth — admin-0 countries (1:110m)
+category: geographic
 version: "5.1.2"
 
 description: >

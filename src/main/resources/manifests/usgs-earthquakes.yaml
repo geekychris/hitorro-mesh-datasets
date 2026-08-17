@@ -1,5 +1,6 @@
 id: usgs-earthquakes
 title: USGS — earthquakes (last 30 days)
+category: time-series
 version: "1.0"
 
 description: >

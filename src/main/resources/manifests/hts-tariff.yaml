@@ -1,5 +1,6 @@
 id: hts-tariff
 title: US Harmonized Tariff Schedule (HTS)
+category: codification
 version: "1.0"
 description: >
   Every US HTS code — ~19 000 across chapters 01-99 — with duty rates,

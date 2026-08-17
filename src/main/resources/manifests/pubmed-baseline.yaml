@@ -1,5 +1,6 @@
 id: pubmed-baseline
 title: NIH PubMed / MEDLINE annual baseline
+category: scholarly
 version: "1.0"
 description: >
   Biomedical citations (title + abstract + authors + MeSH headings) from the

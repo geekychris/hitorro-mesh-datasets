@@ -1,5 +1,6 @@
 id: wikidata-city-sitelinks
 title: Wikidata — city → enwiki article-slug bridge
+category: geographic
 version: "1.0"
 
 description: >

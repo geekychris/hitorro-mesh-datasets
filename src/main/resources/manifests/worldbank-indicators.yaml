@@ -1,5 +1,6 @@
 id: worldbank-indicators
 title: World Bank — country socioeconomic indicators (snapshot)
+category: time-series
 version: "1.0"
 
 description: >

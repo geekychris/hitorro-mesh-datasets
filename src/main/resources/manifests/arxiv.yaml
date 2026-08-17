@@ -1,5 +1,6 @@
 id: arxiv
 title: arXiv preprints (OAI-PMH metadata + abstracts)
+category: scholarly
 version: "1.0"
 description: >
   arXiv metadata + full abstracts via the public OAI-PMH endpoint. Pulls a

@@ -1,5 +1,6 @@
 id: geonames-country-info
 title: GeoNames — country info
+category: geographic
 version: "1.0"
 
 description: >

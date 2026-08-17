@@ -1,5 +1,6 @@
 id: openalex-works
 title: OpenAlex Works — scholarly papers, articles, datasets
+category: scholarly
 version: "1.0"
 
 description: >

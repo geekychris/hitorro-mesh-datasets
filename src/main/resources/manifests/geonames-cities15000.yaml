@@ -1,5 +1,6 @@
 id: geonames-cities15000
 title: GeoNames — cities with population > 15 000
+category: geographic
 version: "1.0"
 
 description: >

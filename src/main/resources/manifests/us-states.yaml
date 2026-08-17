@@ -1,5 +1,6 @@
 id: us-states
 title: US States, Territories, and DC — Census + geographic reference
+category: codification
 version: "1.0"
 
 description: >

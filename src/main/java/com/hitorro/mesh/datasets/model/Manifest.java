@@ -34,6 +34,14 @@ public record Manifest(
         @JsonProperty("title") String title,
         @JsonProperty("version") String version,
         @JsonProperty("description") String description,
+        /**
+         * Semantic grouping for UI presentation — e.g. {@code geographic},
+         * {@code codification}, {@code scholarly}, {@code reference},
+         * {@code time-series}. Cluster + Datasets tabs group by this.
+         * Missing → renders under an {@code other} bucket. Not
+         * authoritative for anything runtime — pure UX.
+         */
+        @JsonProperty("category") String category,
         @JsonProperty("license") License license,
         @JsonProperty("source") Source source,
         @JsonProperty("record") RecordSpec record,

@@ -1,5 +1,6 @@
 id: soc-2018
 title: SOC 2018 — US Standard Occupational Classification
+category: codification
 version: "1.0"
 description: >
   ~1000 occupations across 23 major groups. Used by BLS, Census, and

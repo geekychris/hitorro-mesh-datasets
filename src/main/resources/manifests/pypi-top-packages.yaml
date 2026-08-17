@@ -1,5 +1,6 @@
 id: pypi-top-packages
 title: PyPI — top 200 Python packages by monthly downloads
+category: reference
 version: "1.0"
 
 description: >

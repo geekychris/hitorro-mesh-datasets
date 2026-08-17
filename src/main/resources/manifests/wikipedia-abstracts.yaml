@@ -1,5 +1,6 @@
 id: wikipedia-abstracts
 title: Wikipedia article abstracts (per-language dump)
+category: scholarly
 version: "1.0"
 
 description: >

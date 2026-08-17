@@ -114,6 +114,30 @@ finalize_ndjson() {
 JSON
 
     ok "wrote ${rows// /} records → $final" >&2
+
+    # Broadcast dataset installed while the mesh is running? Agents load
+    # their broadcast set from static YAML at boot — a new dataset won't
+    # be visible until you regen configs and restart the agents. Detect
+    # the running mesh by presence of the driver PID file and print a
+    # one-line hint so users don't get "does not hold partition broadcast
+    # of table X" when they try to query the newly-installed data.
+    local mesh_work="${MESH_WORK:-/tmp/hitorro-mesh-smoke}"
+    if [[ -f "$mesh_work/pids/driver.pid" ]] \
+       && kill -0 "$(cat "$mesh_work/pids/driver.pid")" 2>/dev/null; then
+        # Only warn on broadcast installs — partitioned datasets need
+        # per-agent partition-key assignment, which is a bigger reconfig
+        # anyway; the warning below wouldn't be accurate for those.
+        local manifest_dir manifest_yaml
+        manifest_dir=$(dirname "$(dirname "$final")")
+        manifest_yaml="$manifest_dir/manifest.yaml"
+        if [[ -f "$manifest_yaml" ]] && \
+                grep -qE '^partitionBy:[[:space:]]*(null|~)?[[:space:]]*(#.*)?$' "$manifest_yaml"; then
+            warn "mesh is running — agents won't see this dataset until you run:" >&2
+            echo "        hitorro-mesh-examples/scripts/mesh-down.sh && hitorro-mesh-examples/scripts/mesh-up.sh" >&2
+            echo "        (mesh-up auto-regens agent configs from HITORRO_DATASETS_HOME)" >&2
+        fi
+    fi
+
     printf "%s" "$final"
 }
 

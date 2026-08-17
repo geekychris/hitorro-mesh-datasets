@@ -1,5 +1,6 @@
 id: geonames-allcountries
 title: GeoNames — cities with every populated place, admin division, and feature
+category: geographic
 version: "1.0"
 
 description: >

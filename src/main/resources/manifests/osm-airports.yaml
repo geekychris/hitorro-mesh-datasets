@@ -1,5 +1,6 @@
 id: osm-airports
 title: OpenStreetMap — airports with IATA codes
+category: geographic
 version: "1.0"
 
 description: >
