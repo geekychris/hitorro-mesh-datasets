@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Hitorro Mesh Datasets logo" width="180">
+</p>
+
 # hitorro-mesh-datasets
 
 **A catalog of clonable, queryable public datasets** for Hitorro Mesh.
