@@ -64,6 +64,16 @@ class Jackson3CompatibilityTest {
     }
 
     @Test
+    @DisplayName("a manifest written with YAML 1.1 scalars (yes/On/no/OFF/True, ~, empty) loads as on Jackson 2.21")
+    void yaml11Manifest() throws Exception {
+        Path p = dir.resolve("yaml11-manifest.yaml");
+        try (var in = getClass().getResourceAsStream("yaml11-manifest.yaml")) {
+            Files.copy(in, p);
+        }
+        assertThat(OUT.writeValueAsString(ManifestLoader.loadFrom(p))).isEqualTo(golden.get("yaml11Manifest"));
+    }
+
+    @Test
     @DisplayName("joinable wins load the same")
     void joinableWins() {
         assertThat(OUT.writeValueAsString(JoinableWinsLoader.loadBundled())).isEqualTo(golden.get("joinableWins"));

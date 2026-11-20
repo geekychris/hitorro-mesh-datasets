@@ -27,3 +27,4 @@ joinableWins=[{"title":"Cities enriched with country socioeconomic stats","datas
 envelope={"@id":"place:us/ca/sf","@type":["geo.Place","geo.City"],"names":{"en":"San Francisco","zh":"旧金山"},"geometry":{"type":"Point","coordinates":[-122.42,37.77]},"source":{"dataset":"geonames","version":"1.0","recordId":"5391959"}}
 envelopeRead={"@id":"place:us/ca/sf","@type":["geo.Place","geo.City"],"names":{"en":"San Francisco","zh":"旧金山"},"geometry":{"type":"Point","coordinates":[-122.42,37.77]},"source":{"dataset":"geonames","version":"1.0","recordId":"5391959"}}
 missing=IOException
+yaml11Manifest={"id":"m11","title":"YAML 1.1 manifest","version":"1.0","license":{"spdx":"CC0-1.0","attribution":null,"commercialUse":true,"redistribution":true,"attributionRequired":false,"shareAlike":false,"modification":true}}
