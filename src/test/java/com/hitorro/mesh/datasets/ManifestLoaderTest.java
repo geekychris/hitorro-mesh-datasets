@@ -189,8 +189,9 @@ class ManifestLoaderTest {
         assertThat(m.id()).isEqualTo("owid-co2-latest");
         assertThat(m.license().spdx()).isEqualTo("CC-BY-4.0");
         assertThat(m.record().primaryKey()).isEqualTo("iso_a3");
-        // Four EXACT_ID relationships — one hop from any country dataset.
-        assertThat(m.relationships()).hasSize(4);
+        // Five EXACT_ID relationships — one hop from any country dataset
+        // (wikidata, worldbank, natural-earth, geonames, un-m49).
+        assertThat(m.relationships()).hasSize(5);
     }
 
     @Test
