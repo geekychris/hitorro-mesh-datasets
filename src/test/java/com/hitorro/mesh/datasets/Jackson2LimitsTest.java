@@ -50,6 +50,23 @@ class Jackson2LimitsTest {
     }
 
     @Test
+    @DisplayName("YAML empty values as in Jackson 2.21: bare 'k:' is null; quoted '' and \"\" stay empty strings")
+    void yamlEmptyValues() throws Exception {
+        ObjectMapper yaml = Jackson2Defaults.yaml().build();
+        assertThat(yaml.readTree("k:\n").get("k").isNull()).isTrue();
+        assertThat(yaml.readTree("k: \n").get("k").isNull()).isTrue();
+        assertThat(yaml.readValue("k:\n", java.util.Map.class).get("k")).isNull();
+        assertThat(yaml.readTree("k: ''\n").get("k").stringValue()).isEmpty();
+        assertThat(yaml.readTree("k: \"\"\n").get("k").stringValue()).isEmpty();
+        assertThat(yaml.readTree("k: !!str\n").get("k").stringValue()).isEmpty();
+        assertThat(yaml.readTree("m:\n  - \n  - x\n").get("m").toString()).isEqualTo("[null,\"x\"]");
+        // and through ManifestLoader: an empty description is null, as with Jackson 2
+        Path p = dir.resolve("empty.yaml");
+        Files.writeString(p, "id: x\ntitle: T\ndescription:\n");
+        assertThat(ManifestLoader.loadFrom(p).description()).isNull();
+    }
+
+    @Test
     @DisplayName("ManifestLoader: a manifest with an ignored 600-deep field loads; 1001 deep is an IOException")
     void manifestNesting() throws Exception {
         Path ok = dir.resolve("deep.json");

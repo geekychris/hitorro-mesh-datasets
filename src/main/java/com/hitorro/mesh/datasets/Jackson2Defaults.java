@@ -9,6 +9,7 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.yaml.YAMLFactory;
 import tools.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.dataformat.yaml.YAMLReadFeature;
 
 /**
  * Builders for this library's mappers with Jackson 2 behaviour, as in 3.x (Jackson 2.21).
@@ -47,10 +48,16 @@ public final class Jackson2Defaults {
         return JsonMapper.builder(f).configureForJackson2();
     }
 
-    /** A YAML mapper builder with Jackson 2 defaults (factory and mapper) and Jackson 2 limits. */
+    /**
+     * A YAML mapper builder with Jackson 2 defaults (factory and mapper) and Jackson 2 limits.
+     * {@code EMPTY_STRING_AS_NULL} is enabled explicitly: on 3.1.8 this builder otherwise reads a
+     * bare {@code k:} as {@code ""}, where Jackson 2 read {@code null} (quoted {@code ''} stays
+     * {@code ""} either way).
+     */
     public static YAMLMapper.Builder yaml() {
         YAMLFactory f = YAMLFactory.builder()
                 .configureForJackson2()
+                .enable(YAMLReadFeature.EMPTY_STRING_AS_NULL)
                 .streamReadConstraints(READ_CONSTRAINTS)
                 .streamWriteConstraints(WRITE_CONSTRAINTS)
                 .build();
