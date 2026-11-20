@@ -6,13 +6,13 @@ package com.hitorro.mesh.datasets.loader;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.dataformat.yaml.YAMLMapper;
 import com.hitorro.mesh.datasets.model.JoinableWin;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import com.hitorro.mesh.datasets.Jackson2Defaults;
 
 /**
  * Reads the bundled {@code /joinable-wins.yaml} — a curated list of
@@ -21,8 +21,8 @@ import java.util.Map;
  */
 public final class JoinableWinsLoader {
 
-    // Jackson 2 defaults (as in 3.x), plus unknown properties ignored.
-    private static final ObjectMapper YAML = YAMLMapper.builder().configureForJackson2()
+    // Jackson 2 defaults and limits (as in 3.x), plus unknown properties ignored.
+    private static final ObjectMapper YAML = Jackson2Defaults.yaml()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     private JoinableWinsLoader() { }

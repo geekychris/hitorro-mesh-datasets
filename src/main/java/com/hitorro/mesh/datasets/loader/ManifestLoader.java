@@ -6,8 +6,6 @@ package com.hitorro.mesh.datasets.loader;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.dataformat.yaml.YAMLMapper;
 import com.hitorro.mesh.datasets.model.Manifest;
 
 import java.io.IOException;
@@ -16,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import com.hitorro.mesh.datasets.Jackson2Defaults;
 
 /**
  * Parses YAML manifest files into {@link Manifest} records.
@@ -31,11 +30,11 @@ import java.util.List;
  */
 public final class ManifestLoader {
 
-    // Jackson 2 defaults (as in 3.x), plus unknown properties ignored.
-    private static final ObjectMapper YAML = YAMLMapper.builder().configureForJackson2()
+    // Jackson 2 defaults and limits (as in 3.x), plus unknown properties ignored.
+    private static final ObjectMapper YAML = Jackson2Defaults.yaml()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
-    private static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults()
+    private static final ObjectMapper JSON = Jackson2Defaults.json()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     private ManifestLoader() { }
