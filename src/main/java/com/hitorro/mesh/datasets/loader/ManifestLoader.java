@@ -3,9 +3,11 @@
  */
 package com.hitorro.mesh.datasets.loader;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 import com.hitorro.mesh.datasets.model.Manifest;
 
 import java.io.IOException;
@@ -29,11 +31,12 @@ import java.util.List;
  */
 public final class ManifestLoader {
 
-    private static final ObjectMapper YAML = new YAMLMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    // Jackson 2 defaults (as in 3.x), plus unknown properties ignored.
+    private static final ObjectMapper YAML = YAMLMapper.builder().configureForJackson2()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
-    private static final ObjectMapper JSON = new ObjectMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    private static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     private ManifestLoader() { }
 
@@ -43,6 +46,9 @@ public final class ManifestLoader {
         try (InputStream in = ManifestLoader.class.getResourceAsStream(path)) {
             if (in == null) throw new IOException("no bundled manifest: " + path);
             return YAML.readValue(in, Manifest.class);
+        } catch (JacksonException e) {
+            // Jackson 3 exceptions are unchecked; keep reporting a bad manifest as IOException
+            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -50,7 +56,11 @@ public final class ManifestLoader {
     public static Manifest loadFrom(Path file) throws IOException {
         String name = file.getFileName().toString().toLowerCase();
         ObjectMapper m = (name.endsWith(".json")) ? JSON : YAML;
-        return m.readValue(Files.readAllBytes(file), Manifest.class);
+        try {
+            return m.readValue(Files.readAllBytes(file), Manifest.class);
+        } catch (JacksonException e) {
+            throw new IOException(e.getMessage(), e);
+        }
     }
 
     /**

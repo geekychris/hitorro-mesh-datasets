@@ -3,7 +3,8 @@
  */
 package com.hitorro.mesh.datasets.registry;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.hitorro.mesh.datasets.model.Manifest;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ import java.util.Map;
  */
 public final class MeshRegistrar {
 
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
 
     private final String driverBaseUrl;
     private final HttpClient http;

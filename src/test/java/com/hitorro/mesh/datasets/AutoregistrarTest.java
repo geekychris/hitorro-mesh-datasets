@@ -3,7 +3,8 @@
  */
 package com.hitorro.mesh.datasets;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.hitorro.mesh.datasets.registry.Autoregistrar;
 import com.hitorro.mesh.datasets.registry.DatasetRegistry;
 import com.hitorro.mesh.datasets.registry.MeshRegistrar;
@@ -36,7 +37,7 @@ class AutoregistrarTest {
     private HttpServer server;
     private int port;
     private final ConcurrentMap<String, String> lastBodyByPath = new ConcurrentHashMap<>();
-    private final ObjectMapper json = new ObjectMapper();
+    private final ObjectMapper json = JsonMapper.builderWithJackson2Defaults().build();
 
     @BeforeEach
     void up() throws IOException {
