@@ -65,7 +65,7 @@ import java.util.regex.Pattern;
  * and a lone {@code -} in a flow sequence ({@code [-]}) is a syntax error. Writing is otherwise
  * identical to Jackson 2.</p>
  */
-// Copy of hitorro-core com.hitorro.util.json.YamlMappers (core commit 5d669de); only the package and
+// Copy of hitorro-core com.hitorro.util.json.YamlMappers (core commits 5d669de, d27ea01); only the package and
 // the constraint constants (Jackson2Defaults instead of JsonMappers) differ. Keep the two identical.
 public final class YamlMappers {
 
@@ -75,7 +75,8 @@ public final class YamlMappers {
 
     /** A YAML mapper builder with Jackson 2 scalar typing, defaults and stream limits. */
     public static YAMLMapper.Builder builder() {
-        return YAMLMapper.builder(factory()).configureForJackson2();
+        return YAMLMapper.builder(factory()).configureForJackson2()
+                .addModule(new Jackson2JdkModule());
     }
 
     /** Shared, immutable YAML mapper ({@code builder().build()}): the 4.0.0 {@code new YAMLMapper()}. */

@@ -37,13 +37,17 @@ public final class Jackson2Defaults {
 
     private Jackson2Defaults() { }
 
-    /** A JSON mapper builder: {@code JsonMapper.builderWithJackson2Defaults()} plus Jackson 2 limits. */
+    /**
+     * A JSON mapper builder: {@code JsonMapper.builderWithJackson2Defaults()} plus Jackson 2 limits and
+     * {@link Jackson2JdkModule} (Locale, Month, {@code byte[]} trees as in Jackson 2).
+     */
     public static JsonMapper.Builder json() {
         JsonFactory f = JsonFactory.builderWithJackson2Defaults()
                 .streamReadConstraints(READ_CONSTRAINTS)
                 .streamWriteConstraints(WRITE_CONSTRAINTS)
                 .build();
-        return JsonMapper.builder(f).configureForJackson2();
+        return JsonMapper.builder(f).configureForJackson2()
+                .addModule(new Jackson2JdkModule());
     }
 
     /**
