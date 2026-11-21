@@ -3,7 +3,7 @@
  */
 package com.hitorro.mesh.datasets.registry;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.hitorro.mesh.datasets.model.Manifest;
 
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.hitorro.mesh.datasets.Jackson2Defaults;
 
 /**
  * Registers a locally-installed dataset with a running mesh driver via
@@ -41,7 +42,7 @@ import java.util.Map;
  */
 public final class MeshRegistrar {
 
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = Jackson2Defaults.json().build();
 
     private final String driverBaseUrl;
     private final HttpClient http;

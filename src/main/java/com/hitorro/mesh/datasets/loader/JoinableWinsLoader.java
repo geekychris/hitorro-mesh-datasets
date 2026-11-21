@@ -3,15 +3,16 @@
  */
 package com.hitorro.mesh.datasets.loader;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
 import com.hitorro.mesh.datasets.model.JoinableWin;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import com.hitorro.mesh.datasets.Jackson2Defaults;
 
 /**
  * Reads the bundled {@code /joinable-wins.yaml} — a curated list of
@@ -20,8 +21,9 @@ import java.util.Map;
  */
 public final class JoinableWinsLoader {
 
-    private static final ObjectMapper YAML = new YAMLMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    // Jackson 2 defaults and limits (as in 3.x), plus unknown properties ignored.
+    private static final ObjectMapper YAML = Jackson2Defaults.yaml()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     private JoinableWinsLoader() { }
 
@@ -36,7 +38,7 @@ public final class JoinableWinsLoader {
             // Round-trip via Jackson to convert Map entries → JoinableWin records.
             return YAML.convertValue(wins,
                     YAML.getTypeFactory().constructCollectionType(List.class, JoinableWin.class));
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             System.err.println("[datasets] failed to load joinable-wins.yaml: " + e.getMessage());
             return List.of();
         }

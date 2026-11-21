@@ -1,0 +1,13 @@
+id: m11
+title: YAML 1.1 manifest
+version: 1.0
+description: ~
+category:
+license:
+  spdx: CC0-1.0
+  attribution: ~
+  commercialUse: yes
+  redistribution: On
+  attributionRequired: no
+  shareAlike: OFF
+  modification: True

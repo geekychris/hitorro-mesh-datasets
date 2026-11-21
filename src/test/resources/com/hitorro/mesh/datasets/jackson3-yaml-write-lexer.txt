@@ -1,0 +1,3 @@
+str.37=---\nv: " "\n
+str.39=---\nv: "a b"\n
+unicodeKey=---\n"1": "n"\nclé  : "v"\n"yes": "k"\n
